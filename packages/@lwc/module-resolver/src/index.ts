@@ -27,20 +27,20 @@ export interface ModuleRegistryMap {
 
 export interface ModuleResolverConfig {
     rootDir: string;
-    modules: ModuleId[];
+    modules: ModuleSpecifier[];
 }
 
-export type ModuleId = string | [string, string];
+export type ModuleSpecifier = string | [string, string];
+
 export interface LwcConfig {
-    modules: ModuleId[];
+    modules: ModuleSpecifier[];
 }
 
 export function resolveModulesFromDir(modulesDir: string): RegistryEntry[] {
     const namespaces = fs.readdirSync(modulesDir);
     const resolvedModules: RegistryEntry[] = [];
     namespaces.forEach(ns => {
-        // TODO: A better isDir() bellow
-        if (!path.extname(ns)) {
+        if (fs.lstatSync(ns).isDirectory()) {
             const namespacedModuleDir = path.join(modulesDir, ns);
             const modules = fs.readdirSync(namespacedModuleDir);
             modules.forEach(moduleName => {
@@ -80,7 +80,7 @@ export function resolveModulesFromNpm(packageName: string): RegistryEntry[] {
 }
 
 export function resolveModulesFromList(
-    modules: ModuleId[],
+    modules: ModuleSpecifier[],
     { root }: { root: string }
 ): RegistryEntry[] {
     const resolvedModules: RegistryEntry[] = [];
@@ -93,6 +93,10 @@ export function resolveModulesFromList(
             }
         } else {
             const absPath = path.resolve(root, moduleId);
+
+            // NOTE: We are checking first if the specifier is a folder which is technically ambiguous
+            // if we have a folder that happens to have the same name of a package, but this is more performant
+            // than the node resolution algorithm.
             if (fs.existsSync(absPath)) {
                 resolvedModules.push(...resolveModulesFromDir(absPath));
             } else {

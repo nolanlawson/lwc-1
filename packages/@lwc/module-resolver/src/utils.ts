@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { LwcConfig, ModuleResolverConfig, ModuleId } from '.';
+import { LwcConfig, ModuleResolverConfig, ModuleSpecifier } from '.';
 
 const DEFAULT_CONFIG: LwcConfig = {
     modules: [],
@@ -46,7 +46,7 @@ export function normalizeConfig(config: Partial<ModuleResolverConfig>): ModuleRe
     };
 }
 
-export function mergeModules(userModules: ModuleId[], configModules: ModuleId[]) {
+export function mergeModules(userModules: ModuleSpecifier[], configModules: ModuleSpecifier[]) {
     return Array.from(new Set(userModules.concat(configModules)));
 }
 
