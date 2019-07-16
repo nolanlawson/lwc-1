@@ -40,8 +40,8 @@ export function resolveModulesFromDir(modulesDir: string): RegistryEntry[] {
     const namespaces = fs.readdirSync(modulesDir);
     const resolvedModules: RegistryEntry[] = [];
     namespaces.forEach(ns => {
-        if (fs.lstatSync(ns).isDirectory()) {
-            const namespacedModuleDir = path.join(modulesDir, ns);
+        const namespacedModuleDir = path.join(modulesDir, ns);
+        if (fs.lstatSync(namespacedModuleDir).isDirectory()) {
             const modules = fs.readdirSync(namespacedModuleDir);
             modules.forEach(moduleName => {
                 const moduleDir = path.join(namespacedModuleDir, moduleName);
