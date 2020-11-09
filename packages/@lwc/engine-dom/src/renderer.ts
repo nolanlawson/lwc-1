@@ -16,10 +16,9 @@ import {
     isArray,
     KEY__IS_NATIVE_SHADOW_ROOT_DEFINED,
     KEY__SHADOW_TOKEN,
-    setPrototypeOf,
-    StringToLowerCase,
     getOwnPropertyDescriptor,
 } from '@lwc/shared';
+import { patchCustomElementRegistry } from './patches/global-registry';
 
 const globalStylesheets: { [content: string]: true } = create(null);
 
@@ -44,10 +43,6 @@ const supportsMutableAdoptedStyleSheets =
 const styleElements: { [content: string]: HTMLStyleElement } = create(null);
 const styleSheets: { [content: string]: CSSStyleSheet } = create(null);
 const shadowRootsToStyleSheets = new WeakMap<ShadowRoot, { [content: string]: true }>();
-
-export let getCustomElement: any;
-export let defineCustomElement: any;
-let HTMLElementConstructor;
 
 function isCustomElementRegistryAvailable() {
     if (typeof customElements === 'undefined') {
@@ -119,40 +114,41 @@ function insertStyleElement(content: string, target: ShadowRoot) {
     target.appendChild(elm);
 }
 
+type UpgradeCallback = (elm: HTMLElement) => void;
+interface UpgradableCustomElementConstructor extends CustomElementConstructor {
+    new (upgradeCallback?: UpgradeCallback): HTMLElement;
+}
+export let getUpgradableElement: (name: string) => CustomElementConstructor;
 if (isCustomElementRegistryAvailable()) {
-    getCustomElement = customElements.get.bind(customElements);
-    defineCustomElement = customElements.define.bind(customElements);
-    HTMLElementConstructor = HTMLElement;
+    const getPivotCustomElement = patchCustomElementRegistry();
+    const cachedConstructor: Record<string, CustomElementConstructor> = create(null);
+    getUpgradableElement = (name: string) => {
+        let Ctor = cachedConstructor[name];
+        if (!Ctor) {
+            class LWCUpgradableElement extends HTMLElement {
+                constructor(upgradeCallback?: UpgradeCallback) {
+                    super();
+                    if (isFunction(upgradeCallback)) {
+                        upgradeCallback(this); // nothing to do with the result for now
+                    }
+                }
+            }
+
+            Ctor = getPivotCustomElement(name, LWCUpgradableElement);
+        }
+        return Ctor;
+    };
 } else {
-    const registry: Record<string, CustomElementConstructor> = create(null);
-    const reverseRegistry: WeakMap<CustomElementConstructor, string> = new WeakMap();
-
-    defineCustomElement = function define(name: string, ctor: CustomElementConstructor) {
-        if (name !== StringToLowerCase.call(name) || registry[name]) {
-            throw new TypeError(`Invalid Registration`);
-        }
-        registry[name] = ctor;
-        reverseRegistry.set(ctor, name);
+    // no registry available here
+    getUpgradableElement = (name: string): UpgradableCustomElementConstructor => {
+        return (function(upgradeCallback?: UpgradeCallback) {
+            const elm = document.createElement(name);
+            if (isFunction(upgradeCallback)) {
+                upgradeCallback(elm); // nothing to do with the result for now
+            }
+            return elm;
+        } as unknown) as UpgradableCustomElementConstructor;
     };
-
-    getCustomElement = function get(name: string): CustomElementConstructor | undefined {
-        return registry[name];
-    };
-
-    HTMLElementConstructor = function HTMLElement(this: HTMLElement) {
-        if (!(this instanceof HTMLElement)) {
-            throw new TypeError(`Invalid Invocation`);
-        }
-        const { constructor } = this;
-        const name = reverseRegistry.get(constructor as CustomElementConstructor);
-        if (!name) {
-            throw new TypeError(`Invalid Construction`);
-        }
-        const elm = document.createElement(name);
-        setPrototypeOf(elm, constructor.prototype);
-        return elm;
-    };
-    HTMLElementConstructor.prototype = HTMLElement.prototype;
 }
 
 let hydrating = false;
@@ -375,6 +371,3 @@ export function insertStylesheet(content: string, target: ShadowRoot): void {
 export function assertInstanceOfHTMLElement(elm: any, msg: string) {
     assert.invariant(elm instanceof HTMLElement, msg);
 }
-
-const HTMLElementExported = HTMLElementConstructor as typeof HTMLElement;
-export { HTMLElementExported as HTMLElement };

@@ -38,7 +38,6 @@ export { unwrap } from './membrane';
 export { sanitizeAttribute } from './secure-template';
 export { getComponentDef, isComponentConstructor } from './def';
 export { profilerControl as __unstable__ProfilerControl } from './profiler';
-export { getUpgradableConstructor } from './upgradable-element';
 export { swapTemplate, swapComponent, swapStyle } from './hot-swaps';
 export { setHooks } from './overridable-hooks';
 
@@ -59,14 +58,12 @@ export {
     setCreateComment,
     setCreateElement,
     setCreateText,
-    setDefineCustomElement,
     setDispatchEvent,
     setGetAttribute,
     setGetBoundingClientRect,
     setGetChildNodes,
     setGetChildren,
     setGetClassList,
-    setGetCustomElement,
     setGetElementsByClassName,
     setGetElementsByTagName,
     setGetFirstChild,
@@ -74,7 +71,6 @@ export {
     setGetLastChild,
     setGetLastElementChild,
     setGetProperty,
-    setHTMLElement,
     setInsert,
     setInsertGlobalStylesheet,
     setInsertStylesheet,
@@ -94,4 +90,5 @@ export {
     setSetText,
     setSsr,
     setAddEventListener,
+    setGetUpgradableElement
 } from '../renderer';

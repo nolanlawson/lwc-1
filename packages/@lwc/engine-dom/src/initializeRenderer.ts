@@ -11,14 +11,12 @@ import {
     setCreateComment,
     setCreateElement,
     setCreateText,
-    setDefineCustomElement,
     setDispatchEvent,
     setGetAttribute,
     setGetBoundingClientRect,
     setGetChildNodes,
     setGetChildren,
     setGetClassList,
-    setGetCustomElement,
     setGetElementsByClassName,
     setGetElementsByTagName,
     setGetFirstChild,
@@ -26,7 +24,6 @@ import {
     setGetLastChild,
     setGetLastElementChild,
     setGetProperty,
-    setHTMLElement,
     setInsert,
     setInsertGlobalStylesheet,
     setInsertStylesheet,
@@ -46,6 +43,7 @@ import {
     setSetText,
     setSsr,
     setAddEventListener,
+    setGetUpgradableElement
 } from '@lwc/engine-core';
 
 import {
@@ -54,14 +52,12 @@ import {
     createComment,
     createElement,
     createText,
-    defineCustomElement,
     dispatchEvent,
     getAttribute,
     getBoundingClientRect,
     getChildNodes,
     getChildren,
     getClassList,
-    getCustomElement,
     getElementsByClassName,
     getElementsByTagName,
     getFirstChild,
@@ -69,7 +65,6 @@ import {
     getLastChild,
     getLastElementChild,
     getProperty,
-    HTMLElement,
     insert,
     insertGlobalStylesheet,
     insertStylesheet,
@@ -88,22 +83,20 @@ import {
     setProperty,
     setText,
     ssr,
-    addEventListener,
-} from './renderer';
+    addEventListener, getUpgradableElement
+} from "./renderer";
 
 setAssertInstanceOfHTMLElement(assertInstanceOfHTMLElement);
 setAttachShadow(attachShadow);
 setCreateComment(createComment);
 setCreateElement(createElement);
 setCreateText(createText);
-setDefineCustomElement(defineCustomElement);
 setDispatchEvent(dispatchEvent);
 setGetAttribute(getAttribute);
 setGetBoundingClientRect(getBoundingClientRect);
 setGetChildNodes(getChildNodes);
 setGetChildren(getChildren);
 setGetClassList(getClassList);
-setGetCustomElement(getCustomElement);
 setGetElementsByClassName(getElementsByClassName);
 setGetElementsByTagName(getElementsByTagName);
 setGetFirstChild(getFirstChild);
@@ -111,7 +104,6 @@ setGetFirstElementChild(getFirstElementChild);
 setGetLastChild(getLastChild);
 setGetLastElementChild(getLastElementChild);
 setGetProperty(getProperty);
-setHTMLElement(HTMLElement);
 setInsert(insert);
 setInsertGlobalStylesheet(insertGlobalStylesheet);
 setInsertStylesheet(insertStylesheet);
@@ -131,3 +123,4 @@ setSetProperty(setProperty);
 setSetText(setText);
 setSsr(ssr);
 setAddEventListener(addEventListener);
+setGetUpgradableElement(getUpgradableElement)
