@@ -12,6 +12,10 @@ import { VM } from './vm';
 import { Template } from './template';
 import { getStyleOrSwappedStyle } from './hot-swaps';
 
+const globalStyleSheets = new Map<string, CSSStyleSheet>();
+const hasAdoptedStyleSheets =
+    typeof ShadowRoot !== 'undefined' && 'adoptedStyleSheets' in ShadowRoot.prototype;
+
 /**
  * Function producing style based on a host and a shadow selector. This function is invoked by
  * the engine with different values depending on the mode that the component is running on.
@@ -125,13 +129,26 @@ export function getStylesheetsContent(vm: VM, template: Template): string[] {
 }
 
 export function createStylesheet(vm: VM, stylesheets: string[]): VNode | null {
-    const { renderer } = vm;
+    const { renderer, cmpRoot } = vm;
 
     if (renderer.syntheticShadow) {
         for (let i = 0; i < stylesheets.length; i++) {
             renderer.insertGlobalStylesheet(stylesheets[i]);
         }
 
+        return null;
+    } else if (hasAdoptedStyleSheets) {
+        // @ts-ignore
+        cmpRoot.adoptedStyleSheets = stylesheets.map((content) => {
+            let styleSheet = globalStyleSheets.get(content);
+            if (!styleSheet) {
+                styleSheet = new CSSStyleSheet();
+                // @ts-ignore
+                styleSheet.replaceSync(content);
+                globalStyleSheets.set(content, styleSheet);
+            }
+            return styleSheet;
+        });
         return null;
     } else {
         const shadowStyleSheetContent = ArrayJoin.call(stylesheets, '\n');
