@@ -12,6 +12,9 @@ import { VM } from './vm';
 import { Template } from './template';
 import { getStyleOrSwappedStyle } from './hot-swaps';
 
+const hasAdoptedStyleSheets =
+    typeof ShadowRoot !== 'undefined' && 'adoptedStyleSheets' in ShadowRoot.prototype;
+
 /**
  * Function producing style based on a host and a shadow selector. This function is invoked by
  * the engine with different values depending on the mode that the component is running on.
@@ -19,7 +22,8 @@ import { getStyleOrSwappedStyle } from './hot-swaps';
 export type StylesheetFactory = (
     hostSelector: string,
     shadowSelector: string,
-    nativeShadow: boolean
+    nativeShadow: boolean,
+    hasAdoptedStyleSheets: boolean
 ) => string;
 
 /**
@@ -77,7 +81,8 @@ function evaluateStylesheetsContent(
     stylesheets: TemplateStylesheetFactories,
     hostSelector: string,
     shadowSelector: string,
-    nativeShadow: boolean
+    nativeShadow: boolean,
+    hasAdoptedStyleSheets: boolean
 ): string[] {
     const content: string[] = [];
 
@@ -87,7 +92,13 @@ function evaluateStylesheetsContent(
         if (isArray(stylesheet)) {
             ArrayPush.apply(
                 content,
-                evaluateStylesheetsContent(stylesheet, hostSelector, shadowSelector, nativeShadow)
+                evaluateStylesheetsContent(
+                    stylesheet,
+                    hostSelector,
+                    shadowSelector,
+                    nativeShadow,
+                    hasAdoptedStyleSheets
+                )
             );
         } else {
             if (process.env.NODE_ENV !== 'production') {
@@ -96,7 +107,10 @@ function evaluateStylesheetsContent(
                 // the stylesheet, while internally, we have a replacement for it.
                 stylesheet = getStyleOrSwappedStyle(stylesheet);
             }
-            ArrayPush.call(content, stylesheet(hostSelector, shadowSelector, nativeShadow));
+            ArrayPush.call(
+                content,
+                stylesheet(hostSelector, shadowSelector, nativeShadow, hasAdoptedStyleSheets)
+            );
         }
     }
 
@@ -117,7 +131,8 @@ export function getStylesheetsContent(vm: VM, template: Template): string[] {
             stylesheets,
             hostSelector,
             shadowSelector,
-            !syntheticShadow
+            !syntheticShadow,
+            hasAdoptedStyleSheets
         );
     }
 
@@ -125,13 +140,17 @@ export function getStylesheetsContent(vm: VM, template: Template): string[] {
 }
 
 export function createStylesheet(vm: VM, stylesheets: string[]): VNode | null {
-    const { renderer } = vm;
+    const { renderer, cmpRoot } = vm;
 
     if (renderer.syntheticShadow) {
         for (let i = 0; i < stylesheets.length; i++) {
             renderer.insertGlobalStylesheet(stylesheets[i]);
         }
 
+        return null;
+    } else if (hasAdoptedStyleSheets) {
+        // @ts-ignore
+        cmpRoot.adoptedStyleSheets = stylesheets;
         return null;
     } else {
         const shadowStyleSheetContent = ArrayJoin.call(stylesheets, '\n');
