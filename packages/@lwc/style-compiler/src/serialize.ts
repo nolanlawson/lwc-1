@@ -57,9 +57,18 @@ export default function serialize(result: Result, config: Config): string {
 
     if (serializedStyle) {
         // inline function
-        buffer += `function stylesheet(${HOST_SELECTOR_IDENTIFIER}, ${SHADOW_SELECTOR_IDENTIFIER}, ${SHADOW_DOM_ENABLED_IDENTIFIER}) {\n`;
-        buffer += `  return ${serializedStyle};\n`;
-        buffer += `}\n`;
+        buffer += `(function () {
+            var cache = new Map();
+            return function stylesheet(${HOST_SELECTOR_IDENTIFIER}, ${SHADOW_SELECTOR_IDENTIFIER}, ${SHADOW_DOM_ENABLED_IDENTIFIER}) {
+              var key = ${HOST_SELECTOR_IDENTIFIER} + '-' + ${SHADOW_SELECTOR_IDENTIFIER} + '-' + ${SHADOW_DOM_ENABLED_IDENTIFIER};
+              var cached = cache.get(key);
+              if (!cached) {
+                cached = ${serializedStyle};
+                cache.set(key, cached);
+              }
+              return cached;
+            }
+        })()`;
 
         // add import at the end
         stylesheetList.push(STYLESHEET_IDENTIFIER);
