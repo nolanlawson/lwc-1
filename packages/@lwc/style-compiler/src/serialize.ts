@@ -26,6 +26,7 @@ interface Token {
 const HOST_SELECTOR_IDENTIFIER = 'hostSelector';
 const SHADOW_SELECTOR_IDENTIFIER = 'shadowSelector';
 const SHADOW_DOM_ENABLED_IDENTIFIER = 'nativeShadow';
+const HAS_ADOPTED_STYLESHEETS_IDENTIFIER = 'hasAdoptedStyleSheets';
 const STYLESHEET_IDENTIFIER = 'stylesheet';
 const VAR_RESOLVER_IDENTIFIER = 'varResolver';
 
@@ -56,19 +57,28 @@ export default function serialize(result: Result, config: Config): string {
     const serializedStyle = serializeCss(result, collectVarFunctions).trim();
 
     if (serializedStyle) {
-        // inline function
-        buffer += `(function () {
-            var cache = new Map();
-            return function stylesheet(${HOST_SELECTOR_IDENTIFIER}, ${SHADOW_SELECTOR_IDENTIFIER}, ${SHADOW_DOM_ENABLED_IDENTIFIER}) {
-              var key = ${HOST_SELECTOR_IDENTIFIER} + '-' + ${SHADOW_SELECTOR_IDENTIFIER} + '-' + ${SHADOW_DOM_ENABLED_IDENTIFIER};
-              var cached = cache.get(key);
-              if (!cached) {
-                cached = ${serializedStyle};
-                cache.set(key, cached);
-              }
-              return cached;
+        // Inline function that caches the result in the case of native shadow, because it should never change
+        // and so we don't need to run an expensive string concatenation over and over again.
+        // Also this caching only occurs if constructable stylesheets are available, to avoid having
+        // to keep a mapping of CSS strings to stylesheet objects
+        buffer += `
+            var cachedStylesheet
+            
+            function generateCss(${HOST_SELECTOR_IDENTIFIER}, ${SHADOW_SELECTOR_IDENTIFIER}, ${SHADOW_DOM_ENABLED_IDENTIFIER}) {
+              return ${serializedStyle};
             }
-        })()`;
+            
+            function stylesheet(${HOST_SELECTOR_IDENTIFIER}, ${SHADOW_SELECTOR_IDENTIFIER}, ${SHADOW_DOM_ENABLED_IDENTIFIER}, ${HAS_ADOPTED_STYLESHEETS_IDENTIFIER}) {
+              if (${SHADOW_DOM_ENABLED_IDENTIFIER} && ${HAS_ADOPTED_STYLESHEETS_IDENTIFIER}) {
+                if (!cachedStylesheet) {
+                  cachedStylesheet = new CSSStyleSheet();
+                  cachedStylesheet.replaceSync(generateCss(${HOST_SELECTOR_IDENTIFIER}, ${SHADOW_SELECTOR_IDENTIFIER}, ${SHADOW_DOM_ENABLED_IDENTIFIER}));
+                }
+                return cachedStylesheet;
+              }
+              return generateCss(${HOST_SELECTOR_IDENTIFIER}, ${SHADOW_SELECTOR_IDENTIFIER}, ${SHADOW_DOM_ENABLED_IDENTIFIER});
+            }
+        `;
 
         // add import at the end
         stylesheetList.push(STYLESHEET_IDENTIFIER);

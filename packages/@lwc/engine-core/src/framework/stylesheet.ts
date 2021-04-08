@@ -12,7 +12,6 @@ import { VM } from './vm';
 import { Template } from './template';
 import { getStyleOrSwappedStyle } from './hot-swaps';
 
-const globalStyleSheets = new Map<string, CSSStyleSheet>();
 const hasAdoptedStyleSheets =
     typeof ShadowRoot !== 'undefined' && 'adoptedStyleSheets' in ShadowRoot.prototype;
 
@@ -23,7 +22,8 @@ const hasAdoptedStyleSheets =
 export type StylesheetFactory = (
     hostSelector: string,
     shadowSelector: string,
-    nativeShadow: boolean
+    nativeShadow: boolean,
+    hasAdoptedStyleSheets: boolean
 ) => string;
 
 /**
@@ -81,7 +81,8 @@ function evaluateStylesheetsContent(
     stylesheets: TemplateStylesheetFactories,
     hostSelector: string,
     shadowSelector: string,
-    nativeShadow: boolean
+    nativeShadow: boolean,
+    hasAdoptedStyleSheets: boolean
 ): string[] {
     const content: string[] = [];
 
@@ -91,7 +92,13 @@ function evaluateStylesheetsContent(
         if (isArray(stylesheet)) {
             ArrayPush.apply(
                 content,
-                evaluateStylesheetsContent(stylesheet, hostSelector, shadowSelector, nativeShadow)
+                evaluateStylesheetsContent(
+                    stylesheet,
+                    hostSelector,
+                    shadowSelector,
+                    nativeShadow,
+                    hasAdoptedStyleSheets
+                )
             );
         } else {
             if (process.env.NODE_ENV !== 'production') {
@@ -100,7 +107,10 @@ function evaluateStylesheetsContent(
                 // the stylesheet, while internally, we have a replacement for it.
                 stylesheet = getStyleOrSwappedStyle(stylesheet);
             }
-            ArrayPush.call(content, stylesheet(hostSelector, shadowSelector, nativeShadow));
+            ArrayPush.call(
+                content,
+                stylesheet(hostSelector, shadowSelector, nativeShadow, hasAdoptedStyleSheets)
+            );
         }
     }
 
@@ -121,7 +131,8 @@ export function getStylesheetsContent(vm: VM, template: Template): string[] {
             stylesheets,
             hostSelector,
             shadowSelector,
-            !syntheticShadow
+            !syntheticShadow,
+            hasAdoptedStyleSheets
         );
     }
 
@@ -139,16 +150,7 @@ export function createStylesheet(vm: VM, stylesheets: string[]): VNode | null {
         return null;
     } else if (hasAdoptedStyleSheets) {
         // @ts-ignore
-        cmpRoot.adoptedStyleSheets = stylesheets.map((content) => {
-            let styleSheet = globalStyleSheets.get(content);
-            if (!styleSheet) {
-                styleSheet = new CSSStyleSheet();
-                // @ts-ignore
-                styleSheet.replaceSync(content);
-                globalStyleSheets.set(content, styleSheet);
-            }
-            return styleSheet;
-        });
+        cmpRoot.adoptedStyleSheets = stylesheets;
         return null;
     } else {
         const shadowStyleSheetContent = ArrayJoin.call(stylesheets, '\n');
