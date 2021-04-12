@@ -30,6 +30,7 @@ export {
 export { registerComponent } from './component';
 export { registerTemplate } from './secure-template';
 export { registerDecorators } from './decorators/register';
+export { createCssGenerator } from '../shared/createCssGenerator';
 
 // Mics. internal APIs -----------------------------------------------------------------------------
 export { unwrap } from './membrane';
