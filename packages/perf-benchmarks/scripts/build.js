@@ -13,8 +13,11 @@ const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
 const glob = promisify(require('glob'));
+const globHash = require('glob-hash');
 
 const writeFile = promisify(fs.writeFile);
+
+const { CIRCLE_WORKING_DIRECTORY } = process.env;
 
 // lwc packages that need to be swapped in when comparing the current code to the latest tip-of-tree code.
 const swappablePackages = [
@@ -44,11 +47,15 @@ function createHtml(benchmarkFile) {
   `.trim();
 }
 
-function createTachometerJson(htmlFilename, benchmarkName) {
+async function createTachometerJson(htmlFilename, benchmarkName) {
+    const componentsHash = await globHash({
+        include: [path.join(__dirname, '../../perf-benchmarks-components/dist/**/*')],
+    });
     return {
         $schema: 'https://raw.githubusercontent.com/Polymer/tachometer/master/config.schema.json',
         sampleSize: 50, // minimum number of samples to run
-        timeout: 0, // timeout in minutes during auto-sampling (after the first minimum samples). If 0, no auto-sampling
+        horizons: ['25%'], // how much difference we want to determine between A and B
+        timeout: 5, // timeout in minutes during auto-sampling (after the minimum samples). If 0, no auto-sampling
         benchmarks: [
             {
                 url: htmlFilename,
@@ -79,6 +86,19 @@ function createTachometerJson(htmlFilename, benchmarkName) {
                                         subdir: `packages/${pkg}`,
                                         setupCommands: [
                                             'yarn --immutable',
+                                            // Replace the `perf-benchmarks-components` from the tip-of-tree
+                                            // with ours, just in case we've modified them locally.
+                                            // We want to recompile whatever benchmarks we've added with the
+                                            // compiler code from tip-of-tree, but we also want Tachometer to serve
+                                            // `perf-benchmarks-components` itself.
+                                            ...(CIRCLE_WORKING_DIRECTORY
+                                                ? [
+                                                      'rm -fr ./packages/perf-benchmarks-components',
+                                                      `cp -R ${CIRCLE_WORKING_DIRECTORY}/packages/perf-benchmarks-components ./packages/perf-benchmarks-components`,
+                                                      // bust the Tachometer cache in case these files change locally
+                                                      `echo '${componentsHash}'`,
+                                                  ]
+                                                : []),
                                             'yarn build:performance:components',
                                         ],
                                     },
@@ -107,7 +127,7 @@ async function processBenchmarkFile(benchmarkFile) {
     async function writeTachometerJsonFile() {
         const engineType = benchmarkFile.includes('/engine-server/') ? 'server' : 'dom';
         const benchmarkName = `${engineType}-${benchmarkFileBasename.split('.')[0]}`;
-        const tachometerJson = createTachometerJson(htmlFilename, benchmarkName);
+        const tachometerJson = await createTachometerJson(htmlFilename, benchmarkName);
         const jsonFilename = path.join(
             targetDir,
             `${benchmarkFileBasename.split('.')[0]}.tachometer.json`

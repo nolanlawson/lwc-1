@@ -40,4 +40,10 @@ When analyzing with the Chrome DevTools Performance tab, pay special attention t
 
 `benchmark-run` is what's actually measured, whereas the `-before` and `-after` measures are just the setup and teardown code.
 
+If you're adding new benchmarks with new benchmark components and you want to test those against the tip-of-tree branch, then add this to your `.bashrc` to ensure that the tip-of-tree is overwritten with your local components:
+
+```shell
+export CIRCLE_WORKING_DIRECTORY=/path/to/lwc
+```
+
 If anything gets messed up when comparing to the tip-of-tree branch, add the `--force-clean-npm-install` flag when running `tach`.

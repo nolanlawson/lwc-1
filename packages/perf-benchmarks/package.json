@@ -14,6 +14,7 @@
         "perf-benchmarks-components": "2.0.0"
     },
     "devDependencies": {
+        "glob-hash": "^1.0.5",
         "tachometer": "^0.5.9"
     }
 }
