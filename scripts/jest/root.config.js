@@ -5,6 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 module.exports = {
+    preset: 'ts-jest',
     rootDir: '../..',
     projects: ['<rootDir>/packages/@lwc/*'],
     coverageThreshold: {

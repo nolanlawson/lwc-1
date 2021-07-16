@@ -49,7 +49,7 @@ export enum LWCDirectiveDomMode {
     manual = 'manual',
 }
 
-export enum LWCDirectiveRenderMode {
+export const enum LWCDirectiveRenderMode {
     shadow = 'shadow',
     light = 'light',
 }
@@ -115,7 +115,7 @@ export interface IRComment {
 
 export type IRNode = IRComment | IRElement | IRText;
 
-export enum IRAttributeType {
+export const enum IRAttributeType {
     Expression,
     String,
     Boolean,

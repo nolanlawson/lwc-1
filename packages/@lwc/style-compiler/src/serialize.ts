@@ -11,7 +11,7 @@ import { Config } from './index';
 import { isImportMessage, isVarFunctionMessage } from './utils/message';
 import { HOST_ATTRIBUTE, SHADOW_ATTRIBUTE } from './utils/selectors-scoping';
 
-enum TokenType {
+const enum TokenType {
     text = 'text',
     expression = 'expression',
     identifier = 'identifier',
