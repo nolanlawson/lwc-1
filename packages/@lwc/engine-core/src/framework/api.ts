@@ -69,6 +69,7 @@ import {
 } from './hooks';
 import { isComponentConstructor } from './def';
 import { getUpgradableConstructor } from './upgradable-element';
+import { createVNode } from './create-vnode';
 
 export interface ElementCompilerData extends VNodeData {
     key: Key;
@@ -263,28 +264,6 @@ function linkNodeToShadow(elm: Node, owner: VM) {
 
 function addVNodeToChildLWC(vnode: VCustomElement) {
     ArrayPush.call(getVMBeingRendered()!.velements, vnode);
-}
-
-function createVNode(
-    children: VNodes | undefined,
-    data: VNodeData,
-    key: Key | undefined,
-    hook: Hooks<any>
-): VNode {
-    const owner = getVMBeingRendered()!;
-    return {
-        data,
-        children,
-        key,
-        owner,
-        hook,
-        sel: undefined,
-        text: undefined,
-        elm: undefined,
-        aChildren: undefined,
-        ctor: undefined,
-        mode: undefined,
-    } as any;
 }
 
 // [h]tml node

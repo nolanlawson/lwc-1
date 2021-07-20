@@ -8,6 +8,7 @@ import { assert, isNull, isUndefined, keys, StringCharCodeAt } from '@lwc/shared
 import { unlockAttribute, lockAttribute } from '../attributes';
 import { EmptyObject } from '../utils';
 import { VElement } from '../../3rdparty/snabbdom/types';
+import { createEmptyVNode } from '../create-vnode';
 
 const xlinkNS = 'http://www.w3.org/1999/xlink';
 const xmlNS = 'http://www.w3.org/XML/1998/namespace';
@@ -66,7 +67,7 @@ function updateAttrs(oldVnode: VElement, vnode: VElement) {
     }
 }
 
-const emptyVNode = { data: {} } as VElement;
+const emptyVNode = createEmptyVNode() as VElement;
 
 export default {
     create: (vnode: VElement) => updateAttrs(emptyVNode, vnode),

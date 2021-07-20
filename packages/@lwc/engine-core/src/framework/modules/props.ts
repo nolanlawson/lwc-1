@@ -6,6 +6,7 @@
  */
 import { assert, isUndefined, keys } from '@lwc/shared';
 import { VElement } from '../../3rdparty/snabbdom/types';
+import { createEmptyVNode } from '../create-vnode';
 
 function isLiveBindingProp(sel: string, key: string): boolean {
     // For properties with live bindings, we read values from the DOM element
@@ -54,7 +55,7 @@ function update(oldVnode: VElement, vnode: VElement) {
     }
 }
 
-const emptyVNode = { data: {} } as VElement;
+const emptyVNode = createEmptyVNode() as VElement;
 
 export default {
     create: (vnode: VElement) => update(emptyVNode, vnode),

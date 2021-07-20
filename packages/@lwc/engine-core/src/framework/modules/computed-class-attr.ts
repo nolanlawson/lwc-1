@@ -7,6 +7,7 @@
 import { create, freeze, isString, isUndefined, StringCharCodeAt, StringSlice } from '@lwc/shared';
 import { EmptyObject, SPACE_CHAR } from '../utils';
 import { VElement } from '../../3rdparty/snabbdom/types';
+import { createEmptyVNode } from '../create-vnode';
 
 const classNameToClassMap = create(null);
 
@@ -77,7 +78,7 @@ function updateClassAttribute(oldVnode: VElement, vnode: VElement) {
     }
 }
 
-const emptyVNode = { data: {} } as VElement;
+const emptyVNode = createEmptyVNode() as VElement;
 
 export default {
     create: (vnode: VElement) => updateClassAttribute(emptyVNode, vnode),
