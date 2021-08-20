@@ -139,14 +139,20 @@ export function getStylesheetsContent(vm: VM, template: Template): string[] {
 }
 
 function getNearestNativeShadowComponent(vm: VM): VM | null {
-    let owner: VM | null = vm;
-    while (!isNull(owner)) {
-        if (owner.renderMode === RenderMode.Shadow && owner.shadowMode === ShadowMode.Native) {
-            return owner;
+    const { context } = vm;
+
+    if (isUndefined(context.nativeShadowRoot)) {
+        let owner: VM | null = vm;
+        while (!isNull(owner)) {
+            if (owner.renderMode === RenderMode.Shadow && owner.shadowMode === ShadowMode.Native) {
+                break;
+            }
+            owner = owner.owner;
         }
-        owner = owner.owner;
+        context.nativeShadowRoot = owner;
     }
-    return owner;
+
+    return context.nativeShadowRoot;
 }
 
 export function createStylesheet(vm: VM, stylesheets: string[]): VNode | null {

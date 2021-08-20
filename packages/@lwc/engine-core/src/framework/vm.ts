@@ -90,6 +90,8 @@ export interface Context {
     wiredConnecting: Array<() => void>;
     /** List of wire hooks that are invoked when the component gets disconnected. */
     wiredDisconnecting: Array<() => void>;
+    /** Nearest native shadow root, used for injecting styles. null indicates the global document. */
+    nativeShadowRoot: VM | null | undefined;
 }
 
 export interface VM<N = HostNode, E = HostElement> {
@@ -326,6 +328,7 @@ export function createVM<HostNode, HostElement>(
             tplCache: EmptyObject,
             wiredConnecting: EmptyArray,
             wiredDisconnecting: EmptyArray,
+            nativeShadowRoot: undefined,
         },
 
         tro: null!, // Set synchronously after the VM creation.

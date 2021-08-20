@@ -179,6 +179,9 @@ export function evaluateTemplate(vm: VM, html: Template): Array<VNode | null> {
                     // Create a brand new template cache for the swapped templated.
                     context.tplCache = create(null);
 
+                    // Reset the native shadow root in case the component has moved
+                    context.nativeShadowRoot = undefined;
+
                     // Update the synthetic shadow attributes on the host element if necessary.
                     if (shadowMode === ShadowMode.Synthetic) {
                         updateSyntheticShadowAttributes(vm, html);
