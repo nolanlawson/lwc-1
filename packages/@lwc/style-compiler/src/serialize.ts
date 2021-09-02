@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
+import vm from 'vm';
 import postcss, { Result, Declaration } from 'postcss';
 import postcssValueParser from 'postcss-value-parser';
 import matchAll from 'string.prototype.matchall';
@@ -60,12 +61,18 @@ export default function serialize(result: Result, config: Config): string {
         // inline function
         if (config.scopeToken) {
             // light DOM scoped CSS, the string is always exactly the same
-            // TODO [#2368]: this could be made more efficient by just directly putting a string here
+            // So we can execute the `stylesheet` function in a VM to get the string
+            const script = new vm.Script(`
+                (function () {
+                    var ${HOST_SELECTOR_IDENTIFIER} = ".${config.scopeToken}-host";
+                    var ${SHADOW_SELECTOR_IDENTIFIER} = ".${config.scopeToken}";
+                    var ${SHADOW_DOM_ENABLED_IDENTIFIER} = false;
+                    return ${serializedStyle}
+                })();
+            `);
+            const cssString = script.runInNewContext();
             buffer += `function stylesheet() {\n`;
-            buffer += `  var ${HOST_SELECTOR_IDENTIFIER} = ".${config.scopeToken}-host";\n`;
-            buffer += `  var ${SHADOW_SELECTOR_IDENTIFIER} = ".${config.scopeToken}";\n`;
-            buffer += `  var ${SHADOW_DOM_ENABLED_IDENTIFIER} = false;\n`;
-            buffer += `  return ${serializedStyle};\n`;
+            buffer += `  return ${JSON.stringify(cssString)};\n`;
             buffer += `}\n`;
             buffer += `stylesheet.${KEY__SCOPED_CSS} = true;\n`;
         } else {
