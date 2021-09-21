@@ -26,21 +26,7 @@ describe('Light DOM + Synthetic Shadow DOM', () => {
             expect(nodes.p.assignedSlot).toEqual(nodes.slot);
         });
         it('childNodes', () => {
-            // TreeWalker is just a convenient way of getting text nodes without using childNodes
-            const textNodes = {};
-            const walker = document.createTreeWalker(elm, NodeFilter.SHOW_TEXT);
-            let node;
-            while ((node = walker.nextNode())) {
-                textNodes[node.wholeText] = node;
-            }
             expect(Array.from(nodes.slot.childNodes)).toEqual([]);
-            expect(Array.from(nodes.p.childNodes)).toEqual([
-                textNodes['I am an assigned element.'],
-            ]);
-            expect(Array.from(nodes.consumer.childNodes)).toEqual([
-                nodes.p,
-                textNodes['I am an assigned text.'],
-            ]);
             expect(Array.from(elm.childNodes)).toEqual([nodes.consumer]);
             expect(Array.from(nodes['consumer.shadowRoot'].childNodes)).toEqual([
                 nodes.pInShadow,
@@ -48,6 +34,25 @@ describe('Light DOM + Synthetic Shadow DOM', () => {
             ]);
             expect(Array.from(nodes.slot)).toEqual([]);
         });
+        if (!process.env.COMPAT) {
+            it('childNodes - text nodes', () => {
+                // TreeWalker is just a convenient way of getting text nodes without using childNodes
+                // Sadly it throws errors in IE11 (even when adding arguments to `createTreeWalker()`)
+                const textNodes = {};
+                const walker = document.createTreeWalker(elm, NodeFilter.SHOW_TEXT);
+                let node;
+                while ((node = walker.nextNode())) {
+                    textNodes[node.wholeText] = node;
+                }
+                expect(Array.from(nodes.p.childNodes)).toEqual([
+                    textNodes['I am an assigned element.'],
+                ]);
+                expect(Array.from(nodes.consumer.childNodes)).toEqual([
+                    nodes.p,
+                    textNodes['I am an assigned text.'],
+                ]);
+            });
+        }
         it('parentNode', () => {
             expect(nodes.p.parentNode).toEqual(nodes.consumer);
             expect(nodes.consumer.parentNode).toEqual(elm);
