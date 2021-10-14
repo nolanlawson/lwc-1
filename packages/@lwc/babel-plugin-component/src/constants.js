@@ -53,6 +53,8 @@ const LWC_SUPPORTED_APIS = new Set([
 
     // From "@lwc/engine-server"
     'renderComponent',
+
+    '__unstable__ProfilerControl',
 ]);
 
 const LWC_COMPONENT_PROPERTIES = {

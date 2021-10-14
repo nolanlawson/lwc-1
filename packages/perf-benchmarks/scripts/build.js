@@ -13,34 +13,21 @@ const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
 const glob = promisify(require('glob'));
-const globHash = require('glob-hash');
 
 const writeFile = promisify(fs.writeFile);
 
 const {
-    BENCHMARK_REPO = 'https://github.com/salesforce/lwc.git',
-    BENCHMARK_REF = 'master',
-    BENCHMARK_HORIZON = '25%', // how much difference we want to determine between A and B
+    BENCHMARK_HORIZON = '1%', // how much difference we want to determine between A and B
 } = process.env;
 let {
-    BENCHMARK_SAMPLE_SIZE = 50, // minimum number of samples to run
-    BENCHMARK_TIMEOUT = 5, // timeout in minutes during auto-sampling (after the minimum samples). If 0, no auto-sampling
+    BENCHMARK_SAMPLE_SIZE = 100, // minimum number of samples to run
+    BENCHMARK_TIMEOUT = 20, // timeout in minutes during auto-sampling (after the minimum samples). If 0, no auto-sampling
 } = process.env;
 
 const toInt = (num) => (typeof num === 'number' ? num : parseInt(num, 10));
 
 BENCHMARK_SAMPLE_SIZE = toInt(BENCHMARK_SAMPLE_SIZE);
 BENCHMARK_TIMEOUT = toInt(BENCHMARK_TIMEOUT);
-
-const benchmarkComponentsDir = path.join(__dirname, '../../perf-benchmarks-components');
-
-// lwc packages that need to be swapped in when comparing the current code to the latest tip-of-tree code.
-const swappablePackages = [
-    '@lwc/engine-dom',
-    '@lwc/engine-server',
-    '@lwc/synthetic-shadow',
-    'perf-benchmarks-components',
-];
 
 function createHtml(benchmarkFile) {
     return `
@@ -63,9 +50,6 @@ function createHtml(benchmarkFile) {
 }
 
 async function createTachometerJson(htmlFilename, benchmarkName) {
-    const componentsHash = await globHash({
-        include: [path.join(benchmarkComponentsDir, 'dist/**/*')],
-    });
     return {
         $schema: 'https://raw.githubusercontent.com/Polymer/tachometer/master/config.schema.json',
         sampleSize: BENCHMARK_SAMPLE_SIZE,
@@ -85,37 +69,19 @@ async function createTachometerJson(htmlFilename, benchmarkName) {
                 },
                 expand: [
                     {
-                        name: `${benchmarkName}-this-change`,
+                        name: `${benchmarkName}`,
                     },
                     {
-                        name: `${benchmarkName}-tip-of-tree`,
-                        packageVersions: {
-                            label: 'tip-of-tree',
-                            dependencies: Object.fromEntries(
-                                swappablePackages.map((pkg) => [
-                                    pkg,
-                                    {
-                                        kind: 'git',
-                                        repo: BENCHMARK_REPO,
-                                        ref: BENCHMARK_REF,
-                                        subdir: `packages/${pkg}`,
-                                        setupCommands: [
-                                            'yarn --immutable',
-                                            // Replace the `perf-benchmarks-components` from the tip-of-tree
-                                            // with ours, just in case we've modified them locally.
-                                            // We want to recompile whatever benchmarks we've added with the
-                                            // compiler code from tip-of-tree, but we also want Tachometer to serve
-                                            // `perf-benchmarks-components` itself.
-                                            'rm -fr ./packages/perf-benchmarks-components',
-                                            `cp -R ${benchmarkComponentsDir} ./packages/perf-benchmarks-components`,
-                                            // bust the Tachometer cache in case these files change locally
-                                            `echo '${componentsHash}'`,
-                                            'yarn build:performance:components',
-                                        ],
-                                    },
-                                ])
-                            ),
-                        },
+                        name: `${benchmarkName}-profile-noop`,
+                        url: htmlFilename + '?profile=noop',
+                    },
+                    {
+                        name: `${benchmarkName}-profile-minimal`,
+                        url: htmlFilename + '?profile=minimal',
+                    },
+                    {
+                        name: `${benchmarkName}-profile-newObject`,
+                        url: htmlFilename + '?profile=newObject',
                     },
                 ],
             },
