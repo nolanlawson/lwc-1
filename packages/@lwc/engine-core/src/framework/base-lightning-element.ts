@@ -13,29 +13,6 @@
  * shape of a component. It is also used internally to apply extra optimizations.
  */
 import {
-    getChildren,
-    getChildNodes,
-    getFirstChild,
-    getFirstElementChild,
-    getLastChild,
-    getLastElementChild,
-    assertInstanceOfHTMLElement,
-    attachShadow,
-    addEventListener,
-    removeEventListener,
-    getAttribute,
-    removeAttribute,
-    setAttribute,
-    getBoundingClientRect,
-    isConnected,
-    getClassList,
-    dispatchEvent,
-    getElementsByClassName,
-    getElementsByTagName,
-    querySelector,
-    querySelectorAll,
-} from '@lwc/renderer-abstract';
-import {
     AccessibleElementProperties,
     assert,
     create,
@@ -47,6 +24,20 @@ import {
     KEY__SYNTHETIC_MODE,
     setPrototypeOf,
 } from '@lwc/shared';
+import {
+    assertInstanceOfHTMLElement,
+    attachShadow,
+    addEventListener,
+    removeEventListener,
+    getAttribute,
+    removeAttribute,
+    setAttribute,
+    getBoundingClientRect,
+    isConnected,
+    getClassList,
+    dispatchEvent,
+} from '../renderer';
+import * as renderer from '../renderer';
 import { HTMLElementOriginalDescriptors } from './html-properties';
 import { getWrappedComponentsListener } from './component';
 import { vmBeingConstructed, isBeingConstructed, isInvokingRender } from './invoker';
@@ -474,27 +465,11 @@ LightningElement.prototype = {
 
 const queryAndChildGetterDescriptors: PropertyDescriptorMap = create(null);
 
-// The reason we don't just use `import * as queryApis from '@lwc/renderer-abstract` here
-// is that doing so would create an object with _all_ of the APIs exposed by the renderer,
-// when really we only need a subset. So the bundled code is smaller this way.
-const queryApis = {
-    getChildren,
-    getChildNodes,
-    getFirstChild,
-    getFirstElementChild,
-    getLastChild,
-    getLastElementChild,
-    getElementsByClassName,
-    getElementsByTagName,
-    querySelector,
-    querySelectorAll,
-};
-
 const childGetters: Array<
     [
         keyof HTMLElement,
         keyof Pick<
-            typeof queryApis,
+            typeof renderer,
             | 'getChildren'
             | 'getChildNodes'
             | 'getFirstChild'
@@ -523,7 +498,7 @@ for (const [elementProp, rendererMethod] of childGetters) {
                 warnIfInvokedDuringConstruction(vm, elementProp);
             }
 
-            return queryApis[rendererMethod](elm);
+            return renderer[rendererMethod](elm);
         },
         configurable: true,
         enumerable: true,
@@ -532,7 +507,7 @@ for (const [elementProp, rendererMethod] of childGetters) {
 
 const queryMethods: Array<
     keyof Pick<
-        typeof queryApis,
+        typeof renderer,
         'getElementsByClassName' | 'getElementsByTagName' | 'querySelector' | 'querySelectorAll'
     >
 > = ['getElementsByClassName', 'getElementsByTagName', 'querySelector', 'querySelectorAll'];
@@ -548,7 +523,7 @@ for (const queryMethod of queryMethods) {
                 warnIfInvokedDuringConstruction(vm, `${queryMethod}()`);
             }
 
-            return queryApis[queryMethod](elm, arg);
+            return renderer[queryMethod](elm, arg);
         },
         configurable: true,
         enumerable: true,
