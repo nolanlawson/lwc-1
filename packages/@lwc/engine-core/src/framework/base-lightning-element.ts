@@ -25,6 +25,12 @@ import {
     setPrototypeOf,
 } from '@lwc/shared';
 import {
+    getChildren,
+    getChildNodes,
+    getFirstChild,
+    getFirstElementChild,
+    getLastChild,
+    getLastElementChild,
     assertInstanceOfHTMLElement,
     attachShadow,
     addEventListener,
@@ -36,8 +42,11 @@ import {
     isConnected,
     getClassList,
     dispatchEvent,
+    getElementsByClassName,
+    getElementsByTagName,
+    querySelector,
+    querySelectorAll,
 } from '../renderer';
-import * as renderer from '../renderer';
 import { HTMLElementOriginalDescriptors } from './html-properties';
 import { getWrappedComponentsListener } from './component';
 import { vmBeingConstructed, isBeingConstructed, isInvokingRender } from './invoker';
@@ -465,52 +474,87 @@ LightningElement.prototype = {
 
 const queryAndChildGetterDescriptors: PropertyDescriptorMap = create(null);
 
-const childGetters: Array<
-    [
-        keyof HTMLElement,
-        keyof Pick<
-            typeof renderer,
-            | 'getChildren'
-            | 'getChildNodes'
-            | 'getFirstChild'
-            | 'getFirstElementChild'
-            | 'getLastChild'
-            | 'getLastElementChild'
-        >
-    ]
-> = [
-    ['children', 'getChildren'],
-    ['childNodes', 'getChildNodes'],
-    ['firstChild', 'getFirstChild'],
-    ['firstElementChild', 'getFirstElementChild'],
-    ['lastChild', 'getLastChild'],
-    ['lastElementChild', 'getLastElementChild'],
+// The reason we don't just call `import * as renderer from '../renderer'` here is that the bundle size
+// is smaller if we reference each function individually. Otherwise Rollup will create one big frozen
+// object representing the renderer, with a lot of methods we don't actually need.
+type childGetter =
+    | 'children'
+    | 'childNodes'
+    | 'firstChild'
+    | 'firstElementChild'
+    | 'lastChild'
+    | 'lastElementChild';
+const childGetters: childGetter[] = [
+    'children',
+    'childNodes',
+    'firstChild',
+    'firstElementChild',
+    'lastChild',
+    'lastElementChild',
 ];
 
+function getChildGetter(methodName: childGetter) {
+    switch (methodName) {
+        case 'children':
+            return getChildren;
+        case 'childNodes':
+            return getChildNodes;
+        case 'firstChild':
+            return getFirstChild;
+        case 'firstElementChild':
+            return getFirstElementChild;
+        case 'lastChild':
+            return getLastChild;
+        case 'lastElementChild':
+            return getLastElementChild;
+    }
+}
+
 // Generic passthrough for child getters on HTMLElement to the relevant Renderer APIs
-for (const [elementProp, rendererMethod] of childGetters) {
-    queryAndChildGetterDescriptors[elementProp] = {
+for (const getterName of childGetters) {
+    queryAndChildGetterDescriptors[getterName] = {
         get(this: LightningElement) {
             const vm = getAssociatedVM(this);
             const { elm } = vm;
 
             if (process.env.NODE_ENV !== 'production') {
-                warnIfInvokedDuringConstruction(vm, elementProp);
+                // On the renderer itself, the name always starts with "get", e.g. "getChildren"
+                const propName = `get${getterName.charAt(0).toUpperCase()}${getterName.substring(
+                    1
+                )}`;
+                warnIfInvokedDuringConstruction(vm, propName);
             }
 
-            return renderer[rendererMethod](elm);
+            return getChildGetter(getterName)(elm);
         },
         configurable: true,
         enumerable: true,
     };
 }
 
-const queryMethods: Array<
-    keyof Pick<
-        typeof renderer,
-        'getElementsByClassName' | 'getElementsByTagName' | 'querySelector' | 'querySelectorAll'
-    >
-> = ['getElementsByClassName', 'getElementsByTagName', 'querySelector', 'querySelectorAll'];
+type queryMethod =
+    | 'getElementsByClassName'
+    | 'getElementsByTagName'
+    | 'querySelector'
+    | 'querySelectorAll';
+const queryMethods: queryMethod[] = [
+    'getElementsByClassName',
+    'getElementsByTagName',
+    'querySelector',
+    'querySelectorAll',
+];
+function getQueryMethod(methodName: queryMethod) {
+    switch (methodName) {
+        case 'getElementsByClassName':
+            return getElementsByClassName;
+        case 'getElementsByTagName':
+            return getElementsByTagName;
+        case 'querySelector':
+            return querySelector;
+        case 'querySelectorAll':
+            return querySelectorAll;
+    }
+}
 
 // Generic passthrough for query APIs on HTMLElement to the relevant Renderer APIs
 for (const queryMethod of queryMethods) {
@@ -523,7 +567,7 @@ for (const queryMethod of queryMethods) {
                 warnIfInvokedDuringConstruction(vm, `${queryMethod}()`);
             }
 
-            return renderer[queryMethod](elm, arg);
+            return getQueryMethod(queryMethod)(elm, arg);
         },
         configurable: true,
         enumerable: true,
