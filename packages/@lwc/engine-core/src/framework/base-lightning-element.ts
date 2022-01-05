@@ -477,14 +477,7 @@ const queryAndChildGetterDescriptors: PropertyDescriptorMap = create(null);
 // The reason we don't just call `import * as renderer from '../renderer'` here is that the bundle size
 // is smaller if we reference each function individually. Otherwise Rollup will create one big frozen
 // object representing the renderer, with a lot of methods we don't actually need.
-type childGetter =
-    | 'children'
-    | 'childNodes'
-    | 'firstChild'
-    | 'firstElementChild'
-    | 'lastChild'
-    | 'lastElementChild';
-const childGetters: childGetter[] = [
+const childGetters = <const>[
     'children',
     'childNodes',
     'firstChild',
@@ -493,7 +486,7 @@ const childGetters: childGetter[] = [
     'lastElementChild',
 ];
 
-function getChildGetter(methodName: childGetter) {
+function getChildGetter(methodName: typeof childGetters[number]) {
     switch (methodName) {
         case 'children':
             return getChildren;
@@ -532,18 +525,13 @@ for (const getterName of childGetters) {
     };
 }
 
-type queryMethod =
-    | 'getElementsByClassName'
-    | 'getElementsByTagName'
-    | 'querySelector'
-    | 'querySelectorAll';
-const queryMethods: queryMethod[] = [
+const queryMethods = <const>[
     'getElementsByClassName',
     'getElementsByTagName',
     'querySelector',
     'querySelectorAll',
 ];
-function getQueryMethod(methodName: queryMethod) {
+function getQueryMethod(methodName: typeof queryMethods[number]) {
     switch (methodName) {
         case 'getElementsByClassName':
             return getElementsByClassName;
