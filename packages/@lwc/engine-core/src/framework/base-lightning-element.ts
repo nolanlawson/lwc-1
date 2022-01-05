@@ -504,21 +504,21 @@ function getChildGetter(methodName: typeof childGetters[number]) {
 }
 
 // Generic passthrough for child getters on HTMLElement to the relevant Renderer APIs
-for (const getterName of childGetters) {
-    queryAndChildGetterDescriptors[getterName] = {
+for (const childGetter of childGetters) {
+    queryAndChildGetterDescriptors[childGetter] = {
         get(this: LightningElement) {
             const vm = getAssociatedVM(this);
             const { elm } = vm;
 
             if (process.env.NODE_ENV !== 'production') {
                 // On the renderer itself, the name always starts with "get", e.g. "getChildren"
-                const propName = `get${getterName.charAt(0).toUpperCase()}${getterName.substring(
+                const propName = `get${childGetter.charAt(0).toUpperCase()}${childGetter.substring(
                     1
                 )}`;
                 warnIfInvokedDuringConstruction(vm, propName);
             }
 
-            return getChildGetter(getterName)(elm);
+            return getChildGetter(childGetter)(elm);
         },
         configurable: true,
         enumerable: true,
