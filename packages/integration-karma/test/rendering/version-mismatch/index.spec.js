@@ -4,7 +4,7 @@ import ComponentWithProp from 'x/componentWithProp';
 import ComponentWithTemplateAndStylesheet from 'x/componentWithTemplateAndStylesheet';
 
 // TODO [#1284]: Import this from the lwc module once we move validation from compiler to linter
-const { registerTemplate, registerComponent } = LWC;
+const { registerTemplate, registerComponent, registerStylesheets } = LWC;
 
 if (!process.env.COMPAT) {
     describe('compiler version mismatch', () => {
@@ -66,8 +66,8 @@ if (!process.env.COMPAT) {
                 function tmpl() {
                     return [];
                 }
-                tmpl.stylesheetToken = 'x-component_component';
-                tmpl.stylesheets = [
+                const stylesheetToken = 'x-component_component';
+                const stylesheets = [
                     function stylesheet() {
                         return '';
                         /*LWC compiler v123.456.789*/
@@ -77,10 +77,8 @@ if (!process.env.COMPAT) {
                 class CustomElement extends LightningElement {}
                 registerComponent(CustomElement, { tmpl });
 
-                const elm = createElement('x-component', { is: CustomElement });
-
                 expect(() => {
-                    document.body.appendChild(elm);
+                    registerStylesheets(tmpl, stylesheetToken, stylesheets);
                 }).toLogErrorDev(
                     new RegExp(
                         `LWC WARNING: current engine is v${process.env.LWC_VERSION}, but stylesheet was compiled with v123.456.789`
