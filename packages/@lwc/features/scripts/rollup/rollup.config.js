@@ -6,7 +6,9 @@
  */
 const path = require('path');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
-const typescript = require('@rollup/plugin-typescript');
+const tsPlugin = require('@rollup/plugin-typescript');
+const esbuildPlugin = require('rollup-plugin-esbuild').default;
+const typescriptPlugin = process.env.TYPECHECK ? tsPlugin : esbuildPlugin;
 
 const writeDistAndTypes = require('../../../../../scripts/rollup/writeDistAndTypes');
 const { version, dependencies, peerDependencies } = require('../../package.json');
@@ -32,7 +34,7 @@ function rollupConfig({ format }) {
             nodeResolve({
                 resolveOnly: [/^@lwc\//],
             }),
-            typescript({
+            typescriptPlugin({
                 target: 'es2017',
                 tsconfig: path.join(__dirname, '../../tsconfig.json'),
                 noEmitOnError: true,

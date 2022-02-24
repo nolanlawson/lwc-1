@@ -16,7 +16,8 @@
     "license": "MIT",
     "scripts": {
         "clean": "rm -rf dist/",
-        "build": "tsc && node ./scripts/update-compiler-version.js"
+        "tsc": "if [ -z TYPECHECK ]; then etsc; else tsc; fi",
+        "build": "yarn tsc && node ./scripts/update-compiler-version.js"
     },
     "files": [
         "dist/"

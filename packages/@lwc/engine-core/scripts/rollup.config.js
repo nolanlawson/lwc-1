@@ -10,7 +10,9 @@
 const path = require('path');
 
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
-const typescriptPlugin = require('@rollup/plugin-typescript');
+const tsPlugin = require('@rollup/plugin-typescript');
+const esbuildPlugin = require('rollup-plugin-esbuild').default;
+const typescriptPlugin = process.env.TYPECHECK ? tsPlugin : esbuildPlugin;
 
 const babel = require('@babel/core');
 const babelFeaturesPlugin = require('@lwc/features/src/babel-plugin');
@@ -19,7 +21,8 @@ const writeDistAndTypes = require('../../../../scripts/rollup/writeDistAndTypes'
 function rollupFeaturesPlugin() {
     return {
         name: 'rollup-plugin-lwc-features',
-        transform(source) {
+        transform(source, id) {
+            console.log('transforming', id);
             return babel.transform(source, {
                 plugins: [babelFeaturesPlugin],
             }).code;

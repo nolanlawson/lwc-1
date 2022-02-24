@@ -5,8 +5,10 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 const path = require('path');
-const typescript = require('@rollup/plugin-typescript');
 const replace = require('@rollup/plugin-replace');
+const tsPlugin = require('@rollup/plugin-typescript');
+const esbuildPlugin = require('rollup-plugin-esbuild').default;
+const typescriptPlugin = process.env.TYPECHECK ? tsPlugin : esbuildPlugin;
 const writeDistAndTypes = require('../../../../../scripts/rollup/writeDistAndTypes');
 const { version } = require('../../package.json');
 const entry = path.resolve(__dirname, '../../src/index.ts');
@@ -31,7 +33,7 @@ function rollupConfig({ format }) {
                 preventAssignment: true,
                 'process.env.LWC_VERSION': JSON.stringify(version),
             }),
-            typescript({
+            typescriptPlugin({
                 target: 'es2017',
                 tsconfig: path.join(__dirname, '../../tsconfig.json'),
                 noEmitOnError: true,

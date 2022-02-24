@@ -14,7 +14,8 @@
     "main": "dist/commonjs/index.js",
     "typings": "dist/types/index.d.ts",
     "scripts": {
-        "build": "tsc"
+        "tsc": "if [ -z TYPECHECK ]; then etsc; else tsc; fi",
+        "build": "yarn tsc"
     },
     "license": "MIT",
     "files": [
