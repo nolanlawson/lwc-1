@@ -8,6 +8,11 @@ const fs = require('fs');
 const path = require('path');
 
 const DEBUG_SUFFIX = '_debug';
+const PROD_SUFFIX = '.min';
+
+function createDir(dir) {
+    return !fs.existsSync(dir) && fs.mkdirSync(dir);
+}
 
 function getEs6ModuleEntry(pkg) {
     const pkgFilePath = require.resolve(`${pkg}/package.json`);
@@ -18,6 +23,12 @@ function getEs6ModuleEntry(pkg) {
 
 function generateTargetName({ target, prod, debug }) {
     return [target, debug ? DEBUG_SUFFIX : prod ? '.min' : '', '.js'].join('');
+}
+
+function ignoreCircularDependencies({ code, message }) {
+    if (code !== 'CIRCULAR_DEPENDENCY') {
+        throw new Error(message);
+    }
 }
 
 function buildBundleConfig(defaultConfig, { format, target, prod, debug }) {
@@ -32,7 +43,11 @@ function buildBundleConfig(defaultConfig, { format, target, prod, debug }) {
 }
 
 module.exports = {
+    DEBUG_SUFFIX,
+    PROD_SUFFIX,
+    generateTargetName,
+    ignoreCircularDependencies,
+    createDir,
     getEs6ModuleEntry,
     buildBundleConfig,
-    generateTargetName,
 };

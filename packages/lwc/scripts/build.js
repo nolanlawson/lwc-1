@@ -4,10 +4,15 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const { rm } = require('fs/promises');
 const path = require('path');
 const esbuild = require('esbuild');
-const { getEs6ModuleEntry, buildBundleConfig, generateTargetName } = require('./utils/helpers');
+const generateTargets = require('./utils/generate_targets');
+const {
+    createDir,
+    getEs6ModuleEntry,
+    buildBundleConfig,
+    generateTargetName,
+} = require('./utils/helpers');
 
 // -- globals -----------------------------------------------------------------
 const distDirectory = path.join(__dirname, '../dist');
@@ -15,6 +20,22 @@ const distDirectory = path.join(__dirname, '../dist');
 const COMMON_TARGETS = [
     // ESM
     { target: 'es2017', format: 'esm', prod: false },
+
+    // IIFE
+    { target: 'es5', format: 'iife', prod: false },
+    { target: 'es5', format: 'iife', prod: true },
+    { target: 'es5', format: 'iife', prod: true, debug: true },
+    { target: 'es2017', format: 'iife', prod: false },
+    { target: 'es2017', format: 'iife', prod: true },
+    { target: 'es2017', format: 'iife', prod: true, debug: true },
+
+    // UMD
+    { target: 'es5', format: 'umd', prod: false },
+    { target: 'es5', format: 'umd', prod: true },
+    { target: 'es5', format: 'umd', prod: true, debug: true },
+    { target: 'es2017', format: 'umd', prod: false },
+    { target: 'es2017', format: 'umd', prod: true },
+    { target: 'es2017', format: 'umd', prod: true, debug: true },
 ];
 
 // -- Helpers -----------------------------------------------------------------
@@ -60,7 +81,7 @@ function buildWireService(targets) {
 
 // -- Build -------------------------------------------------------------------
 async function main() {
-    await rm(distDirectory, { recursive: true });
+    createDir(distDirectory);
     const allTargets = [
         ...buildEngineTargets(COMMON_TARGETS),
         ...buildSyntheticShadow(COMMON_TARGETS),
@@ -71,8 +92,21 @@ async function main() {
             { target: 'es2017', format: 'cjs', prod: true },
         ]),
     ];
-    await Promise.all(
-        allTargets.map(async ({ format, target, prod, debug, targetDirectory, input }) => {
+    process.stdout.write('\n# Generating LWC artifacts...\n');
+
+    // esbuild does not support some ES5 transforms we need
+    // "Transforming const to the configured target environment ("es5") is not supported yet"
+    // "Transforming destructuring to the configured target environment ("es5") is not supported yet"
+    // https://github.com/evanw/esbuild/issues/988
+    // It also doesn't support UMD format
+    // https://github.com/evanw/esbuild/issues/507
+    const supportsEsBuild = ({ format, target }) => target !== 'es5' && format !== 'umd';
+    const rollupTargets = allTargets.filter((_) => !supportsEsBuild(_));
+    const esbuildTargets = allTargets.filter(supportsEsBuild);
+
+    const rollupPromise = generateTargets(rollupTargets);
+    const esbuildPromise = Promise.all(
+        esbuildTargets.map(async ({ format, target, prod, debug, targetDirectory, input }) => {
             const outfile = path.join(
                 targetDirectory,
                 target,
@@ -91,6 +125,8 @@ async function main() {
             });
         })
     );
+
+    await Promise.all([rollupPromise, esbuildPromise]);
 }
 
 main().catch((err) => {
