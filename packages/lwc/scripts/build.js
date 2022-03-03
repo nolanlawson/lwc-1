@@ -5,14 +5,9 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 const path = require('path');
-const esbuild = require('esbuild');
-const generateTargets = require('./utils/generate_targets');
-const {
-    createDir,
-    getEs6ModuleEntry,
-    buildBundleConfig,
-    generateTargetName,
-} = require('./utils/helpers');
+const swc = require('@swc/core');
+const { rm, mkdir, writeFile } = require('fs/promises');
+const { getEs6ModuleEntry, buildBundleConfig, generateTargetName } = require('./utils/helpers');
 
 // -- globals -----------------------------------------------------------------
 const distDirectory = path.join(__dirname, '../dist');
@@ -81,52 +76,61 @@ function buildWireService(targets) {
 
 // -- Build -------------------------------------------------------------------
 async function main() {
-    createDir(distDirectory);
+    console.log('rm');
+    await rm(distDirectory, { recursive: true, force: true });
+    await mkdir(distDirectory);
+    console.log('rm');
     const allTargets = [
         ...buildEngineTargets(COMMON_TARGETS),
         ...buildSyntheticShadow(COMMON_TARGETS),
         ...buildWireService(COMMON_TARGETS),
         ...buildEngineServerTargets([
             { target: 'es2017', format: 'esm', prod: false },
-            { target: 'es2017', format: 'cjs', prod: false },
-            { target: 'es2017', format: 'cjs', prod: true },
+            { target: 'es2017', format: 'commonjs', prod: false },
+            { target: 'es2017', format: 'commonjs', prod: true },
         ]),
     ];
     process.stdout.write('\n# Generating LWC artifacts...\n');
 
-    // esbuild does not support some ES5 transforms we need
-    // "Transforming const to the configured target environment ("es5") is not supported yet"
-    // "Transforming destructuring to the configured target environment ("es5") is not supported yet"
-    // https://github.com/evanw/esbuild/issues/988
-    // It also doesn't support UMD format
-    // https://github.com/evanw/esbuild/issues/507
-    const supportsEsBuild = ({ format, target }) => target !== 'es5' && format !== 'umd';
-    const rollupTargets = allTargets.filter((_) => !supportsEsBuild(_));
-    const esbuildTargets = allTargets.filter(supportsEsBuild);
-
-    const rollupPromise = generateTargets(rollupTargets);
-    const esbuildPromise = Promise.all(
-        esbuildTargets.map(async ({ format, target, prod, debug, targetDirectory, input }) => {
+    await Promise.all(
+        allTargets.map(async ({ format, target, prod, debug, targetDirectory, input }) => {
             const outfile = path.join(
                 targetDirectory,
                 target,
                 generateTargetName({ target, prod, debug })
             );
-            await esbuild.build({
-                entryPoints: [input],
-                format,
-                target,
-                outfile,
-                define: {
-                    'process.env.NODE_ENV': JSON.stringify(debug ? 'development' : 'production'),
+            const minify = prod && !debug;
+            const mode = debug ? 'none' : 'production';
+            console.log(outfile);
+            const res = await swc.bundle({
+                target: 'browser',
+                mode,
+                entry: input,
+                filename: input,
+                module: {
+                    type: format,
                 },
-                minify: prod && !debug,
-                bundle: true,
+                jsc: {
+                    parser: {
+                        syntax: 'typescript',
+                    },
+                    target,
+                },
             });
+            for (let [, { code }] of Object.entries(res)) {
+                await mkdir(path.dirname(outfile), { recursive: true });
+                if (minify) {
+                    code = (
+                        await swc.minify(code, {
+                            compress: true,
+                            mangle: true,
+                        })
+                    ).code;
+                }
+                await writeFile(outfile, code, 'utf8');
+            }
         })
     );
-
-    await Promise.all([rollupPromise, esbuildPromise]);
 }
 
 main().catch((err) => {
