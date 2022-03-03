@@ -21,8 +21,8 @@ function getEs6ModuleEntry(pkg) {
     return path.join(pkgDir, pkgJson.module);
 }
 
-function generateTargetName({ targetName, prod, debug }) {
-    return [targetName, debug ? DEBUG_SUFFIX : prod ? '.min' : '', '.js'].join('');
+function generateTargetName({ target, prod, debug }) {
+    return [target, debug ? DEBUG_SUFFIX : prod ? '.min' : '', '.js'].join('');
 }
 
 function ignoreCircularDependencies({ code, message }) {

@@ -5,8 +5,14 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 const path = require('path');
+const esbuild = require('esbuild');
 const generateTargets = require('./utils/generate_targets');
-const { createDir, getEs6ModuleEntry, buildBundleConfig } = require('./utils/helpers');
+const {
+    createDir,
+    getEs6ModuleEntry,
+    buildBundleConfig,
+    generateTargetName,
+} = require('./utils/helpers');
 
 // -- globals -----------------------------------------------------------------
 const distDirectory = path.join(__dirname, '../dist');
@@ -74,8 +80,7 @@ function buildWireService(targets) {
 }
 
 // -- Build -------------------------------------------------------------------
-
-(async () => {
+async function main() {
     createDir(distDirectory);
     const allTargets = [
         ...buildEngineTargets(COMMON_TARGETS),
@@ -83,13 +88,48 @@ function buildWireService(targets) {
         ...buildWireService(COMMON_TARGETS),
         ...buildEngineServerTargets([
             { target: 'es2017', format: 'esm', prod: false },
-            { target: 'es2017', format: 'commonjs', prod: false },
-            { target: 'es2017', format: 'commonjs', prod: true },
+            { target: 'es2017', format: 'cjs', prod: false },
+            { target: 'es2017', format: 'cjs', prod: true },
         ]),
     ];
     process.stdout.write('\n# Generating LWC artifacts...\n');
-    await generateTargets(allTargets);
-})().catch((err) => {
+
+    // esbuild does not support some ES5 transforms we need
+    // "Transforming const to the configured target environment ("es5") is not supported yet"
+    // "Transforming destructuring to the configured target environment ("es5") is not supported yet"
+    // https://github.com/evanw/esbuild/issues/988
+    // It also doesn't support UMD format
+    // https://github.com/evanw/esbuild/issues/507
+    const supportsEsBuild = ({ format, target }) => target !== 'es5' && format !== 'umd';
+    const rollupTargets = allTargets.filter((_) => !supportsEsBuild(_));
+    const esbuildTargets = allTargets.filter(supportsEsBuild);
+
+    const rollupPromise = generateTargets(rollupTargets);
+    const esbuildPromise = Promise.all(
+        esbuildTargets.map(async ({ format, target, prod, debug, targetDirectory, input }) => {
+            const outfile = path.join(
+                targetDirectory,
+                target,
+                generateTargetName({ target, prod, debug })
+            );
+            await esbuild.build({
+                entryPoints: [input],
+                format,
+                target,
+                outfile,
+                define: {
+                    'process.env.NODE_ENV': JSON.stringify(debug ? 'development' : 'production'),
+                },
+                minify: prod && !debug,
+                bundle: true,
+            });
+        })
+    );
+
+    await Promise.all([rollupPromise, esbuildPromise]);
+}
+
+main().catch((err) => {
     console.error(err);
     process.exit(1);
 });
