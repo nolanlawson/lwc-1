@@ -17,8 +17,8 @@ function getEs6ModuleEntry(pkg) {
     return path.join(pkgDir, pkgJson.module);
 }
 
-function generateTargetName({ target, prod, debug }) {
-    return [target, debug ? DEBUG_SUFFIX : prod ? PROD_SUFFIX : '', '.js'].join('');
+function generateTargetName({ targetName, prod, debug }) {
+    return [targetName, debug ? DEBUG_SUFFIX : prod ? PROD_SUFFIX : '', '.js'].join('');
 }
 
 function buildBundleConfig(defaultConfig, { format, target, prod, debug }) {

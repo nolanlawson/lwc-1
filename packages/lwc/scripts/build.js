@@ -88,41 +88,45 @@ async function main() {
         ]),
     ];
     await Promise.all(
-        allTargets.map(async ({ format, target, prod, debug, targetDirectory, input }) => {
-            const outfile = path.join(
-                targetDirectory,
-                target,
-                generateTargetName({ target, prod, debug })
-            );
-            const minify = prod && !debug;
-            const mode = debug ? 'none' : 'production';
-            const bundleResult = await swc.bundle({
-                target: 'browser',
-                mode,
-                entry: input,
-                filename: input,
-                module: {
-                    type: format,
-                },
-                jsc: {
-                    parser: {
-                        syntax: 'typescript',
+        allTargets.map(
+            async ({ format, target, prod, debug, targetName, targetDirectory, input }) => {
+                const minify = prod && !debug;
+                const mode = debug ? 'development' : 'production';
+                const bundleResult = await swc.bundle({
+                    target: 'browser',
+                    mode,
+                    entry: input,
+                    filename: input,
+                    module: {
+                        type: format,
                     },
+                    jsc: {
+                        parser: {
+                            syntax: 'typescript',
+                            target,
+                        },
+                    },
+                });
+                const compiled = Object.values(bundleResult)[0];
+                const outfile = path.join(
+                    targetDirectory,
                     target,
-                },
-            });
-            let { code } = Object.values(bundleResult)[0];
-            if (minify) {
-                code = (
-                    await swc.minify(code, {
-                        compress: true,
-                        mangle: true,
-                    })
-                ).code;
+                    generateTargetName({ targetName, prod, debug })
+                );
+                let { code } = compiled;
+                if (minify) {
+                    code = (
+                        await swc.minify(code, {
+                            compress: true,
+                            mangle: true,
+                        })
+                    ).code;
+                }
+                code = '/* proxy-compat-disable */\n' + code;
+                await mkdir(path.dirname(outfile), { recursive: true });
+                await writeFile(outfile, code, 'utf8');
             }
-            await mkdir(path.dirname(outfile), { recursive: true });
-            await writeFile(outfile, code, 'utf8');
-        })
+        )
     );
 }
 
