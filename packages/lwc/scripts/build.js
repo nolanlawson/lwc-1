@@ -76,10 +76,7 @@ function buildWireService(targets) {
 
 // -- Build -------------------------------------------------------------------
 async function main() {
-    console.log('rm');
     await rm(distDirectory, { recursive: true, force: true });
-    await mkdir(distDirectory);
-    console.log('rm');
     const allTargets = [
         ...buildEngineTargets(COMMON_TARGETS),
         ...buildSyntheticShadow(COMMON_TARGETS),
@@ -90,8 +87,6 @@ async function main() {
             { target: 'es2017', format: 'commonjs', prod: true },
         ]),
     ];
-    process.stdout.write('\n# Generating LWC artifacts...\n');
-
     await Promise.all(
         allTargets.map(async ({ format, target, prod, debug, targetDirectory, input }) => {
             const outfile = path.join(
@@ -101,8 +96,7 @@ async function main() {
             );
             const minify = prod && !debug;
             const mode = debug ? 'none' : 'production';
-            console.log(outfile);
-            const res = await swc.bundle({
+            const bundleResult = await swc.bundle({
                 target: 'browser',
                 mode,
                 entry: input,
@@ -117,18 +111,17 @@ async function main() {
                     target,
                 },
             });
-            for (let [, { code }] of Object.entries(res)) {
-                await mkdir(path.dirname(outfile), { recursive: true });
-                if (minify) {
-                    code = (
-                        await swc.minify(code, {
-                            compress: true,
-                            mangle: true,
-                        })
-                    ).code;
-                }
-                await writeFile(outfile, code, 'utf8');
+            let { code } = Object.values(bundleResult)[0];
+            if (minify) {
+                code = (
+                    await swc.minify(code, {
+                        compress: true,
+                        mangle: true,
+                    })
+                ).code;
             }
+            await mkdir(path.dirname(outfile), { recursive: true });
+            await writeFile(outfile, code, 'utf8');
         })
     );
 }
