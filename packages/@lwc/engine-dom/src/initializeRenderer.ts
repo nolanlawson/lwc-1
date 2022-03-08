@@ -43,7 +43,8 @@ import {
     setSetText,
     setSsr,
     setAddEventListener,
-    setGetUpgradableElement
+    setGetUpgradableElement,
+    setGetUserConstructor,
 } from '@lwc/engine-core';
 
 import {
@@ -83,8 +84,10 @@ import {
     setProperty,
     setText,
     ssr,
-    addEventListener, getUpgradableElement
-} from "./renderer";
+    addEventListener,
+    getUpgradableElement,
+    getUserConstructor,
+} from './renderer';
 
 setAssertInstanceOfHTMLElement(assertInstanceOfHTMLElement);
 setAttachShadow(attachShadow);
@@ -123,4 +126,5 @@ setSetProperty(setProperty);
 setSetText(setText);
 setSsr(ssr);
 setAddEventListener(addEventListener);
-setGetUpgradableElement(getUpgradableElement)
+setGetUpgradableElement(getUpgradableElement);
+setGetUserConstructor(getUserConstructor);

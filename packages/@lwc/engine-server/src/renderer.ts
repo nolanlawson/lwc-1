@@ -379,10 +379,10 @@ interface UpgradableCustomElementConstructor extends CustomElementConstructor {
 
 const localRegistryRecord: Record<string, UpgradableCustomElementConstructor> = create(null);
 function getUpgradableConstructor(name: string): UpgradableCustomElementConstructor {
-    return function (UserCtor?: CustomElementConstructor) {
+    return function (upgradeCallback?: UpgradeCallback) {
         const elm = createElement(name);
-        if (isFunction(UserCtor)) {
-            new UserCtor(); // nothing to do with the result for now
+        if (isFunction(upgradeCallback)) {
+            upgradeCallback(elm); // nothing to do with the result for now
         }
         return elm;
     } as unknown as UpgradableCustomElementConstructor;
@@ -396,3 +396,8 @@ export function getUpgradableElement(name: string): UpgradableCustomElementConst
     ctor = localRegistryRecord[name] = getUpgradableConstructor(name);
     return ctor;
 }
+
+type UpgradeCallback = (elm: HostElement) => void;
+export const getUserConstructor = (upgradeCallback: UpgradeCallback) => {
+    return upgradeCallback;
+};

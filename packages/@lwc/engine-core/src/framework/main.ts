@@ -90,5 +90,6 @@ export {
     setSetText,
     setSsr,
     setAddEventListener,
-    setGetUpgradableElement
+    setGetUpgradableElement,
+    setGetUserConstructor,
 } from '../renderer';
