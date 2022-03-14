@@ -5,8 +5,11 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 const babel = require('@babel/core');
+const { LWC_VERSION } = require('@lwc/shared');
 const { stripIndents } = require('common-tags');
 const prettier = require('prettier');
+const fs = require('fs');
+const path = require('path');
 
 const BASE_CONFIG = { babelrc: false, configFile: false, filename: 'test.js' };
 
@@ -75,10 +78,55 @@ function pluginTest(plugin, pluginOpts, opts = {}) {
         }
     };
 
-    const pluginTester = (name, actual, expected) =>
+    const write = (name, actual, expected) => {
+        fs.mkdirSync('/tmp/snapshots', {
+            recursive: true,
+        });
+
+        name = name
+            .replace(/ /g, '-')
+            .replace(/"/g, '')
+            .replace(/[/[\]]/g, '-')
+            .replace(/-{2,}/g, '-')
+            .replace(/^-/, '')
+            .toLowerCase();
+        let folder = path.join('/tmp/snapshots', name);
+        let count = 1;
+        while (fs.existsSync(folder)) {
+            folder = path.join('/tmp/snapshots', name + '-' + ++count);
+        }
+        fs.mkdirSync(folder);
+
+        actual = prettier.format(actual, { parser: 'babel' });
+
+        fs.writeFileSync(path.join(folder, 'actual.js'), actual, 'utf8');
+        if (pluginOpts) {
+            fs.writeFileSync(
+                path.join(folder, 'config.json'),
+                JSON.stringify(pluginOpts, null, 4, 'utf8')
+            );
+        }
+        if (expected.output?.code) {
+            const code = prettier
+                .format(expected.output.code, { parser: 'babel' })
+                .replace(new RegExp(LWC_VERSION.replace(/\./g, '\\.'), 'g'), 'X.X.X');
+            fs.writeFileSync(path.join(folder, 'expected.js'), code, 'utf8');
+        } else {
+            fs.writeFileSync(
+                path.join(folder, 'error.json'),
+                JSON.stringify(expected.error, null, 4),
+                'utf8'
+            );
+        }
+    };
+
+    const pluginTester = (name, actual, expected) => {
+        write(name, actual, expected);
         test(name, () => transformTest(actual, expected));
+    };
     pluginTester.skip = (name) => test.skip(name);
     pluginTester.only = (name, actual, expected) => {
+        write(name, actual, expected);
         // eslint-disable-next-line jest/no-focused-tests
         test.only(name, () => transformTest(actual, expected));
     };
