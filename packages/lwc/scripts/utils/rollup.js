@@ -7,7 +7,7 @@
 const path = require('path');
 const rollupReplace = require('@rollup/plugin-replace');
 const babel = require('@babel/core');
-const terser = require('terser');
+const swc = require('@swc/core');
 const { generateTargetName } = require('./helpers');
 
 function babelCompatPlugin() {
@@ -38,8 +38,11 @@ function rollupTerserPlugin() {
     return {
         name: 'rollup-plugin-terser',
         renderChunk(code, chunk, outputOptions) {
-            return terser.minify(code, {
-                toplevel: ['cjs', 'commonjs'].includes(outputOptions.format),
+            return swc.minify(code, {
+                mangle: {
+                    topLevel: ['cjs', 'commonjs'].includes(outputOptions.format),
+                },
+                compress: true,
             });
         },
     };
