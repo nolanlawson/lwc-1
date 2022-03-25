@@ -109,4 +109,66 @@ describe('Table diffing', () => {
             expect(getRowContents()).toEqual(sortedIds);
         });
     });
+
+    it('appending to end of list, removing from start', () => {
+        const elm = createElement('x-table', { is: Table });
+        const ids = [5, 6, 7, 8, 9];
+
+        const setRows = (ids) => {
+            elm.rows = ids.map((id) => ({ id }));
+        };
+
+        const getRowContents = () => {
+            return [...elm.shadowRoot.querySelectorAll('x-row')].map((row) =>
+                parseInt(row.shadowRoot.querySelector('span').textContent, 10)
+            );
+        };
+        setRows(ids);
+        document.body.appendChild(elm);
+        expect(getRowContents()).toEqual(ids);
+
+        const [, , e7, e8, e9] = elm.shadowRoot.querySelectorAll('x-row');
+
+        const newIds = [7, 8, 9, 10, 11];
+        setRows(newIds);
+
+        return Promise.resolve().then(() => {
+            expect(getRowContents()).toEqual(newIds);
+            const [r7, r8, r9] = elm.shadowRoot.querySelectorAll('x-row');
+            expect(e7).toBe(r7);
+            expect(e8).toBe(r8);
+            expect(e9).toBe(r9);
+        });
+    });
+
+    it('prepending to start of list, removing from end', () => {
+        const elm = createElement('x-table', { is: Table });
+        const ids = [5, 6, 7, 8, 9];
+
+        const setRows = (ids) => {
+            elm.rows = ids.map((id) => ({ id }));
+        };
+
+        const getRowContents = () => {
+            return [...elm.shadowRoot.querySelectorAll('x-row')].map((row) =>
+                parseInt(row.shadowRoot.querySelector('span').textContent, 10)
+            );
+        };
+        setRows(ids);
+        document.body.appendChild(elm);
+        expect(getRowContents()).toEqual(ids);
+
+        const [e5, e6, e7] = elm.shadowRoot.querySelectorAll('x-row');
+
+        const newIds = [3, 4, 5, 6, 7];
+        setRows(newIds);
+
+        return Promise.resolve().then(() => {
+            expect(getRowContents()).toEqual(newIds);
+            const [, , r5, r6, r7] = elm.shadowRoot.querySelectorAll('x-row');
+            expect(e5).toBe(r5);
+            expect(e6).toBe(r6);
+            expect(e7).toBe(r7);
+        });
+    });
 });
