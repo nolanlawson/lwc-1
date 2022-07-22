@@ -20,7 +20,6 @@ const SAUCE_BROWSERS = [
         browserName: 'chrome',
         version: 'latest',
         compat: false,
-        nativeShadowCompatible: true,
         test_hydration: true,
     },
     {
@@ -28,7 +27,6 @@ const SAUCE_BROWSERS = [
         browserName: 'firefox',
         version: 'latest',
         compat: false,
-        nativeShadowCompatible: true,
         test_hydration: true,
     },
     {
@@ -36,45 +34,31 @@ const SAUCE_BROWSERS = [
         browserName: 'safari',
         version: 'latest',
         compat: false,
-        nativeShadowCompatible: true,
         test_hydration: true,
     },
 
     // Compat browsers
     {
-        label: 'sl_ie11',
-        browserName: 'internet explorer',
-        version: '11',
-        compat: true,
-        nativeShadowCompatible: false,
-    },
-    {
         label: 'sl_chrome_compat',
         browserName: 'chrome',
-        version: '59',
+        version: '80',
         compat: true,
-        nativeShadowCompatible: false,
     },
     {
         label: 'sl_firefox_compat',
         browserName: 'firefox',
-        version: '54',
+        version: '79',
         compat: true,
-        nativeShadowCompatible: false,
     },
     {
         label: 'sl_safari_compat',
         browserName: 'safari',
-        version: '10',
-        platform: 'OS X 10.11',
+        version: '13.1',
+        platform: 'OS X 10.15',
         compat: true,
-        nativeShadowCompatible: false,
     },
 ].filter((browser) => {
-    return (
-        browser.compat === COMPAT &&
-        (SYNTHETIC_SHADOW_ENABLED || browser.nativeShadowCompatible !== SYNTHETIC_SHADOW_ENABLED)
-    );
+    return browser.compat === COMPAT;
 });
 
 module.exports = (config) => {
