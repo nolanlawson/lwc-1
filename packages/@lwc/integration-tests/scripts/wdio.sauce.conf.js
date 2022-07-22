@@ -43,25 +43,20 @@ const browsers = [
 // Browsers that are only expected to work in compat mode
 const compatBrowsers = [
     {
-        commonName: 'ie11',
-        browserName: 'internet explorer',
-        version: '11',
-    },
-    {
         commonName: 'safari',
         browserName: 'safari',
-        platform: 'OS X 10.11',
-        version: '10',
+        version: '13.1',
+        platform: 'OS X 10.15',
     },
     {
         commonName: 'chrome',
         browserName: 'chrome',
-        version: '59',
+        version: '80',
     },
     {
         commonName: 'firefox',
         browserName: 'firefox',
-        version: '54',
+        version: '79',
     },
 ];
 
