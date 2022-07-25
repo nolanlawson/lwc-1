@@ -63,21 +63,32 @@ describe('EventTarget.addEventListener', () => {
         expect(log).toEqual(targets);
     });
 
-    it('should accept a function listener as second parameter for a non-node EventTarget', () => {
-        const target = new EventTarget();
-        const listener = jasmine.createSpy();
-        target.addEventListener('dummy', listener);
-        target.dispatchEvent(new CustomEvent('dummy'));
-        expect(listener).toHaveBeenCalled();
-    });
+    const supportsEventTargetConstructor = (() => {
+        try {
+            new EventTarget();
+            return true;
+        } catch (err) {
+            return false;
+        }
+    })();
 
-    it('should accept a listener config as second parameter for a non-node EventTarget', () => {
-        const target = new EventTarget();
-        const listener = jasmine.createSpy();
-        target.addEventListener('dummy', { handleEvent: listener });
-        target.dispatchEvent(new CustomEvent('dummy'));
-        expect(listener).toHaveBeenCalled();
-    });
+    if (supportsEventTargetConstructor) {
+        it('should accept a function listener as second parameter for a non-node EventTarget', () => {
+            const target = new EventTarget();
+            const listener = jasmine.createSpy();
+            target.addEventListener('dummy', listener);
+            target.dispatchEvent(new CustomEvent('dummy'));
+            expect(listener).toHaveBeenCalled();
+        });
+
+        it('should accept a listener config as second parameter for a non-node EventTarget', () => {
+            const target = new EventTarget();
+            const listener = jasmine.createSpy();
+            target.addEventListener('dummy', { handleEvent: listener });
+            target.dispatchEvent(new CustomEvent('dummy'));
+            expect(listener).toHaveBeenCalled();
+        });
+    }
 
     it('should call event listener with the same order', () => {
         const logs = [];

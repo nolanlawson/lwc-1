@@ -24,21 +24,31 @@ describe('EventTarget.dispatchEvent', () => {
         expect(() => node.dispatchEvent(1)).toThrowError();
     });
 
-    it('should return false when "Event.preventDefault" is invoked on non-node EventTarget', () => {
-        const target = new EventTarget();
-        target.addEventListener('custom-event', (e) => {
-            e.preventDefault();
+    const supportsEventTargetConstructor = (() => {
+        try {
+            new EventTarget();
+            return true;
+        } catch (err) {
+            return false;
+        }
+    })();
+    if (supportsEventTargetConstructor) {
+        it('should return false when "Event.preventDefault" is invoked on non-node EventTarget', () => {
+            const target = new EventTarget();
+            target.addEventListener('custom-event', (e) => {
+                e.preventDefault();
+            });
+            const result = target.dispatchEvent(new Event('custom-event', { cancelable: true }));
+
+            expect(result).toBeFalse();
         });
-        const result = target.dispatchEvent(new Event('custom-event', { cancelable: true }));
 
-        expect(result).toBeFalse();
-    });
+        it('should return true when "Event.preventDefault" is invoked on non-node EventTarget', () => {
+            const target = new EventTarget();
+            target.addEventListener('custom-event', () => {});
+            const result = target.dispatchEvent(new Event('custom-event', { cancelable: true }));
 
-    it('should return true when "Event.preventDefault" is invoked on non-node EventTarget', () => {
-        const target = new EventTarget();
-        target.addEventListener('custom-event', () => {});
-        const result = target.dispatchEvent(new Event('custom-event', { cancelable: true }));
-
-        expect(result).toBeTrue();
-    });
+            expect(result).toBeTrue();
+        });
+    }
 });
