@@ -110,10 +110,12 @@ describe('elementsFromPoint', () => {
             test(inSlottableInner, [inSlottableInner, inSlottable, slottable, inContainer]);
         });
 
-        // window.safari detects Safari, Safari shipped BigInt in Safari 14
-        // https://stackoverflow.com/a/9851769
+        // Safari shipped BigInt in Safari 14
         // https://caniuse.com/bigint
-        const isOldSafari = 'safari' in window && typeof BigInt !== 'function';
+        const isOldSafari =
+            navigator.userAgent.includes('Safari') &&
+            !navigator.userAgent.includes('Chrom') &&
+            typeof BigInt !== 'function';
         // For some reason this test fails in old Safari
         if (!isOldSafari) {
             it('host elements are not all visible', () => {
