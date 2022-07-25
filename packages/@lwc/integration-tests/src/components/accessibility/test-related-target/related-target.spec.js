@@ -10,7 +10,7 @@ const URL = '/related-target';
 function getEvents(elm) {
     return browser.execute(function (elm) {
         return elm.getEvents();
-    }, elm).value;
+    }, elm);
 }
 
 async function getRootEvents() {
@@ -103,6 +103,6 @@ describe('relatedTarget', () => {
             return String(relatedTarget);
         }).value;
 
-        assert.strictEqual(relatedTarget, 'undefined');
+        assert.strictEqual(relatedTarget, undefined);
     });
 });
