@@ -40,26 +40,6 @@ const browsers = [
     },
 ];
 
-// Browsers that are only expected to work in compat mode
-const compatBrowsers = [
-    {
-        commonName: 'safari',
-        browserName: 'safari',
-        version: '13.1',
-        platform: 'OS X 10.15',
-    },
-    {
-        commonName: 'chrome',
-        browserName: 'chrome',
-        version: '80',
-    },
-    {
-        commonName: 'firefox',
-        browserName: 'firefox',
-        version: '79',
-    },
-];
-
 const mode = process.env.MODE;
 
 const username = process.env.SAUCE_USERNAME;
@@ -89,8 +69,7 @@ const customData = {
 };
 
 function getCapabilities() {
-    const isCompat = process.env.MODE && /compat/.test(process.env.MODE);
-    let filtered = isCompat ? compatBrowsers : browsers;
+    let filtered = browsers;
 
     const args = minimist(process.argv.slice(2));
     const userBrowsers = args.browsers;
