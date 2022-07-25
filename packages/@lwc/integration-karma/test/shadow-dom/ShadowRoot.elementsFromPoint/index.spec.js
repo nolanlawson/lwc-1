@@ -113,7 +113,7 @@ describe('elementsFromPoint', () => {
         // window.safari detects Safari, Safari shipped BigInt in Safari 14
         // https://stackoverflow.com/a/9851769
         // https://caniuse.com/bigint
-        const isOldSafari = typeof safari !== 'undefined' && typeof BigInt !== 'function';
+        const isOldSafari = 'safari' in window && typeof BigInt !== 'function';
         // For some reason this test fails in old Safari
         if (!isOldSafari) {
             it('host elements are not all visible', () => {
