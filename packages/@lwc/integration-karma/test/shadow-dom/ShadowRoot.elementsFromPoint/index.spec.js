@@ -112,7 +112,10 @@ describe('elementsFromPoint', () => {
 
         // Safari shipped MediaRecorder in Safari 14.1
         // https://caniuse.com/mediarecorder
-        const isOldSafari = typeof MediaRecorder !== 'function';
+        const isOldSafari =
+            navigator.userAgent.includes('Safari') &&
+            !navigator.userAgent.includes('Chrom') &&
+            typeof MediaRecorder !== 'function';
         // For some reason this test fails in old Safari
         if (!isOldSafari) {
             it('host elements are not all visible', () => {
