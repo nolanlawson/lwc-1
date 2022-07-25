@@ -127,12 +127,15 @@ describe('EventTarget.addEventListener', () => {
         expect(() => nodes.button.addEventListener()).toThrowError(TypeError);
     });
 
-    // IE, Firefox etc don't throw these errors
-    [123, 'string', true, BigInt('123'), Symbol('dummy')].forEach((primitive) => {
-        it(`should throw error when ${typeof primitive} is passed as second parameter`, () => {
-            expect(() => nodes.button.addEventListener('dummy', primitive)).toThrowError(TypeError);
+    if (typeof BigInt === 'function') {
+        [123, 'string', true, BigInt('123'), Symbol('dummy')].forEach((primitive) => {
+            it(`should throw error when ${typeof primitive} is passed as second parameter`, () => {
+                expect(() => nodes.button.addEventListener('dummy', primitive)).toThrowError(
+                    TypeError
+                );
+            });
         });
-    });
+    }
 
     describe('identical event listeners', () => {
         function test({ node, expectedCount }) {

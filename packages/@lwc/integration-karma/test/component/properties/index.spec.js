@@ -126,6 +126,11 @@ const expectedEnumerableAndWritableProps = [
     'toString',
 ];
 
+// Old versions of Safari return "constructor" in the props
+function removeConstructor(array) {
+    return array.filter((_) => _ !== 'constructor');
+}
+
 describe('properties', () => {
     let elm;
 
@@ -135,17 +140,17 @@ describe('properties', () => {
     });
 
     it('has expected enumerable properties', () => {
-        const props = elm.getEnumerableProps();
+        const props = removeConstructor(elm.getEnumerableProps());
         expect(props).toEqual(expectedEnumerableProps);
     });
 
     it('has expected writable properties', () => {
-        const props = elm.getEnumerableAndWritableProps();
+        const props = removeConstructor(elm.getEnumerableAndWritableProps());
         expect(props).toEqual(expectedEnumerableAndWritableProps);
     });
 
     it('has expected configurable properties', () => {
-        const props = elm.getEnumerableAndConfigurableProps();
+        const props = removeConstructor(elm.getEnumerableAndConfigurableProps());
         expect(props).toEqual([]);
     });
 });
