@@ -1,8 +1,10 @@
 <template>
     <template if:true={ssr}>
-        <p style="background-color: red; border-color: red;">txt</p>
+        <!-- id disables static content optimization due to api_scoped_id() -->
+        <p id="foo" style="background-color: red; border-color: red;">txt</p>
     </template>
     <template if:false={ssr}>
-        <p style="background-color: red; border-color: red; margin: 1px;">txt</p>
+        <!-- id disables static content optimization due to api_scoped_id() -->
+        <p id="bar" style="background-color: red; border-color: red; margin: 1px;">txt</p>
     </template>
 </template>
