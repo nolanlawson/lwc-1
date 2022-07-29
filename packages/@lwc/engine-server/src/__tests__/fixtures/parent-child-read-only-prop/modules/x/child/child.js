@@ -28,6 +28,12 @@ export default class extends LightningElement {
       results.push('deep: error hit during mutation')
     }
 
+    try {
+      delete this.object.foo
+    } catch (err) {
+      results.push('object: error hit during deletion')
+    }
+
     this.result = '\n' + results.join('\n')
   }
 }
