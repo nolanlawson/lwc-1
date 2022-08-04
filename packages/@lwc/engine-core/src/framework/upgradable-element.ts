@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
+import features from '@lwc/features';
 import { isUndefined, isFunction } from '@lwc/shared';
+import { connectRootElement, disconnectRootElement } from './vm';
 import type { RendererAPI } from './renderer';
 
 type UpgradeCallback = (elm: HTMLElement) => void;
@@ -42,6 +44,15 @@ export function getUpgradableConstructor(
             }
         }
     };
+    if (features.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+        CE.prototype.connectedCallback = function () {
+            connectRootElement(this);
+        };
+
+        CE.prototype.disconnectedCallback = function () {
+            disconnectRootElement(this);
+        };
+    }
     defineCustomElement(tagName, CE);
     return CE;
 }

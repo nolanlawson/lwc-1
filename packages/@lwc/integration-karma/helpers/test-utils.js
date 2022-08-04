@@ -192,9 +192,8 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
         };
     }
 
-    var customMatchers = {
-        toLogErrorDev: consoleDevMatcherFactory('error'),
-        toThrowErrorDev: function toThrowErrorDev() {
+    function errorMatcherFactory(errorListener) {
+        return function toThrowError() {
             return {
                 compare: function (actual, expectedErrorCtor, expectedMessage) {
                     function matchMessage(message) {
@@ -216,8 +215,8 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
                     if (typeof actual !== 'function') {
                         throw new Error('Expected function to throw error.');
                     } else if (
-                        typeof actual !== 'function' ||
-                        expectedErrorCtor.prototype instanceof Error
+                        expectedErrorCtor !== Error &&
+                        !(expectedErrorCtor.prototype instanceof Error)
                     ) {
                         throw new Error('Expected an error constructor.');
                     } else if (
@@ -229,13 +228,7 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
                         );
                     }
 
-                    let thrown;
-
-                    try {
-                        actual();
-                    } catch (error) {
-                        thrown = error;
-                    }
+                    var thrown = errorListener(actual);
 
                     if (process.env.NODE_ENV === 'production') {
                         if (thrown !== undefined) {
@@ -272,7 +265,50 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
                     }
                 },
             };
-        },
+        };
+    }
+
+    // Listen for errors thrown directly by the callback
+    function directErrorListener(callback) {
+        try {
+            callback();
+        } catch (error) {
+            return error;
+        }
+    }
+
+    // Listen for errors using window.addEventListener('error')
+    function windowErrorListener(callback) {
+        var error;
+        function onError(event) {
+            event.preventDefault(); // don't log the error
+            error = event.error;
+        }
+
+        // prevent jasmine from handling the global error
+        var originalOnError = window.onerror;
+        window.onerror = null;
+        window.addEventListener('error', onError);
+
+        try {
+            callback();
+        } finally {
+            window.onerror = originalOnError;
+            window.removeEventListener('error', onError);
+        }
+        return error;
+    }
+
+    function customElementConnectedErrorListener(callback) {
+        return window.lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+            ? windowErrorListener(callback)
+            : directErrorListener(callback);
+    }
+
+    var customMatchers = {
+        toLogErrorDev: consoleDevMatcherFactory('error'),
+        toThrowErrorDev: errorMatcherFactory(directErrorListener),
+        toThrowConnectedError: errorMatcherFactory(customElementConnectedErrorListener),
     };
 
     beforeAll(function () {
@@ -396,5 +432,6 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
         getHooks: getHooks,
         setHooks: setHooks,
         spyConsole: spyConsole,
+        customElementConnectedErrorListener: customElementConnectedErrorListener,
     };
 })(LWC, jasmine, beforeAll);

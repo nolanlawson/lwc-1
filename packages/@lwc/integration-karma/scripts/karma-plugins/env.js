@@ -33,7 +33,8 @@ function createEnvFile() {
         ENV_FILENAME,
         `
         window.lwcRuntimeFlags = {
-            ENABLE_FORCE_NATIVE_SHADOW_MODE_FOR_TEST: ${FORCE_NATIVE_SHADOW_MODE_FOR_TEST}
+            ENABLE_FORCE_NATIVE_SHADOW_MODE_FOR_TEST: ${FORCE_NATIVE_SHADOW_MODE_FOR_TEST},
+            ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE: true
         };
         window.process = {
             env: {
