@@ -221,6 +221,27 @@ if (SUPPORTS_CUSTOM_ELEMENTS) {
         });
     });
 
+    fdescribe('standard DOM errors for custom elements', () => {
+        // Many of these tests are inspired by WPT, in particular
+        // https://github.com/web-platform-tests/wpt/blob/71e460e/custom-elements/Document-createElement.html
+
+        const constructorScenarios = {
+            'non-dom-node': {foo: 'bar'},
+            'text-node': document.createTextNode('hello'),
+        }
+        for (const [testName, returnObject] of Object.entries(constructorScenarios)) {
+            it(`document.createElement reports a TypeError when constructor returns ${testName}`, () => {
+                const tagName = `x-test-invalid-${testName}`
+                customElements.define(tagName, class extends HTMLElement {
+                    constructor() {
+                        return returnObject
+                    }
+                })
+                expect(() => document.createElement(tagName)).toThrowError(TypeError)
+            })
+        }
+    })
+
     describe('constructor', () => {
         it('new-ing an LWC component constructor from customElements.get()', () => {
             createElement('x-nonce14', { is: Nonce14 });

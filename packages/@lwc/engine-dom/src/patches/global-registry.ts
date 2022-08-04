@@ -270,7 +270,13 @@ function internalUpgrade(
     // By `new`ing the UserCtor, we now jump to the constructor for the overridden global HTMLElement
     // The reason this happens is that the UserCtor extends HTMLElement, so it calls the `super()`.
     // Note that `upgradingInstance` is explicitly handled in the HTMLElement constructor.
-    new instanceDefinition.UserCtor();
+    const returnValue = new instanceDefinition.UserCtor();
+
+    if (!(returnValue instanceof Element)) {
+        // Constructors must return elements, following native browser behavior. See:
+        // https://github.com/web-platform-tests/wpt/blob/71e460e/custom-elements/Document-createElement.html
+        throw new TypeError("Failed to construct 'CustomElement': The result must implement HTMLElement interface")
+    }
 
     patchAttributesDuringUpgrade(instance, registeredDefinition, instanceDefinition);
 }
