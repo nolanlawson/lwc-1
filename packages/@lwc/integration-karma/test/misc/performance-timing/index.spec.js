@@ -36,7 +36,7 @@ function testRehydration(expected) {
 }
 
 function testNestedTree(expected) {
-    it('captures component nested component tree', () => {
+    fit('captures component nested component tree', () => {
         const elm = createElement('x-parent', { is: Parent });
         document.body.appendChild(elm);
 

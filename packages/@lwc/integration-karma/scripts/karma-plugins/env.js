@@ -19,6 +19,7 @@ const {
     COMPAT,
     FORCE_NATIVE_SHADOW_MODE_FOR_TEST,
     SYNTHETIC_SHADOW_ENABLED,
+    ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
 } = require('../shared/options');
 
 const DIST_DIR = path.resolve(__dirname, '../../dist');
@@ -34,7 +35,7 @@ function createEnvFile() {
         `
         window.lwcRuntimeFlags = {
             ENABLE_FORCE_NATIVE_SHADOW_MODE_FOR_TEST: ${FORCE_NATIVE_SHADOW_MODE_FOR_TEST},
-            ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE: true
+            ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE: ${ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE}
         };
         window.process = {
             env: {
