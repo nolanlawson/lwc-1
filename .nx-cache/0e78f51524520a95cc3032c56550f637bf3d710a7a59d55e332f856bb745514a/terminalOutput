@@ -1,0 +1,14 @@
+[2K[1G[2m$ jest[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-engine-core [39m[27m[0m [2msrc/libs/mutation-tracker/__tests__/[22m[1mindex.spec.ts[22m ([0m[1m[41m9.35 s[49m[22m[0m)
+  reactive-service
+    [32m✓[39m [2mshould observe object mutations via ReactiveObserver() instance during the observing phase (9 ms)[22m
+    [32m✓[39m [2mshould support observing and mutating the same value multiple times (1 ms)[22m
+    [32m✓[39m [2mshould recover from a throw during the observing phase (1 ms)[22m
+    [32m✓[39m [2mshould ignore object mutations signals when no value is observed (1 ms)[22m
+    [32m✓[39m [2mshould ignore valueObserved calls that are not part of an observing phase (1 ms)[22m
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 total
+[1mTests:       [22m[1m[32m5 passed[39m[22m, 5 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        10.958 s
+[2mRan all test suites[22m[2m.[22m

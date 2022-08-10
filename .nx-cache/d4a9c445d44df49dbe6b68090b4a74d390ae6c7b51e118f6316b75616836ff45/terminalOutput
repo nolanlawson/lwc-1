@@ -1,0 +1,11 @@
+[2K[1G[2m$ jest[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-template-compiler [39m[27m[0m [2msrc/__tests__/[22m[1merror-codes.spec.ts[22m ([0m[1m[41m6.982 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-template-compiler [39m[27m[0m [2msrc/__tests__/[22m[1mconfig.spec.ts[22m ([0m[1m[41m7.452 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-template-compiler [39m[27m[0m [2msrc/__tests__/[22m[1mindex.spec.ts[22m ([0m[1m[41m12.893 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-template-compiler [39m[27m[0m [2msrc/__tests__/[22m[1mfixtures.spec.ts[22m ([0m[1m[41m20.085 s[49m[22m[0m)
+
+[1mTest Suites: [22m[1m[32m4 passed[39m[22m, 4 total
+[1mTests:       [22m[1m[32m258 passed[39m[22m, 258 total
+[1mSnapshots:   [22m[1m[32m3 passed[39m[22m, 3 total
+[1mTime:[22m        20.8 s
+[2mRan all test suites[22m[2m.[22m

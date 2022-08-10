@@ -1,0 +1,7 @@
+[2K[1G[2m$ rollup --config ./scripts/rollup/rollup.config.js[22m
+[36m
+[1m/Users/nlawson/workspace/lwc/packages/@lwc/wire-service/src/index.ts[22m → [1mwire-service.js[22m...[39m
+[32mcreated [1mwire-service.js[22m in [1m1.8s[22m[39m
+[36m
+[1m/Users/nlawson/workspace/lwc/packages/@lwc/wire-service/src/index.ts[22m → [1mwire-service.cjs.js[22m...[39m
+[32mcreated [1mwire-service.cjs.js[22m in [1m1s[22m[39m

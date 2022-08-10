@@ -1,0 +1,36 @@
+[2K[1G[2m$ jest[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-wire-service [39m[27m[0m [2msrc/__tests__/[22m[1mindex.spec.ts[22m ([0m[1m[41m10.13 s[49m[22m[0m)
+  WireEventTarget from register
+    [32m✓[39m [2mshould invoke adapter factory once per wire (1 ms)[22m
+    connected
+      [32m✓[39m [2mshould invoke connected listeners (5 ms)[22m
+    disconnected
+      [32m✓[39m [2mshould invoke disconnected listeners (1 ms)[22m
+    config
+      [32m✓[39m [2mshould invoke config listeners (4 ms)[22m
+      [32m✓[39m [2mshould immediately fires CONFIG when there is a config ready in the adapter instance (2 ms)[22m
+      [32m✓[39m [2mshould enqueue listener to be called when config is ready (5 ms)[22m
+    dispatchEvent
+      [32m✓[39m [2mshould invoke data callback when dispatchEvent (1 ms)[22m
+      [32m✓[39m [2mshould dispatchEvent in wiredComponent when dispatching event with type wirecontextevent (2 ms)[22m
+      [32m✓[39m [2mshould throw on non-ValueChangedEvent (14 ms)[22m
+    addEventListener
+      [32m✓[39m [2mshould throw when adding unknown event listener type (2 ms)[22m
+    removeEventListener
+      [32m✓[39m [2mshould remove listener from the queue for connect event (2 ms)[22m
+      [32m✓[39m [2mshould remove listener from the queue for disconnect event (3 ms)[22m
+      [32m✓[39m [2mshould remove listener from the queue for config event (1 ms)[22m
+      [32m✓[39m [2mshould throw when event type is not supported (4 ms)[22m
+  register
+    [32m✓[39m [2maccepts function as adapter id (1 ms)[22m
+    [32m✓[39m [2mthrows when adapter id is not truthy (2 ms)[22m
+    [32m✓[39m [2mthrows when adapter factory is not a function (1 ms)[22m
+    [32m✓[39m [2mshould throw when adapter id is already associated to an adapter factory (1 ms)[22m
+    [32m✓[39m [2mshould freeze adapter property (1 ms)[22m
+    [32m✓[39m [2mshould freeze adapter class (2 ms)[22m
+
+[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 total
+[1mTests:       [22m[1m[32m20 passed[39m[22m, 20 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        12.687 s
+[2mRan all test suites[22m[2m.[22m

@@ -1,0 +1,4 @@
+[2K[1G[2m$ NODE_ENV=production rollup -c[22m
+[36m
+[1msrc/main.js[22m → [1mdist/main.js[22m...[39m
+[32mcreated [1mdist/main.js[22m in [1m1s[22m[39m

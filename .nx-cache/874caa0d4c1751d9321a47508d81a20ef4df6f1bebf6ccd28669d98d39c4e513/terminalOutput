@@ -1,0 +1,8 @@
+[2K[1G[2m$ rollup --config ./scripts/rollup/rollup.config.js[22m
+[36m
+[1m/Users/nlawson/workspace/lwc/packages/@lwc/shared/src/index.ts[22m → [1mindex.js[22m...[39m
+[32mcreated [1mindex.js[22m in [1m1.7s[22m[39m
+[36m
+[1m/Users/nlawson/workspace/lwc/packages/@lwc/shared/src/index.ts[22m → [1mindex.cjs.js[22m...[39m
+[32mcreated [1mindex.cjs.js[22m in [1m951ms[22m[39m
+[2K[1G[2m$ node ../../../scripts/tasks/verify-treeshakable.js ./dist/index.js[22m

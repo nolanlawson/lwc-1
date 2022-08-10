@@ -1,0 +1,4 @@
+[2K[1G[2m$ rollup --config ./scripts/rollup/rollup.config.js[22m
+[36m
+[1m/Users/nlawson/workspace/lwc/packages/@lwc/synthetic-shadow/src/index.ts[22m → [1mdist/synthetic-shadow.js[22m...[39m
+[32mcreated [1mdist/synthetic-shadow.js[22m in [1m4.5s[22m[39m

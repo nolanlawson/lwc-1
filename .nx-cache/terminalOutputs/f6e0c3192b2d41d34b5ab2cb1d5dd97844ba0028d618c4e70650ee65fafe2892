@@ -1,0 +1,82 @@
+[2K[1G[2m$ yarn sauce:prod[22m
+[2K[1G[2m$ MODE=prod yarn build:prod && MODE=prod wdio ./scripts/wdio.sauce.conf.js[22m
+[2K[1G[2m$ MODE=prod yarn build[22m
+[2K[1G[2m$ node scripts/build.js[22m
+Building integration test: delegate-focus-click-input-in-negative-tabindex | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegate-focus-click-input-in-negative-tabindex/test-delegate-focus-click-input-in-negative-tabindex.test.js
+Building integration test: delegate-focus-click-input-in-negative-tabindex-previous-sibling-focused | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegate-focus-click-input-in-negative-tabindex-previous-sibling-focused/test-delegate-focus-click-input-in-negative-tabindex-previous-sibling-focused.test.js
+Building integration test: delegates-focus | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus/test-delegates-focus.test.js
+Building integration test: delegates-focus-click-shadow-input-negative-tab-index | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-click-shadow-input-negative-tab-index/test-delegates-focus-click-shadow-input-negative-tab-index.test.js
+Building integration test: delegates-focus-click-target-natively-non-focusable | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-click-target-natively-non-focusable/test-delegates-focus-click-target-natively-non-focusable.test.js
+Building integration test: delegates-focus-false | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-false/test-delegates-focus-false.test.js
+Building integration test: delegates-focus-false-negative-tab-index | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-false-negative-tab-index/test-delegates-focus-false-negative-tab-index.test.js
+Building integration test: delegates-focus-focus-method-on-host-element | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-focus-method-on-host-element/test-delegates-focus-focus-method-on-host-element.test.js
+Building integration test: delegates-focus-focus-method-on-internal-element | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-focus-method-on-internal-element/test-delegates-focus-focus-method-on-internal-element.test.js
+Building integration test: delegates-focus-from-next-sibling | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-from-next-sibling/test-delegates-focus-from-next-sibling.test.js
+Building integration test: delegates-focus-from-previous-sibling | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-from-previous-sibling/test-delegates-focus-from-previous-sibling.test.js
+Building integration test: delegates-focus-negative-tabindex-focusin-handler | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-negative-tabindex-focusin-handler/test-delegates-focus-negative-tabindex-focusin-handler.test.js
+Building integration test: delegates-focus-nested-focusable-custom-elements | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-nested-focusable-custom-elements/test-delegates-focus-nested-focusable-custom-elements.test.js
+Building integration test: delegates-focus-next-sibling-visibility-false | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-next-sibling-visibility-false/test-delegates-focus-next-sibling-visibility-false.test.js
+Building integration test: delegates-focus-non-focusable-click-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-non-focusable-click-target/test-delegates-focus-non-focusable-click-target.test.js
+Building integration test: delegates-focus-slot | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-slot/test-delegates-focus-slot.test.js
+Building integration test: delegates-focus-tab-index-zero | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-tab-index-zero/test-delegates-focus-tab-index-zero.test.js
+Building integration test: delegates-focus-tab-index-zero-no-focusable-elements | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-tab-index-zero-no-focusable-elements/test-delegates-focus-tab-index-zero-no-focusable-elements.test.js
+Building integration test: delegates-focus-tab-index-zero-no-focusable-elements-no-after-elements | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-delegates-focus-tab-index-zero-no-focusable-elements-no-after-elements/test-delegates-focus-tab-index-zero-no-focusable-elements-no-after-elements.test.js
+Building integration test: related-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-related-target/test-related-target.test.js
+Building integration test: tab-navigation-tabindex-negative | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-tab-navigation-tabindex-negative/test-tab-navigation-tabindex-negative.test.js
+Building integration test: tab-navigation-tabindex-zero | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/accessibility/test-tab-navigation-tabindex-zero/test-tab-navigation-tabindex-zero.test.js
+Building integration test: invoke-focus-on-click | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-click/test-invoke-focus-on-click/test-invoke-focus-on-click.test.js
+Building integration test: nested-tabindex-negative | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-click/test-nested-tabindex-negative/test-nested-tabindex-negative.test.js
+Building integration test: backwards-compatible | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-programmatic/test-backwards-compatible/test-backwards-compatible.test.js
+Building integration test: basic | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-programmatic/test-basic/test-basic.test.js
+Building integration test: nested | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-programmatic/test-nested/test-nested.test.js
+Building integration test: noop-when-already-focused | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-programmatic/test-noop-when-already-focused/test-noop-when-already-focused.test.js
+Building integration test: not-focusable | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-programmatic/test-not-focusable/test-not-focusable.test.js
+Building integration test: slotted | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-programmatic/test-slotted/test-slotted.test.js
+Building integration test: disabled-button-after-negative-tabindex | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-disabled-button-after-negative-tabindex/test-disabled-button-after-negative-tabindex.test.js
+Building integration test: focus-event-while-navigating | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-focus-event-while-navigating/test-focus-event-while-navigating.test.js
+Building integration test: focusable-coverage | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-focusable-coverage/test-focusable-coverage.test.js
+Building integration test: focusable-span-after-negative-tabindex | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-focusable-span-after-negative-tabindex/test-focusable-span-after-negative-tabindex.test.js
+Building integration test: issue-1031 | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-issue-1031/test-issue-1031.test.js
+Building integration test: manual-delegation | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-manual-delegation/test-manual-delegation.test.js
+Building integration test: shift-tab-into-negative-tabindex | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-shift-tab-into-negative-tabindex/test-shift-tab-into-negative-tabindex.test.js
+Building integration test: tabindex-negative | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-negative/test-tabindex-negative.test.js
+Building integration test: tabindex-negative-after-inside-click | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-negative-after-inside-click/test-tabindex-negative-after-inside-click.test.js
+Building integration test: tabindex-negative-internal | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-negative-internal/test-tabindex-negative-internal.test.js
+Building integration test: tabindex-none | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-none/test-tabindex-none.test.js
+Building integration test: tabindex-toggle | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-toggle/test-tabindex-toggle.test.js
+Building integration test: tabindex-zero | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-zero/test-tabindex-zero.test.js
+Building integration test: tabindex-zero-after-inside-click | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-zero-after-inside-click/test-tabindex-zero-after-inside-click.test.js
+Building integration test: tabindex-zero-internal | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-zero-internal/test-tabindex-zero-internal.test.js
+Building integration test: tabindex-zero-internal-tabindex-negative | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/delegates-focus-tab-navigation/test-tabindex-zero-internal-tabindex-negative/test-tabindex-zero-internal-tabindex-negative.test.js
+Building integration test: element-from-point | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/dom/test-element-from-point/test-element-from-point.test.js
+Building integration test: inner-text | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/dom/test-inner-text/test-inner-text.test.js
+Building integration test: change-event-composed | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-change-event-composed/test-change-event-composed.test.js
+Building integration test: clipboard-event-composed | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-clipboard-event-composed/test-clipboard-event-composed.test.js
+Building integration test: focusin-composed-true | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-focusin-composed-true/test-focusin-composed-true.test.js
+Building integration test: focusout-composed-true | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-focusout-composed-true/test-focusout-composed-true.test.js
+Building integration test: retarget-body-related-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-retarget-body-related-target/test-retarget-body-related-target.test.js
+Building integration test: retarget-null-related-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-retarget-null-related-target/test-retarget-null-related-target.test.js
+Building integration test: retarget-related-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-retarget-related-target/test-retarget-related-target.test.js
+Building integration test: retarget-slotted-custom-element-related-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-retarget-slotted-custom-element-related-target/test-retarget-slotted-custom-element-related-target.test.js
+Building integration test: retarget-slotted-input-related-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-retarget-slotted-input-related-target/test-retarget-slotted-input-related-target.test.js
+Building integration test: slotted-event-target | /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/src/components/events/test-slotted-event-target/test-slotted-event-target.test.js
+[90m2022-08-11T22:13:35.010Z[39m [31mERROR[39m [97m@wdio/config:ConfigParser[39m: Failed loading configuration file: /Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/scripts/wdio.sauce.conf.js: Missing SAUCE_USERNAME environment variable
+Options:
+  --help     Show help                                                 [boolean]
+  --version  Show version number                                       [boolean]
+
+TypeError: Missing SAUCE_USERNAME environment variable
+    at Object.<anonymous> (/Users/nlawson/workspace/lwc/packages/@lwc/integration-tests/scripts/wdio.sauce.conf.js:72:11)
+    at Module._compile (node:internal/modules/cjs/loader:1105:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1159:10)
+    at Object.require.extensions.<computed> [as .js] (/Users/nlawson/workspace/lwc/node_modules/ts-node/src/index.ts:1608:43)
+    at Module.load (node:internal/modules/cjs/loader:981:32)
+    at Function.Module._load (node:internal/modules/cjs/loader:822:12)
+    at Module.require (node:internal/modules/cjs/loader:1005:19)
+    at require (node:internal/modules/cjs/helpers:102:18)
+    at FileSystemPathService.loadFile (/Users/nlawson/workspace/lwc/node_modules/@wdio/config/build/lib/FileSystemPathService.js:21:16)
+    at ConfigParser.addConfigFile (/Users/nlawson/workspace/lwc/node_modules/@wdio/config/build/lib/ConfigParser.js:40:46)
+[2K[1G[31merror[39m Command failed with exit code 1.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.
+[2K[1G[31merror[39m Command failed with exit code 1.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

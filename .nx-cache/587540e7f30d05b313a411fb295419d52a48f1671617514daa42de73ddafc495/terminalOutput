@@ -1,0 +1,9 @@
+[2K[1G[2m$ jest[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-errors [39m[27m[0m [2msrc/__tests__/[22m[1merrors.spec.ts[22m ([0m[1m[41m5.631 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m lwc-errors [39m[27m[0m [2msrc/compiler/__tests__/[22m[1mcompiler-errors.spec.ts[22m ([0m[1m[41m5.621 s[49m[22m[0m)
+
+[1mTest Suites: [22m[1m[32m2 passed[39m[22m, 2 total
+[1mTests:       [22m[1m[32m19 passed[39m[22m, 19 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        6.512 s
+[2mRan all test suites[22m[2m.[22m

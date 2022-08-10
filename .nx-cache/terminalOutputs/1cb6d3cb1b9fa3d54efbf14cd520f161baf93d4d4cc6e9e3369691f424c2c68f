@@ -1,0 +1,7 @@
+[2K[1G[2m$ rollup --config ./scripts/rollup/rollup.config.js[22m
+[36m
+[1m/Users/nlawson/workspace/lwc/packages/@lwc/features/src/flags.ts[22m → [1mflags.js[22m...[39m
+[32mcreated [1mflags.js[22m in [1m1.6s[22m[39m
+[36m
+[1m/Users/nlawson/workspace/lwc/packages/@lwc/features/src/flags.ts[22m → [1mflags.cjs.js[22m...[39m
+[32mcreated [1mflags.cjs.js[22m in [1m1s[22m[39m

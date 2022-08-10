@@ -1,0 +1,45 @@
+[2K[1G[2m$ node scripts/build.js[22m
+
+# Generating LWC artifacts...
+module: synthetic-shadow  | format: iife     | target: es2017 | min: false | debug: false | worker: 4  ✓
+module: synthetic-shadow  | format: esm      | target: es2017 | min: false | debug: false | worker: 4  ✓
+module: synthetic-shadow  | format: umd      | target: es2017 | min: false | debug: false | worker: 4  ✓
+module: wire-service      | format: iife     | target: es2017 | min: false | debug: false | worker: 8  ✓
+module: wire-service      | format: umd      | target: es2017 | min: false | debug: false | worker: 8  ✓
+module: wire-service      | format: esm      | target: es2017 | min: false | debug: false | worker: 8  ✓
+module: engine-dom        | format: esm      | target: es2017 | min: false | debug: false | worker: 0  ✓
+module: engine-dom        | format: iife     | target: es2017 | min: false | debug: false | worker: 0  ✓
+module: engine-dom        | format: umd      | target: es2017 | min: false | debug: false | worker: 0  ✓
+module: wire-service      | format: iife     | target: es5    | min: false | debug: false | worker: 9  ✓
+module: wire-service      | format: umd      | target: es5    | min: false | debug: false | worker: 9  ✓
+module: wire-service      | format: iife     | target: es2017 | min: true  | debug: false | worker: 11 ✓
+module: wire-service      | format: umd      | target: es2017 | min: true  | debug: true  | worker: 11 ✓
+module: wire-service      | format: umd      | target: es2017 | min: true  | debug: false | worker: 11 ✓
+module: wire-service      | format: iife     | target: es2017 | min: true  | debug: true  | worker: 11 ✓
+module: wire-service      | format: umd      | target: es5    | min: true  | debug: false | worker: 10 ✓
+module: wire-service      | format: iife     | target: es5    | min: true  | debug: false | worker: 10 ✓
+module: wire-service      | format: umd      | target: es5    | min: true  | debug: true  | worker: 10 ✓
+module: wire-service      | format: iife     | target: es5    | min: true  | debug: true  | worker: 10 ✓
+module: engine-server     | format: esm      | target: es2017 | min: false | debug: false | worker: 12 ✓
+module: engine-server     | format: commonjs | target: es2017 | min: false | debug: false | worker: 12 ✓
+module: synthetic-shadow  | format: iife     | target: es2017 | min: true  | debug: true  | worker: 7  ✓
+module: synthetic-shadow  | format: umd      | target: es2017 | min: true  | debug: true  | worker: 7  ✓
+module: synthetic-shadow  | format: umd      | target: es2017 | min: true  | debug: false | worker: 7  ✓
+module: synthetic-shadow  | format: iife     | target: es2017 | min: true  | debug: false | worker: 7  ✓
+module: synthetic-shadow  | format: iife     | target: es5    | min: false | debug: false | worker: 5  ✓
+module: synthetic-shadow  | format: umd      | target: es5    | min: false | debug: false | worker: 5  ✓
+module: engine-dom        | format: umd      | target: es2017 | min: true  | debug: true  | worker: 3  ✓
+module: engine-dom        | format: iife     | target: es2017 | min: true  | debug: false | worker: 3  ✓
+module: engine-dom        | format: iife     | target: es2017 | min: true  | debug: true  | worker: 3  ✓
+module: engine-dom        | format: umd      | target: es2017 | min: true  | debug: false | worker: 3  ✓
+module: engine-server     | format: commonjs | target: es2017 | min: true  | debug: false | worker: 13 ✓
+module: engine-dom        | format: iife     | target: es5    | min: false | debug: false | worker: 1  ✓
+module: engine-dom        | format: umd      | target: es5    | min: false | debug: false | worker: 1  ✓
+module: synthetic-shadow  | format: umd      | target: es5    | min: true  | debug: true  | worker: 6  ✓
+module: synthetic-shadow  | format: iife     | target: es5    | min: true  | debug: false | worker: 6  ✓
+module: synthetic-shadow  | format: umd      | target: es5    | min: true  | debug: false | worker: 6  ✓
+module: synthetic-shadow  | format: iife     | target: es5    | min: true  | debug: true  | worker: 6  ✓
+module: engine-dom        | format: umd      | target: es5    | min: true  | debug: true  | worker: 2  ✓
+module: engine-dom        | format: umd      | target: es5    | min: true  | debug: false | worker: 2  ✓
+module: engine-dom        | format: iife     | target: es5    | min: true  | debug: false | worker: 2  ✓
+module: engine-dom        | format: iife     | target: es5    | min: true  | debug: true  | worker: 2  ✓

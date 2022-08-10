@@ -1,0 +1,12 @@
+[2K[1G[2m$ jest[22m
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m rollup-plugin-lwc-compiler [39m[27m[0m [2msrc/__tests__/rootDir/[22m[1mrootDir.spec.ts[22m ([0m[1m[41m11.686 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m rollup-plugin-lwc-compiler [39m[27m[0m [2msrc/__tests__/warnings/[22m[1mwarnings.spec.ts[22m ([0m[1m[41m15.284 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m rollup-plugin-lwc-compiler [39m[27m[0m [2msrc/__tests__/compilerConfig/[22m[1mcompilerConfig.spec.ts[22m ([0m[1m[41m17.026 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m rollup-plugin-lwc-compiler [39m[27m[0m [2msrc/__tests__/integrations/[22m[1mintegrations.spec.ts[22m ([0m[1m[41m20.794 s[49m[22m[0m)
+[0m[7m[1m[32m PASS [39m[22m[27m[0m [0m[7m[37m rollup-plugin-lwc-compiler [39m[27m[0m [2msrc/__tests__/resolver/[22m[1mresolver.spec.ts[22m ([0m[1m[41m21.025 s[49m[22m[0m)
+
+[1mTest Suites: [22m[1m[32m5 passed[39m[22m, 5 total
+[1mTests:       [22m[1m[32m15 passed[39m[22m, 15 total
+[1mSnapshots:   [22m0 total
+[1mTime:[22m        22.837 s
+[2mRan all test suites[22m[2m.[22m

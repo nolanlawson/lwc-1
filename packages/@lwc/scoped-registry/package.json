@@ -1,0 +1,41 @@
+{
+    "name": "@lwc/scoped-registry",
+    "version": "2.22.0",
+    "description": "Register separate custom elements that share the same tag name",
+    "homepage": "https://lwc.dev/",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/salesforce/lwc.git",
+        "directory": "packages/@lwc/scoped-registry"
+    },
+    "bugs": {
+        "url": "https://github.com/salesforce/lwc/issues"
+    },
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.js",
+    "license": "MIT",
+    "typings": "types/index.d.ts",
+    "scripts": {
+        "clean": "rm -rf dist/ types/",
+        "build": "rollup --config scripts/rollup.config.js",
+        "dev": "rollup  --config scripts/rollup.config.js --watch --no-watch.clearScreen"
+    },
+    "files": [
+        "dist/",
+        "types/"
+    ],
+    "keywords": [
+        "lwc",
+        "polyfill",
+        "custom",
+        "elements",
+        "scoped",
+        "registry"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "dependencies": {
+        "@lwc/shared": "2.22.0"
+    }
+}
