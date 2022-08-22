@@ -277,40 +277,51 @@ function removeAttribute(element: E, name: string, namespace?: string | null) {
     );
 }
 
-function getClassList(element: E) {
-    function getClassAttribute(): HostAttribute {
-        let classAttribute = element[HostAttributesKey].find(
-            (attr) => attr.name === 'class' && isNull(attr[HostNamespaceKey])
-        );
+function getClassAttribute(element: E): HostAttribute {
+    let classAttribute = element[HostAttributesKey].find(
+      (attr) => attr.name === 'class' && isNull(attr[HostNamespaceKey])
+    );
 
-        if (isUndefined(classAttribute)) {
-            classAttribute = {
-                name: 'class',
-                [HostNamespaceKey]: null,
-                value: '',
-            };
-            element[HostAttributesKey].push(classAttribute);
-        }
-
-        return classAttribute;
+    if (isUndefined(classAttribute)) {
+        classAttribute = {
+            name: 'class',
+            [HostNamespaceKey]: null,
+            value: '',
+        };
+        element[HostAttributesKey].push(classAttribute);
     }
 
-    return {
-        add(...names: string[]): void {
-            const classAttribute = getClassAttribute();
+    return classAttribute;
+}
 
-            const tokenList = classNameToTokenList(classAttribute.value);
-            names.forEach((name) => tokenList.add(name));
-            classAttribute.value = tokenListToClassName(tokenList);
-        },
-        remove(...names: string[]): void {
-            const classAttribute = getClassAttribute();
+function addClass(element: E, className: string): void {
+    const classAttribute = getClassAttribute(element);
 
-            const tokenList = classNameToTokenList(classAttribute.value);
-            names.forEach((name) => tokenList.delete(name));
-            classAttribute.value = tokenListToClassName(tokenList);
-        },
-    } as DOMTokenList;
+    const tokenList = classNameToTokenList(classAttribute.value);
+    tokenList.add(className)
+    classAttribute.value = tokenListToClassName(tokenList);
+}
+
+function removeClass(element: E, className: string): void {
+    const classAttribute = getClassAttribute(element);
+
+    const tokenList = classNameToTokenList(classAttribute.value);
+    tokenList.delete(className);
+    classAttribute.value = tokenListToClassName(tokenList);
+}
+
+function containsClass(element: E, className: string): boolean {
+    const classAttribute = getClassAttribute(element);
+
+    const tokenList = classNameToTokenList(classAttribute.value);
+    return tokenList.has(className);
+}
+
+function getClassListLength(element: E): number {
+    const classAttribute = getClassAttribute(element);
+
+    const tokenList = classNameToTokenList(classAttribute.value);
+    return tokenList.size
 }
 
 function setCSSStyleProperty(element: E, name: string, value: string, important: boolean) {
@@ -427,7 +438,10 @@ export const renderer = {
     addEventListener,
     removeEventListener,
     dispatchEvent,
-    getClassList,
+    addClass,
+    removeClass,
+    containsClass,
+    getClassListLength,
     setCSSStyleProperty,
     getBoundingClientRect,
     querySelector,

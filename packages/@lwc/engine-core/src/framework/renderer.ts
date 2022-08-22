@@ -42,7 +42,10 @@ export interface RendererAPI {
         options?: EventListenerOptions | boolean
     ) => void;
     dispatchEvent: (target: N, event: Event) => boolean;
-    getClassList: (element: E) => DOMTokenList;
+    addClass(element: Element, className: string): void;
+    removeClass(element: Element, className: string): void;
+    containsClass(element: Element, className: string): boolean;
+    getClassListLength(element: Element): number;
     setCSSStyleProperty: (element: E, name: string, value: string, important: boolean) => void;
     getBoundingClientRect: (element: E) => ClientRect;
     querySelector: (element: E, selectors: string) => E | null;

@@ -202,8 +202,20 @@ function dispatchEvent(target: Node, event: Event): boolean {
     return target.dispatchEvent(event);
 }
 
-function getClassList(element: Element): DOMTokenList {
-    return element.classList;
+function addClass(element: Element, className: string): void {
+    element.classList.add(className);
+}
+
+function removeClass(element: Element, className: string): void {
+    element.classList.remove(className);
+}
+
+function containsClass(element: Element, className: string): boolean {
+    return element.classList.contains(className)
+}
+
+function getClassListLength(element: Element): number {
+    return element.classList.length
 }
 
 function setCSSStyleProperty(
@@ -297,7 +309,10 @@ export const renderer = {
     addEventListener,
     removeEventListener,
     dispatchEvent,
-    getClassList,
+    addClass,
+    removeClass,
+    containsClass,
+    getClassListLength,
     setCSSStyleProperty,
     getBoundingClientRect,
     querySelector,
