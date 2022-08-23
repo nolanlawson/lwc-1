@@ -12,15 +12,14 @@ if (window.lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
                 'This indicates that an element was created with this tag name, which is already reserved ' +
                 'by an LWC component. Use lwc.createElement instead to create elements.';
 
-            const elm = document.createElement('lwc-already-reserved-this-tag-name');
-
+            let elm;
             expect(() => {
-                document.body.appendChild(elm);
+                elm = document.createElement('lwc-already-reserved-this-tag-name');
             }).toLogErrorDev(expectedMessage);
 
-            expect(() => {
-                document.body.removeChild(elm);
-            }).toLogErrorDev(expectedMessage);
+            // Confirm that connectedCallback/disconnectedCallback don't throw
+            document.body.appendChild(elm);
+            document.body.removeChild(elm);
         });
     });
 }

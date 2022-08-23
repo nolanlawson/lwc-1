@@ -48,6 +48,10 @@ export function getUpgradableConstructor(
     if (!isUndefined(CE)) {
         return CE;
     }
+
+    // This is global to all instances of the class, should be per-instance instead
+    let hasVM: boolean;
+
     /**
      * LWC Upgradable Element reference to an element that was created
      * via the scoped registry mechanism, and that is ready to be upgraded.
@@ -58,17 +62,18 @@ export function getUpgradableConstructor(
             if (isFunction(upgradeCallback)) {
                 upgradeCallback(this); // nothing to do with the result for now
             }
+            hasVM = checkHasVM(this);
         }
     };
     if (features.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
         CE.prototype.connectedCallback = function () {
-            if (checkHasVM(this)) {
+            if (hasVM) {
                 connectRootElement(this);
             }
         };
 
         CE.prototype.disconnectedCallback = function () {
-            if (checkHasVM(this)) {
+            if (hasVM) {
                 disconnectRootElement(this);
             }
         };
