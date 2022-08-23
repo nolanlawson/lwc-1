@@ -44,7 +44,7 @@ import {
     isAttribute,
     isProhibitedIsAttribute,
     isTabIndexAttribute,
-    isValidHTMLAttribute,
+    isValidAttribute,
     isValidTabIndexAttributeValue,
     normalizeAttributeValue,
     ParsedAttribute,
@@ -857,14 +857,14 @@ function parseSlot(
 }
 
 function applyAttributes(ctx: ParserCtx, parsedAttr: ParsedAttribute, element: BaseElement): void {
-    const { name: tag } = element;
+    const { name: tag, namespace } = element;
     const attributes = parsedAttr.getAttributes();
     const properties: Map<string, Property> = new Map();
 
     for (const attr of attributes) {
         const { name } = attr;
 
-        if (!isValidHTMLAttribute(tag, name)) {
+        if (!isValidAttribute(tag, namespace, name)) {
             ctx.warnOnNode(ParserDiagnostics.INVALID_HTML_ATTRIBUTE, attr, [name, tag]);
         }
 

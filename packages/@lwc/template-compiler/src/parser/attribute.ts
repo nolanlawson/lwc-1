@@ -5,20 +5,15 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import * as parse5 from 'parse5';
+import { htmlElementAttributes } from 'html-element-attributes';
+import { svgElementAttributes } from 'svg-element-attributes';
 import { ParserDiagnostics } from '@lwc/errors';
-import {
-    isAriaAttribute,
-    isBooleanAttribute,
-    isGlobalHtmlAttribute,
-    HTML_NAMESPACE,
-    SVG_NAMESPACE,
-} from '@lwc/shared';
+import { isAriaAttribute, isBooleanAttribute, HTML_NAMESPACE, SVG_NAMESPACE } from '@lwc/shared';
 
 import { isComponent } from '../shared/ast';
 import { toPropertyName } from '../shared/utils';
 import { Attribute, BaseElement, SourceLocation } from '../shared/types';
 
-import { DASHED_TAGNAME_ELEMENT_SET } from '../shared/constants';
 import ParserCtx from './parser';
 import {
     EXPRESSION_SYMBOL_END,
@@ -29,12 +24,9 @@ import {
 import {
     ATTR_NAME,
     DATA_RE,
-    SUPPORTED_SVG_TAGS,
     ATTRS_PROPS_TRANFORMS,
-    HTML_ATTRIBUTES_REVERSE_LOOKUP,
     HTML_TAG,
     ID_REFERENCING_ATTRIBUTES_SET,
-    KNOWN_HTML_AND_SVG_ELEMENTS,
     TEMPLATE_DIRECTIVES,
 } from './constants';
 
@@ -181,14 +173,14 @@ export function isValidTabIndexAttributeValue(value: any): boolean {
 }
 
 export function isAriaOrDataOrFmkAttribute(attrName: string): boolean {
-    return isAriaAttribute(attrName) || isFmkAttribute(attrName) || isDataAttribute(attrName);
+    return isAriaAttribute(attrName) || isFrameworkAttribute(attrName) || isDataAttribute(attrName);
 }
 
 function isDataAttribute(attrName: string): boolean {
     return !!attrName.match(DATA_RE);
 }
 
-function isFmkAttribute(attrName: string): boolean {
+function isFrameworkAttribute(attrName: string): boolean {
     return attrName === 'key' || attrName === 'slot';
 }
 
@@ -214,20 +206,22 @@ export function isAttribute(element: BaseElement, attrName: string): boolean {
     return true;
 }
 
-export function isValidHTMLAttribute(tagName: string, attrName: string): boolean {
+export function isValidAttribute(tagName: string, namespace: string, attrName: string): boolean {
     if (
-        isGlobalHtmlAttribute(attrName) ||
-        isAriaOrDataOrFmkAttribute(attrName) ||
         isTemplateDirective(attrName) ||
-        SUPPORTED_SVG_TAGS.has(tagName) ||
-        DASHED_TAGNAME_ELEMENT_SET.has(tagName) ||
-        !KNOWN_HTML_AND_SVG_ELEMENTS.has(tagName)
+        isFrameworkAttribute(attrName) ||
+        isDataAttribute(attrName)
     ) {
         return true;
     }
-
-    const validElements = HTML_ATTRIBUTES_REVERSE_LOOKUP[attrName];
-    return !!validElements && (!validElements.length || validElements.includes(tagName));
+    if (namespace === HTML_NAMESPACE) {
+        return htmlElementAttributes[tagName].includes(attrName);
+    }
+    if (namespace === SVG_NAMESPACE) {
+        return svgElementAttributes[tagName].includes(attrName);
+    }
+    // for MathML or other namespaces just assume it's fine
+    return true;
 }
 
 function isTemplateDirective(attrName: string): boolean {
