@@ -22,9 +22,6 @@ const formats = ['es', 'cjs'];
 
 function sharedPlugins() {
     return [
-        nodeResolve({
-            resolveOnly: [/^@lwc\//],
-        }),
         typescript(),
         replace({
             values: {
@@ -48,7 +45,13 @@ function injectInlineRenderer() {
                 const bundle = await rollup({
                     input: path.resolve(__dirname, '../src/renderer/index.ts'),
 
-                    plugins: [...sharedPlugins()],
+                    plugins: [
+                        // In the inline renderer, we only allow certain dependencies. Any others should fail
+                        nodeResolve({
+                            resolveOnly: ['@lwc/shared'],
+                        }),
+                        ...sharedPlugins(),
+                    ],
                 });
                 const { output } = await bundle.generate({
                     name: 'renderer',
@@ -56,7 +59,7 @@ function injectInlineRenderer() {
                 });
                 const { code, modules } = output[0];
 
-                // In watch mode, Rollup doesn't know by default that we care about `./renderer.index.ts` or
+                // In watch mode, Rollup doesn't know by default that we care about `./renderer/index.ts` or
                 // its dependencies. If we call `addWatchFile` within the transform hook, Rollup will watch these files.
                 for (const filename of Object.keys(modules)) {
                     this.addWatchFile(filename);
@@ -80,7 +83,15 @@ module.exports = {
         };
     }),
 
-    plugins: [...sharedPlugins(), writeDistAndTypes(), lwcFeatures(), injectInlineRenderer()],
+    plugins: [
+        nodeResolve({
+            resolveOnly: [/^@lwc\//],
+        }),
+        ...sharedPlugins(),
+        writeDistAndTypes(),
+        lwcFeatures(),
+        injectInlineRenderer(),
+    ],
 
     onwarn({ code, message }) {
         if (!process.env.ROLLUP_WATCH && code !== 'CIRCULAR_DEPENDENCY') {
