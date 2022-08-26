@@ -42,6 +42,7 @@ function injectInlineRenderer() {
     // So we run Rollup inside of a Rollup plugin to accomplish this
     return {
         name: 'inject-inline-renderer',
+
         async transform(source) {
             if (source.includes(stringToReplace)) {
                 const bundle = await rollup({
@@ -53,7 +54,13 @@ function injectInlineRenderer() {
                     name: 'renderer',
                     format: 'iife',
                 });
-                const { code } = output[0];
+                const { code, modules } = output[0];
+
+                // In watch mode, Rollup doesn't know by default that we care about `./renderer.index.ts` or
+                // its dependencies. If we call `addWatchFile` within the transform hook, Rollup will watch these files.
+                for (const filename of Object.keys(modules)) {
+                    this.addWatchFile(filename);
+                }
 
                 return source.replace(stringToReplace, code.replace('var renderer =', ''));
             }
