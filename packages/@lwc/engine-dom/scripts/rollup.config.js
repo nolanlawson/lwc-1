@@ -8,17 +8,58 @@
 /* eslint-env node */
 
 const path = require('path');
+const { rollup } = require('rollup');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const replace = require('@rollup/plugin-replace');
 const typescript = require('../../../../scripts/rollup/typescript');
 const writeDistAndTypes = require('../../../../scripts/rollup/writeDistAndTypes');
 const lwcFeatures = require('../../../../scripts/rollup/lwcFeatures');
 const { version } = require('../package.json');
-const renderer = require('../dist/renderer');
 
 const banner = `/* proxy-compat-disable */`;
 const footer = `/* version: ${version} */`;
 const formats = ['es', 'cjs'];
+
+function sharedPlugins() {
+    return [
+        nodeResolve({
+            resolveOnly: [/^@lwc\//],
+        }),
+        typescript(),
+        replace({
+            values: {
+                'process.env.IS_BROWSER': 'true',
+            },
+            preventAssignment: true,
+        }),
+    ];
+}
+
+function injectInlineRenderer() {
+    const stringToReplace = 'process.env.RENDERER';
+
+    // The renderer in the renderer factory needs to be inlined in the function, with all of its dependencies.
+    // So we run Rollup inside of a Rollup plugin to accomplish this
+    return {
+        name: 'inject-inline-renderer',
+        async transform(source) {
+            if (source.includes(stringToReplace)) {
+                const bundle = await rollup({
+                    input: path.resolve(__dirname, '../src/renderer/index.ts'),
+
+                    plugins: [...sharedPlugins()],
+                });
+                const { output } = await bundle.generate({
+                    name: 'renderer',
+                    format: 'iife',
+                });
+                const { code } = output[0];
+
+                return source.replace(stringToReplace, code.replace('var renderer =', ''));
+            }
+        },
+    };
+}
 
 module.exports = {
     input: path.resolve(__dirname, '../src/index.ts'),
@@ -32,21 +73,7 @@ module.exports = {
         };
     }),
 
-    plugins: [
-        nodeResolve({
-            resolveOnly: [/^@lwc\//],
-        }),
-        typescript(),
-        writeDistAndTypes(),
-        lwcFeatures(),
-        replace({
-            values: {
-                'process.env.IS_BROWSER': 'true',
-                'process.env.RENDERER': renderer,
-            },
-            preventAssignment: true,
-        }),
-    ],
+    plugins: [...sharedPlugins(), writeDistAndTypes(), lwcFeatures(), injectInlineRenderer()],
 
     onwarn({ code, message }) {
         if (!process.env.ROLLUP_WATCH && code !== 'CIRCULAR_DEPENDENCY') {
