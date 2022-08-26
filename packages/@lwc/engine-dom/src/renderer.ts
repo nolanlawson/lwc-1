@@ -15,6 +15,7 @@ import {
     KEY__SHADOW_TOKEN,
     isNull,
 } from '@lwc/shared';
+import { RendererAPI } from '@lwc/engine-core';
 import { insertStylesheet } from './styles';
 import { createCustomElement } from './customElements';
 import { createFragment } from './createFragment';
@@ -208,7 +209,7 @@ function assertInstanceOfHTMLElement(elm: any, msg: string) {
     assert.invariant(elm instanceof HTMLElement, msg);
 }
 
-export const renderer = {
+export const renderer: RendererAPI = {
     isNativeShadowDefined,
     isSyntheticShadowDefined,
     insert,

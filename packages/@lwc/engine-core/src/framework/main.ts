@@ -55,3 +55,5 @@ export type {
     WireAdapterConstructor,
     WireAdapterSchemaValue,
 } from './wiring';
+
+export type { RendererAPI } from './renderer';
