@@ -14,6 +14,7 @@ const typescript = require('../../../../scripts/rollup/typescript');
 const writeDistAndTypes = require('../../../../scripts/rollup/writeDistAndTypes');
 const lwcFeatures = require('../../../../scripts/rollup/lwcFeatures');
 const { version } = require('../package.json');
+const renderer = require('../dist/renderer');
 
 const banner = `/* proxy-compat-disable */`;
 const footer = `/* version: ${version} */`;
@@ -41,6 +42,7 @@ module.exports = {
         replace({
             values: {
                 'process.env.IS_BROWSER': 'true',
+                'process.env.RENDERER': renderer,
             },
             preventAssignment: true,
         }),
