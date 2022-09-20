@@ -1,0 +1,26 @@
+{
+    "warnings": [
+        {
+            "code": 1071,
+            "message": "LWC1071: Missing key for element <div> inside of iterator. Elements within iterators must have a unique, computed key value.",
+            "level": 1,
+            "location": {
+                "line": 3,
+                "column": 9,
+                "start": 54,
+                "length": 11
+            }
+        },
+        {
+            "code": 1071,
+            "message": "LWC1071: Missing key for element <span> inside of iterator. Elements within iterators must have a unique, computed key value.",
+            "level": 1,
+            "location": {
+                "line": 5,
+                "column": 5,
+                "start": 86,
+                "length": 13
+            }
+        }
+    ]
+}
