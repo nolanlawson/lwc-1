@@ -294,7 +294,7 @@ function hydrateChildren(
                         );
                     }
                 }
-                mount(childVnode, parentNode, renderer, anchor);
+                mount(childVnode, parentNode, renderer, anchor, owner);
                 anchor = childVnode.elm!;
             }
         }
@@ -327,7 +327,7 @@ function handleMismatch(node: Node, vnode: VNode, renderer: RendererAPI): Node |
     hasMismatch = true;
     const { getProperty } = renderer;
     const parentNode = getProperty(node, 'parentNode');
-    mount(vnode, parentNode, renderer, node);
+    mount(vnode, parentNode, renderer, node, vnode.owner);
     removeNode(node, parentNode, renderer);
 
     return vnode.elm!;

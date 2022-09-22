@@ -6,8 +6,6 @@
  */
 import { ArrayPush, create, isFunction, seal } from '@lwc/shared';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
-import { RefVNodes, VM } from './vm';
-import { VBaseElement } from './vnodes';
 
 type Callback = () => void;
 
@@ -99,16 +97,4 @@ export function flattenStylesheets(stylesheets: TemplateStylesheetFactories): St
         }
     }
     return list;
-}
-
-// Set a ref (lwc:ref) on a VM, from a template API
-export function setRefVNode(vm: VM, ref: string, vnode: VBaseElement) {
-    // if this method is called, then vm.refVNodes is set as the template has refs.
-    const refVNodes: RefVNodes = vm.refVNodes!;
-
-    // In cases of conflict (two elements with the same ref), prefer, the last one,
-    // in depth-first traversal order.
-    if (!(ref in refVNodes) || refVNodes[ref].key < vnode.key) {
-        refVNodes[ref] = vnode;
-    }
 }
