@@ -30,7 +30,7 @@ export function generateErrorMessage(errorInfo: LWCErrorInfo, args?: any[]): str
         ? templateString(errorInfo.message, args)
         : errorInfo.message;
 
-    if (errorInfo.url && errorInfo.url !== '') {
+    if (errorInfo.url) {
         // TODO [#1289]: Add url info into message
     }
 

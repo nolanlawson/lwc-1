@@ -28,3 +28,5 @@ export interface Location {
     start?: number;
     length?: number;
 }
+
+export type LwcErrors = { [key: string]: LWCErrorInfo };

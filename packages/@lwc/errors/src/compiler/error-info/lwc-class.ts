@@ -4,23 +4,24 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { DiagnosticLevel } from '../../shared/types';
+import { DiagnosticLevel, LwcErrors } from '../../shared/types';
 
 /**
  * TODO [W-5678919]: implement script to determine the next available error code
  * In the meantime, reference and the update the value at src/compiler/error-info/index.ts
  */
 
-export const LWCClassErrors = {
+export const LWCClassErrors: LwcErrors = {
     INVALID_DYNAMIC_IMPORT_SOURCE_STRICT: {
         code: 1121,
         message:
             'Invalid import. The argument "{0}" must be a stringLiteral for dynamic imports when strict mode is enabled.',
+        level: DiagnosticLevel.Error,
         url: '',
     },
 };
 
-export const DecoratorErrors = {
+export const DecoratorErrors: LwcErrors = {
     ADAPTER_SHOULD_BE_FIRST_PARAMETER: {
         code: 1092,
         message:
