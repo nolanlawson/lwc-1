@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { isFalse, isUndefined, isNull } from '@lwc/shared';
-import featureFlags from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 import { VM, scheduleRehydration, forceRehydration } from './vm';
 import { isComponentConstructor } from './def';
 import { LightningElementConstructor } from './base-lightning-element';
@@ -91,7 +91,7 @@ export function getTemplateOrSwappedTemplate(tpl: Template): Template {
         throw new ReferenceError();
     }
 
-    if (featureFlags.ENABLE_HMR) {
+    if (lwcRuntimeFlags.ENABLE_HMR) {
         const visited: Set<Template> = new Set();
         while (swappedTemplateMap.has(tpl) && !visited.has(tpl)) {
             visited.add(tpl);
@@ -110,7 +110,7 @@ export function getComponentOrSwappedComponent(
         throw new ReferenceError();
     }
 
-    if (featureFlags.ENABLE_HMR) {
+    if (lwcRuntimeFlags.ENABLE_HMR) {
         const visited: Set<LightningElementConstructor> = new Set();
         while (swappedComponentMap.has(Ctor) && !visited.has(Ctor)) {
             visited.add(Ctor);
@@ -127,7 +127,7 @@ export function getStyleOrSwappedStyle(style: StylesheetFactory): StylesheetFact
         throw new ReferenceError();
     }
 
-    if (featureFlags.ENABLE_HMR) {
+    if (lwcRuntimeFlags.ENABLE_HMR) {
         const visited: Set<StylesheetFactory> = new Set();
         while (swappedStyleMap.has(style) && !visited.has(style)) {
             visited.add(style);
@@ -144,7 +144,7 @@ export function setActiveVM(vm: VM) {
         throw new ReferenceError();
     }
 
-    if (featureFlags.ENABLE_HMR) {
+    if (lwcRuntimeFlags.ENABLE_HMR) {
         // tracking active component
         const Ctor = vm.def.ctor;
         let componentVMs = activeComponents.get(Ctor);
@@ -196,7 +196,7 @@ export function removeActiveVM(vm: VM) {
         throw new ReferenceError();
     }
 
-    if (featureFlags.ENABLE_HMR) {
+    if (lwcRuntimeFlags.ENABLE_HMR) {
         // tracking inactive component
         const Ctor = vm.def.ctor;
         let list = activeComponents.get(Ctor);
@@ -237,7 +237,7 @@ export function swapTemplate(oldTpl: Template, newTpl: Template): boolean {
         }
     }
 
-    if (!featureFlags.ENABLE_HMR) {
+    if (!lwcRuntimeFlags.ENABLE_HMR) {
         throw new Error('HMR is not enabled');
     }
 
@@ -257,7 +257,7 @@ export function swapComponent(
         }
     }
 
-    if (!featureFlags.ENABLE_HMR) {
+    if (!lwcRuntimeFlags.ENABLE_HMR) {
         throw new Error('HMR is not enabled');
     }
 
@@ -272,7 +272,7 @@ export function swapStyle(oldStyle: StylesheetFactory, newStyle: StylesheetFacto
         return rehydrateHotStyle(oldStyle);
     }
 
-    if (!featureFlags.ENABLE_HMR) {
+    if (!lwcRuntimeFlags.ENABLE_HMR) {
         throw new Error('HMR is not enabled');
     }
 

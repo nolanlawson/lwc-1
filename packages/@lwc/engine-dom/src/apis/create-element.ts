@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import features from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 import { assert, assign, isFunction, isNull, isObject, isUndefined, toString } from '@lwc/shared';
 import {
     createVM,
@@ -38,7 +38,7 @@ function callNodeSlot(node: Node, slot: WeakMap<any, NodeSlotCallback>): Node {
     return node; // for convenience
 }
 
-if (!features.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+if (!lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
     // Monkey patching Node methods to be able to detect the insertions and removal of root elements
     // created via createElement.
     const { appendChild, insertBefore, removeChild, replaceChild } = _Node.prototype;
@@ -112,7 +112,7 @@ export function createElement(
             mode: options.mode !== 'closed' ? 'open' : 'closed',
             owner: null,
         });
-        if (!features.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+        if (!lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
             ConnectingSlot.set(elm, connectRootElement);
             DisconnectingSlot.set(elm, disconnectRootElement);
         }

@@ -14,7 +14,6 @@ module.exports = {
         '<rootDir>/packages/@lwc/engine-dom',
         '<rootDir>/packages/@lwc/engine-server',
         '<rootDir>/packages/@lwc/errors',
-        '<rootDir>/packages/@lwc/features',
         '<rootDir>/packages/@lwc/module-resolver',
         '<rootDir>/packages/@lwc/rollup-plugin',
         '<rootDir>/packages/@lwc/shared',

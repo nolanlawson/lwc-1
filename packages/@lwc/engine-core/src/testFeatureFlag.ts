@@ -5,14 +5,14 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
-import features from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 
 // Only used in LWC's Karma tests
 // @ts-ignore
 if (process.env.NODE_ENV !== 'production' && typeof __karma__ !== 'undefined') {
     window.addEventListener('test-dummy-flag', () => {
         let hasFlag = false;
-        if (features.DUMMY_TEST_FLAG) {
+        if (lwcRuntimeFlags.DUMMY_TEST_FLAG) {
             hasFlag = true;
         }
 

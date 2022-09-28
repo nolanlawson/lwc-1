@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import featureFlags from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 import { isNull, isFalse, defineProperties, defineProperty } from '@lwc/shared';
 
 import { getInnerText } from '../3rdparty/inner-text';
@@ -199,11 +199,11 @@ defineProperties(HTMLElement.prototype, {
 if (innerTextGetter !== null && innerTextSetter !== null) {
     defineProperty(HTMLElement.prototype, 'innerText', {
         get(this: HTMLElement): string {
-            if (!featureFlags.ENABLE_INNER_OUTER_TEXT_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_INNER_OUTER_TEXT_PATCH) {
                 return innerTextGetter!.call(this);
             }
 
-            if (!featureFlags.ENABLE_ELEMENT_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_ELEMENT_PATCH) {
                 if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
                     return getInnerText(this);
                 }
@@ -232,11 +232,11 @@ if (outerTextGetter !== null && outerTextSetter !== null) {
     // As a setter, it removes the current node and replaces it with the given text.
     defineProperty(HTMLElement.prototype, 'outerText', {
         get(this: HTMLElement): string {
-            if (!featureFlags.ENABLE_INNER_OUTER_TEXT_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_INNER_OUTER_TEXT_PATCH) {
                 return outerTextGetter!.call(this);
             }
 
-            if (!featureFlags.ENABLE_ELEMENT_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_ELEMENT_PATCH) {
                 if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
                     return getInnerText(this);
                 }

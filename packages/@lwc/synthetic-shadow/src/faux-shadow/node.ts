@@ -16,7 +16,7 @@ import {
     isTrue,
     isUndefined,
 } from '@lwc/shared';
-import featureFlags from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 
 import { Node } from '../env/node';
 import {
@@ -288,7 +288,7 @@ defineProperties(Node.prototype, {
     },
     textContent: {
         get(this: Node): string {
-            if (!featureFlags.ENABLE_NODE_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_NODE_PATCH) {
                 if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
                     return textContentGetterPatched.call(this);
                 }
@@ -388,7 +388,7 @@ defineProperties(Node.prototype, {
                 return true;
             }
 
-            if (!featureFlags.ENABLE_NODE_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_NODE_PATCH) {
                 if (otherNode == null) {
                     return false;
                 }
@@ -412,7 +412,7 @@ defineProperties(Node.prototype, {
     },
     cloneNode: {
         value(this: Node, deep?: boolean): Node {
-            if (!featureFlags.ENABLE_NODE_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_NODE_PATCH) {
                 if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
                     return cloneNodePatched.call(this, deep);
                 }

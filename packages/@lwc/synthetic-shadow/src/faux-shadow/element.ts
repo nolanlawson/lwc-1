@@ -16,7 +16,7 @@ import {
     isUndefined,
     KEY__SYNTHETIC_MODE,
 } from '@lwc/shared';
-import featureFlags from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 
 import {
     attachShadow as originalAttachShadow,
@@ -122,7 +122,7 @@ function lastElementChildGetterPatched(this: ParentNode) {
 defineProperties(Element.prototype, {
     innerHTML: {
         get(this: Element): string {
-            if (!featureFlags.ENABLE_ELEMENT_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_ELEMENT_PATCH) {
                 if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
                     return innerHTMLGetterPatched.call(this);
                 }
@@ -144,7 +144,7 @@ defineProperties(Element.prototype, {
     },
     outerHTML: {
         get(this: Element): string {
-            if (!featureFlags.ENABLE_ELEMENT_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_ELEMENT_PATCH) {
                 if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
                     return outerHTMLGetterPatched.call(this);
                 }
@@ -271,7 +271,7 @@ function querySelectorPatched(this: Element /*, selector: string*/): Element | n
             const elm = ArrayFind.call(nodeList, (elm) => getNodeNearestOwnerKey(elm) === ownerKey);
             return isUndefined(elm) ? null : elm;
         } else {
-            if (!featureFlags.ENABLE_NODE_LIST_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_NODE_LIST_PATCH) {
                 // `this` is a manually inserted element inside a shadowRoot, return the first element.
                 return nodeList.length === 0 ? null : nodeList[0];
             }
@@ -286,7 +286,7 @@ function querySelectorPatched(this: Element /*, selector: string*/): Element | n
             return isUndefined(elm) ? null : elm;
         }
     } else {
-        if (!featureFlags.ENABLE_NODE_LIST_PATCH) {
+        if (!lwcRuntimeFlags.ENABLE_NODE_LIST_PATCH) {
             if (!(this instanceof HTMLBodyElement)) {
                 const elm = nodeList[0];
                 return isUndefined(elm) ? null : elm;
@@ -379,7 +379,7 @@ defineProperties(Element.prototype, {
                 elementQuerySelectorAll.apply(this, ArraySlice.call(arguments) as [string])
             );
 
-            if (!featureFlags.ENABLE_NODE_LIST_PATCH) {
+            if (!lwcRuntimeFlags.ENABLE_NODE_LIST_PATCH) {
                 const filteredResults = getFilteredArrayOfNodes(
                     this,
                     nodeList,
@@ -410,7 +410,7 @@ if (process.env.NODE_ENV !== 'test') {
                     )
                 );
 
-                if (!featureFlags.ENABLE_HTML_COLLECTIONS_PATCH) {
+                if (!lwcRuntimeFlags.ENABLE_HTML_COLLECTIONS_PATCH) {
                     return createStaticHTMLCollection(
                         getNonPatchedFilteredArrayOfNodes(this, elements)
                     );
@@ -433,7 +433,7 @@ if (process.env.NODE_ENV !== 'test') {
                     elementGetElementsByTagName.apply(this, ArraySlice.call(arguments) as [string])
                 );
 
-                if (!featureFlags.ENABLE_HTML_COLLECTIONS_PATCH) {
+                if (!lwcRuntimeFlags.ENABLE_HTML_COLLECTIONS_PATCH) {
                     return createStaticHTMLCollection(
                         getNonPatchedFilteredArrayOfNodes(this, elements)
                     );
@@ -459,7 +459,7 @@ if (process.env.NODE_ENV !== 'test') {
                     )
                 );
 
-                if (!featureFlags.ENABLE_HTML_COLLECTIONS_PATCH) {
+                if (!lwcRuntimeFlags.ENABLE_HTML_COLLECTIONS_PATCH) {
                     return createStaticHTMLCollection(
                         getNonPatchedFilteredArrayOfNodes(this, elements)
                     );

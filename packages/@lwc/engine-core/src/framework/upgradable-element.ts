@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import features from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 import { isUndefined, isFunction } from '@lwc/shared';
 import { logError } from '../shared/logger';
 import { connectRootElement, disconnectRootElement, getAssociatedVMIfPresent } from './vm';
@@ -60,7 +60,7 @@ export function getUpgradableConstructor(
             }
         }
     };
-    if (features.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+    if (lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
         CE.prototype.connectedCallback = function () {
             if (checkHasVM(this)) {
                 connectRootElement(this);

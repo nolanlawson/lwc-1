@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import features from '@lwc/features';
+import { lwcRuntimeFlags } from '@lwc/features';
 import { assert, isFunction, isUndefined, toString } from '@lwc/shared';
 import { logError } from '../../shared/logger';
 import { isInvokingRender, isBeingConstructed } from '../invoker';
@@ -111,7 +111,7 @@ export function createPublicAccessorDescriptor(
                 );
             }
             if (set) {
-                if (features.ENABLE_REACTIVE_SETTER) {
+                if (lwcRuntimeFlags.ENABLE_REACTIVE_SETTER) {
                     let ro = vm.oar[key as any];
                     if (isUndefined(ro)) {
                         ro = vm.oar[key as any] = createAccessorReactiveObserver(vm, set);
