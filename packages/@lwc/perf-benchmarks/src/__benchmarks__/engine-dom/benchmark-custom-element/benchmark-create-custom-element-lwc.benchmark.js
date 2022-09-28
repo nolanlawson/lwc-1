@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
-import 'lwc';
+import '@lwc/engine-dom';
 import { benchmark, before, run } from '../../../utils/benchmark-framework.js';
 
 benchmark(`benchmark-custom-element/create-custom-element`, () => {
