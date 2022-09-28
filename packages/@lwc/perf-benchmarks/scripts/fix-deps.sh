@@ -14,8 +14,12 @@ set -e
 
 mkdir -p ./node_modules/@lwc
 
-for pkg in @lwc/engine-dom @lwc/engine-server @lwc/synthetic-shadow @lwc/perf-benchmarks-components; do
+for pkg in @lwc/engine-dom @lwc/engine-server @lwc/synthetic-shadow @lwc/perf-benchmarks-components lwc; do
   if [ ! -L "./node_modules/$pkg" ]; then
-    ln -s "../../../../../packages/$pkg" "./node_modules/$pkg"
+    if [[ "$pkg" == *'/'* ]]; then # contains a / character, go one level deeper
+      ln -s "../../../../../packages/$pkg" "./node_modules/$pkg"
+    else
+      ln -s "../../../../packages/$pkg" "./node_modules/$pkg"
+    fi
   fi
 done
