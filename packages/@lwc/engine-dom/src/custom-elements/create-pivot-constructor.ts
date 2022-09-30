@@ -26,11 +26,16 @@ const definitionForElement = new WeakMap<HTMLElement, Definition>();
 const pendingRegistryForElement = new WeakMap<HTMLElement, Definition>();
 const definitionForConstructor = new WeakMap<CustomElementConstructor, Definition>();
 const registeredUserCtors = new WeakSet<CustomElementConstructor>();
+const registeredPivotCtors = new WeakSet<CustomElementConstructor>();
 
 const pivotCtorByTag = new Map<string, CustomElementConstructor>();
 const globalDefinitionsByTag = new Map<string, Definition>();
 const globalDefinitionsByClass = new Map<CustomElementConstructor, Definition>();
 const awaitingUpgrade = new Map<string, Set<HTMLElement>>();
+const deferredWhenDefineds = new Map<
+    string,
+    ((_: CustomElementConstructor | PromiseLike<CustomElementConstructor>) => void)[]
+>();
 
 const EMPTY_SET: Set<string> = new Set();
 
@@ -151,6 +156,7 @@ function createPivotingClass(
         }
         static observedAttributes = [...registeredDefinition.observedAttributes];
     }
+    registeredPivotCtors.add(PivotCtor);
     return PivotCtor;
 }
 
@@ -311,6 +317,27 @@ function getOrCreateDefinitionForConstructor(constructor: CustomElementConstruct
     return createDefinitionRecord(constructor);
 }
 
+function createDeferredWhenDefined(tagName: string): Promise<CustomElementConstructor> {
+    return new Promise((resolve) => {
+        let resolvers = deferredWhenDefineds.get(tagName);
+        if (isUndefined(resolvers)) {
+            resolvers = [];
+            deferredWhenDefineds.set(tagName, resolvers);
+        }
+        resolvers.push(resolve);
+    });
+}
+
+function flushDeferredWhenDefineds(tagName: string, ctor: CustomElementConstructor): void {
+    const resolvers = deferredWhenDefineds.get(tagName);
+    if (!isUndefined(resolvers)) {
+        for (const resolver of resolvers) {
+            resolver(ctor);
+        }
+    }
+    deferredWhenDefineds.delete(tagName);
+}
+
 /**
  * Create a new PivotConstructor for the given tagName, which is capable of being constructed
  * with a UserConstructor defining the behavior. Passing in the UserConstructor here
@@ -394,6 +421,8 @@ if (hasCustomElements) {
                 }
             }
         }
+        // If anyone called customElements.whenDefined() and is still waiting for a promise resolution, resolve now
+        flushDeferredWhenDefineds(tagName, constructor);
     };
 
     CustomElementRegistry.prototype.get = function get(
@@ -406,8 +435,10 @@ if (hasCustomElements) {
             if (!isUndefined(definition)) {
                 return definition.UserCtor; // defined by the patched custom elements registry
             }
-            // TODO [#3073]: return undefined rather than the pivot constructor (NativeCtor)
-            return NativeCtor; // return the pivot constructor or constructor that existed before patching
+            if (registeredPivotCtors.has(NativeCtor)) {
+                return undefined; // pivot constructors should not be observable, return undefined
+            }
+            return NativeCtor; // constructor that existed before patching
         }
     };
 
@@ -420,15 +451,18 @@ if (hasCustomElements) {
             if (!isUndefined(definition)) {
                 return definition.UserCtor;
             }
-            // TODO [#3073]: return undefined rather than the pivot constructor (NativeCtor)
-
-            // In this case, the custom element must have been defined before the registry patches
-            // were applied. So return the non-pivot constructor
             if (isUndefined(NativeCtor)) {
                 // Chromium bug: https://bugs.chromium.org/p/chromium/issues/detail?id=1335247
                 // We can patch the correct behavior using customElements.get()
-                return nativeGet.call(nativeRegistry, tagName)!;
+                NativeCtor = nativeGet.call(nativeRegistry, tagName)!;
             }
+
+            if (registeredPivotCtors.has(NativeCtor)) {
+                // pivot constructors should not be observable. Wait to resolve the promise
+                // if a constructor is ever defined in userland
+                return createDeferredWhenDefined(tagName);
+            }
+
             return NativeCtor;
         });
     };
