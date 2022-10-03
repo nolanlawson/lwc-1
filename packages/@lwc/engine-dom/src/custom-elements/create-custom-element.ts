@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
+import features from '@lwc/features';
 import { setPrototypeOf } from '@lwc/shared';
 import { createPivotConstructor } from './create-pivot-constructor';
 import { hasCustomElements } from './has-custom-elements';
@@ -46,6 +47,7 @@ if (hasCustomElements) {
             }
         };
     };
+
     createCustomElement = (
         tagName: string,
         upgradeCallback: LifecycleCallback,
@@ -57,8 +59,16 @@ if (hasCustomElements) {
             connectedCallback,
             disconnectedCallback
         );
-        const UpgradableConstructor = createPivotConstructor(tagName, UserConstructor);
-        return new UpgradableConstructor(UserConstructor);
+        if (features.ENABLE_GLOBAL_CUSTOM_ELEMENTS_REGISTRY) {
+            if (!customElements.get(tagName)) {
+                customElements.define(tagName, UserConstructor);
+            }
+            return new UserConstructor();
+        } else {
+            // use pivots
+            const UpgradableConstructor = createPivotConstructor(tagName, UserConstructor);
+            return new UpgradableConstructor(UserConstructor);
+        }
     };
 } else {
     // no registry available here

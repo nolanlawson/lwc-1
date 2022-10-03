@@ -105,6 +105,12 @@ export interface FeatureFlagMap {
      *  - `Node.prototype.getRootNode`
      */
     ENABLE_LIGHT_GET_ROOT_NODE_PATCH: FeatureFlagValue;
+
+    /**
+     * Flag to use the global custom elements registry directly, rather than patching the global registry
+     * to allow for multiple custom elements to use the same tag name (aka pivots).
+     */
+    ENABLE_GLOBAL_CUSTOM_ELEMENTS_REGISTRY: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;
