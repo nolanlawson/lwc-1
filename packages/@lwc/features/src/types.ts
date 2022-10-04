@@ -105,6 +105,13 @@ export interface FeatureFlagMap {
      *  - `Node.prototype.getRootNode`
      */
     ENABLE_LIGHT_GET_ROOT_NODE_PATCH: FeatureFlagValue;
+
+    /**
+     * Flag to enable scoped custom element registry (aka pivots).
+     *
+     * If this flag is disabled, then LWC components with the same tag name as vanilla custom elements may conflict.
+     */
+    ENABLE_SCOPED_CUSTOM_ELEMENT_REGISTRY: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;
