@@ -36,6 +36,21 @@ import {
     NpmModuleRecord,
 } from './types';
 
+const moduleResolutionCache = new Map<string, string>();
+
+function resolveWithCache(id: string, rootDir: string): string {
+    const cacheKey = `__${id}__${rootDir}__`;
+    let result = moduleResolutionCache.get(cacheKey);
+    if (!result) {
+        result = resolve.sync(id, {
+            basedir: rootDir,
+            preserveSymlinks: true,
+        });
+        moduleResolutionCache.set(cacheKey, result);
+    }
+    return result;
+}
+
 function resolveModuleFromAlias(
     specifier: string,
     moduleRecord: AliasModuleRecord,
@@ -106,10 +121,7 @@ function resolveModuleFromNpm(
 
     let pkgJsonPath;
     try {
-        pkgJsonPath = resolve.sync(`${npm}/package.json`, {
-            basedir: opts.rootDir,
-            preserveSymlinks: true,
-        });
+        pkgJsonPath = resolveWithCache(`${npm}/package.json`, opts.rootDir);
     } catch (error: any) {
         // If the module "package.json" can't be found, throw an an invalid config error. Otherwise
         // rethrow the original error.
