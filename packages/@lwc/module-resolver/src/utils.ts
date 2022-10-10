@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import path from 'path';
-import fs from 'fs';
+import { access } from 'fs/promises';
 
 import { LwcConfigError } from './errors';
 import {
@@ -23,6 +23,21 @@ import { isObject } from './shared';
 const PACKAGE_JSON = 'package.json';
 const LWC_CONFIG_FILE = 'lwc.config.json';
 
+// Via https://stackoverflow.com/a/65446343
+export async function exists(filename: string) {
+    try {
+        await access(filename);
+        return true;
+    } catch (err) {
+        const { code } = err as any;
+        if (code === 'ENOENT' || code === 'ENOTDIR') {
+            return false;
+        } else {
+            throw err;
+        }
+    }
+}
+
 export function isNpmModuleRecord(moduleRecord: ModuleRecord): moduleRecord is NpmModuleRecord {
     return 'npm' in moduleRecord;
 }
@@ -39,24 +54,24 @@ function getEntry(moduleDir: string, moduleName: string, ext: string): string {
     return path.join(moduleDir, `${moduleName}.${ext}`);
 }
 
-export function getModuleEntry(
+export async function getModuleEntry(
     moduleDir: string,
     moduleName: string,
     opts: InnerResolverOptions
-): string {
+): Promise<string> {
     const entryJS = getEntry(moduleDir, moduleName, 'js');
     const entryTS = getEntry(moduleDir, moduleName, 'ts');
     const entryHTML = getEntry(moduleDir, moduleName, 'html');
     const entryCSS = getEntry(moduleDir, moduleName, 'css');
 
     // Order is important
-    if (fs.existsSync(entryJS)) {
+    if (await exists(entryJS)) {
         return entryJS;
-    } else if (fs.existsSync(entryTS)) {
+    } else if (await exists(entryTS)) {
         return entryTS;
-    } else if (fs.existsSync(entryHTML)) {
+    } else if (await exists(entryHTML)) {
         return entryHTML;
-    } else if (fs.existsSync(entryCSS)) {
+    } else if (await exists(entryCSS)) {
         return entryCSS;
     }
 
@@ -128,7 +143,7 @@ export function mergeModules(
     return modules;
 }
 
-export function findFirstUpwardConfigPath(dirname: string): string {
+export async function findFirstUpwardConfigPath(dirname: string): Promise<string> {
     const parts = dirname.split(path.sep);
 
     while (parts.length > 1) {
@@ -136,8 +151,10 @@ export function findFirstUpwardConfigPath(dirname: string): string {
         const pkgJsonPath = path.join(upwardsPath, PACKAGE_JSON);
         const configJsonPath = path.join(upwardsPath, LWC_CONFIG_FILE);
 
-        const dirHasPkgJson = fs.existsSync(pkgJsonPath);
-        const dirHasLwcConfig = fs.existsSync(configJsonPath);
+        const [dirHasPkgJson, dirHasLwcConfig] = await Promise.all([
+            exists(pkgJsonPath),
+            exists(configJsonPath),
+        ]);
 
         if (dirHasLwcConfig && !dirHasPkgJson) {
             throw new LwcConfigError(
@@ -189,11 +206,11 @@ export function validateNpmAlias(
     });
 }
 
-export function getLwcConfig(dirname: string): LwcConfig {
+export async function getLwcConfig(dirname: string): Promise<LwcConfig> {
     const packageJsonPath = path.resolve(dirname, PACKAGE_JSON);
     const lwcConfigPath = path.resolve(dirname, LWC_CONFIG_FILE);
 
-    if (fs.existsSync(lwcConfigPath)) {
+    if (await exists(lwcConfigPath)) {
         return require(lwcConfigPath);
     } else {
         return require(packageJsonPath).lwc ?? {};

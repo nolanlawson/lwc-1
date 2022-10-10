@@ -5,8 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
-import fs from 'fs';
 import path from 'path';
+import { promisify } from 'util';
 import resolve from 'resolve';
 
 import {
@@ -23,6 +23,7 @@ import {
     remapList,
     transposeObject,
     validateNpmAlias,
+    exists,
 } from './utils';
 import { NoLwcModuleFound, LwcConfigError } from './errors';
 
@@ -36,11 +37,16 @@ import {
     NpmModuleRecord,
 } from './types';
 
-function resolveModuleFromAlias(
+const resolveAsync = promisify(resolve) as unknown as (
+    id: string,
+    opts?: resolve.SyncOpts
+) => Promise<string>;
+
+async function resolveModuleFromAlias(
     specifier: string,
     moduleRecord: AliasModuleRecord,
     opts: InnerResolverOptions
-): RegistryEntry | undefined {
+): Promise<RegistryEntry | undefined> {
     const { name, path: modulePath } = moduleRecord;
 
     if (specifier !== name) {
@@ -48,7 +54,7 @@ function resolveModuleFromAlias(
     }
 
     const entry = path.resolve(opts.rootDir, modulePath);
-    if (!fs.existsSync(entry)) {
+    if (!(await exists(entry))) {
         throw new LwcConfigError(
             `Invalid alias module record "${JSON.stringify(
                 moduleRecord
@@ -60,16 +66,16 @@ function resolveModuleFromAlias(
     return createRegistryEntry(entry, specifier, opts);
 }
 
-function resolveModuleFromDir(
+async function resolveModuleFromDir(
     specifier: string,
     moduleRecord: DirModuleRecord,
     opts: InnerResolverOptions
-): RegistryEntry | undefined {
+): Promise<RegistryEntry | undefined> {
     const { dir } = moduleRecord;
 
     const absModuleDir = path.isAbsolute(dir) ? dir : path.join(opts.rootDir, dir);
 
-    if (!fs.existsSync(absModuleDir)) {
+    if (!(await exists(absModuleDir))) {
         throw new LwcConfigError(
             `Invalid dir module record "${JSON.stringify(
                 moduleRecord
@@ -89,24 +95,24 @@ function resolveModuleFromDir(
     const moduleDir = path.join(absModuleDir, ns, name);
 
     // Exit if the expected module directory doesn't exists.
-    if (!fs.existsSync(moduleDir)) {
+    if (!(await exists(moduleDir))) {
         return;
     }
 
-    const entry = getModuleEntry(moduleDir, name, opts);
+    const entry = await getModuleEntry(moduleDir, name, opts);
     return createRegistryEntry(entry, specifier, opts);
 }
 
-function resolveModuleFromNpm(
+async function resolveModuleFromNpm(
     specifier: string,
     npmModuleRecord: NpmModuleRecord,
     opts: InnerResolverOptions
-): RegistryEntry | undefined {
+): Promise<RegistryEntry | undefined> {
     const { npm, map: aliasMapping } = npmModuleRecord;
 
     let pkgJsonPath;
     try {
-        pkgJsonPath = resolve.sync(`${npm}/package.json`, {
+        pkgJsonPath = await resolveAsync(`${npm}/package.json`, {
             basedir: opts.rootDir,
             preserveSymlinks: true,
         });
@@ -126,7 +132,7 @@ function resolveModuleFromNpm(
     }
 
     const packageDir = path.dirname(pkgJsonPath);
-    const lwcConfig = getLwcConfig(packageDir);
+    const lwcConfig = await getLwcConfig(packageDir);
 
     validateNpmConfig(lwcConfig, { rootDir: packageDir });
     let exposedModules = lwcConfig.expose;
@@ -141,7 +147,7 @@ function resolveModuleFromNpm(
     if (exposedModules.includes(specifier)) {
         for (const moduleRecord of lwcConfig.modules) {
             const aliasedSpecifier = reverseMapping && reverseMapping[specifier];
-            const registryEntry = resolveModuleRecordType(
+            const registryEntry = await resolveModuleRecordType(
                 aliasedSpecifier || specifier,
                 moduleRecord,
                 {
@@ -164,11 +170,11 @@ function resolveModuleFromNpm(
     }
 }
 
-function resolveModuleRecordType(
+async function resolveModuleRecordType(
     specifier: string,
     moduleRecord: ModuleRecord,
     opts: InnerResolverOptions
-): RegistryEntry | undefined {
+): Promise<RegistryEntry | undefined> {
     const { rootDir } = opts;
 
     if (isAliasModuleRecord(moduleRecord)) {
@@ -184,11 +190,11 @@ function resolveModuleRecordType(
     });
 }
 
-export function resolveModule(
+export async function resolveModule(
     importee: string,
     dirname: string,
     config?: Partial<ModuleResolverConfig>
-): RegistryEntry {
+): Promise<RegistryEntry> {
     if (typeof importee !== 'string') {
         throw new TypeError(
             `The importee argument must be a string. Received type ${typeof importee}`
@@ -207,8 +213,8 @@ export function resolveModule(
         );
     }
 
-    const rootDir = findFirstUpwardConfigPath(path.resolve(dirname));
-    const lwcConfig = getLwcConfig(rootDir);
+    const rootDir = await findFirstUpwardConfigPath(path.resolve(dirname));
+    const lwcConfig = await getLwcConfig(rootDir);
 
     let modules = lwcConfig.modules || [];
     if (config) {
@@ -217,7 +223,7 @@ export function resolveModule(
     }
 
     for (const moduleRecord of modules) {
-        const registryEntry = resolveModuleRecordType(importee, moduleRecord, { rootDir });
+        const registryEntry = await resolveModuleRecordType(importee, moduleRecord, { rootDir });
         if (registryEntry) {
             return registryEntry;
         }
