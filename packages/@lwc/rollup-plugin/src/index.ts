@@ -18,7 +18,7 @@ import {
     TransformResult,
     TransformOptions,
 } from '@lwc/compiler';
-import { resolveModule, ModuleRecord } from '@lwc/module-resolver';
+import { resolveModule, ModuleRecord, ModuleResolverConfig } from '@lwc/module-resolver';
 import type { CompilerDiagnostic } from '@lwc/errors';
 
 export interface RollupLwcOptions {
@@ -56,6 +56,7 @@ const IMPLICIT_DEFAULT_HTML_PATH = '@lwc/resources/empty_html.js';
 const EMPTY_IMPLICIT_HTML_CONTENT = 'export default void 0';
 
 let workerPool: WorkerPool | undefined;
+const moduleResolutionCache = new Map<string, string>();
 
 function isImplicitHTMLImport(importee: string, importer: string): boolean {
     return (
@@ -79,6 +80,20 @@ function parseQueryParamsForScopedOption(id: string): scopedOption {
         filename,
         scoped,
     };
+}
+
+function resolveModuleWithCache(
+    importee: string,
+    importer: string,
+    options: ModuleResolverConfig
+): string {
+    const cacheKey = `${importee}__${importer}__${JSON.stringify(options)}`;
+    let result = moduleResolutionCache.get(cacheKey);
+    if (!result) {
+        result = resolveModule(importee, importer, options).entry;
+        moduleResolutionCache.set(cacheKey, result);
+    }
+    return result;
 }
 
 function transformWarningToRollupWarning(
@@ -196,10 +211,7 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
             } else if (importer) {
                 // Could be an import like `import component from 'x/component'`
                 try {
-                    return resolveModule(importee, importer, {
-                        modules,
-                        rootDir,
-                    }).entry;
+                    return resolveModuleWithCache(importee, importer, { modules, rootDir });
                 } catch (err: any) {
                     if (err && err.code !== 'NO_LWC_MODULE_FOUND') {
                         throw err;
