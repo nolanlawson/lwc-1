@@ -85,7 +85,7 @@ function parseQueryParamsForScopedOption(id: string): scopedOption {
 function resolveModuleWithCache(
     importee: string,
     importer: string,
-    options: ModuleResolverConfig
+    options: Partial<ModuleResolverConfig>
 ): string {
     const cacheKey = `${importee}__${importer}__${JSON.stringify(options)}`;
     let result = moduleResolutionCache.get(cacheKey);
