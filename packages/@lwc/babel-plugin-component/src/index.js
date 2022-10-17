@@ -39,34 +39,52 @@ module.exports = function LwcClassTransform(api) {
             // first by running all its traversals from this Program visitor.
             Program: {
                 enter(path) {
-                    const engineImportSpecifiers = getEngineImportSpecifiers(path);
+                    const __lwcProgramEnter__ = () => {
+                        const engineImportSpecifiers = getEngineImportSpecifiers(path);
 
-                    // Validate the usage of LWC decorators.
-                    validateImportedLwcDecoratorUsage(engineImportSpecifiers);
+                        // Validate the usage of LWC decorators.
+                        validateImportedLwcDecoratorUsage(engineImportSpecifiers);
+                    };
+                    __lwcProgramEnter__();
                 },
                 exit(path) {
-                    const engineImportSpecifiers = getEngineImportSpecifiers(path);
-                    removeImportedDecoratorSpecifiers(engineImportSpecifiers);
+                    const __lwcProgramExit__ = () => {
+                        const engineImportSpecifiers = getEngineImportSpecifiers(path);
+                        removeImportedDecoratorSpecifiers(engineImportSpecifiers);
 
-                    // Will eventually be removed to eliminate unnecessary complexity. Rollup already does this for us.
-                    dedupeImports(api)(path);
+                        // Will eventually be removed to eliminate unnecessary complexity. Rollup already does this for us.
+                        dedupeImports(api)(path);
+                    };
+                    __lwcProgramExit__();
                 },
             },
 
             Import(path, state) {
-                transformDynamicImports(path, state);
+                const __lwcTransformDynamicImports__ = () => {
+                    transformDynamicImports(path, state);
+                };
+                __lwcTransformDynamicImports__();
             },
 
             Class(path) {
-                transformDecorators(path);
+                const __lwcTransformDecorators__ = () => {
+                    transformDecorators(path);
+                };
+                __lwcTransformDecorators__();
             },
 
             ClassBody(path) {
-                addCompilerVersionNumber(path);
+                const __lwcAddCompilerVersion__ = () => {
+                    addCompilerVersionNumber(path);
+                };
+                __lwcAddCompilerVersion__();
             },
 
             ExportDefaultDeclaration(path, state) {
-                transformCreateRegisterComponent(path, state);
+                const __lwcTransformCreateRegister__ = () => {
+                    transformCreateRegisterComponent(path, state);
+                };
+                __lwcTransformCreateRegister__();
             },
         },
     };
