@@ -32,7 +32,7 @@ function needsComponentRegistration(path) {
     );
 }
 
-module.exports = function ({ types: t }) {
+module.exports = function ({ types: t }, { isExplicitImport }) {
     function createRegisterComponent(declarationPath, state) {
         const registerComponentId = moduleImports.addNamed(
             declarationPath,
@@ -62,7 +62,7 @@ module.exports = function ({ types: t }) {
 
     return {
         ExportDefaultDeclaration(path, state) {
-            const implicitResolution = !state.opts.isExplicitImport;
+            const implicitResolution = !isExplicitImport;
             if (implicitResolution) {
                 const declaration = path.get('declaration');
                 if (needsComponentRegistration(declaration)) {

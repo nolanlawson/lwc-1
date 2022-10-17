@@ -25,7 +25,7 @@ function validateImport(sourcePath) {
  * Expected API for this plugin:
  * { dynamicImports: { loader: string, strictSpecifier: boolean } }
  */
-module.exports = function () {
+module.exports = function (_api, { dynamicImports }) {
     function getLoaderRef(path, loaderName, state) {
         if (!state.loaderRef) {
             state.loaderRef = moduleImports.addNamed(path, 'load', loaderName);
@@ -45,7 +45,6 @@ module.exports = function () {
 
     return {
         Import(path, state) {
-            const { dynamicImports } = state.opts;
             if (!dynamicImports) {
                 return;
             }

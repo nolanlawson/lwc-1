@@ -20,10 +20,10 @@ const { getEngineImportSpecifiers } = require('./utils');
  *    - First, apply in a single AST traversal the decorators and the component transformation.
  *    - Then, in a second path transform class properties using the official babel plugin "babel-plugin-transform-class-properties".
  */
-module.exports = function LwcClassTransform(api) {
-    const { ExportDefaultDeclaration: transformCreateRegisterComponent } = component(api);
+module.exports = function LwcClassTransform(api, options) {
+    const { ExportDefaultDeclaration: transformCreateRegisterComponent } = component(api, options);
     const { Class: transformDecorators } = decorators(api);
-    const { Import: transformDynamicImports } = dynamicImports(api);
+    const { Import: transformDynamicImports } = dynamicImports(api, options);
     const { ClassBody: addCompilerVersionNumber } = compilerVersionNumber(api);
 
     return {
