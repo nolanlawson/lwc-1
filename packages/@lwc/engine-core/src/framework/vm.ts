@@ -26,7 +26,7 @@ import { logError } from '../shared/logger';
 
 import { HostNode, HostElement, RendererAPI } from './renderer';
 import { renderComponent, markComponentAsDirty, getTemplateReactiveObserver } from './component';
-import { addCallbackToNextTick, EmptyArray, EmptyObject } from './utils';
+import { addCallbackToNextTick, EmptyArray, EmptyObject, flattenStylesheets } from './utils';
 import { invokeServiceHook, Services } from './services';
 import { invokeComponentCallback, invokeComponentConstructor } from './invoker';
 import { Template } from './template';
@@ -391,13 +391,15 @@ function validateComponentStylesheets(vm: VM, stylesheets: TemplateStylesheetFac
 
     return valid;
 }
+
+// Validate and flatten any stylesheets defined as `static stylesheets`
 function computeStylesheets(vm: VM, ctor: LightningElementConstructor) {
     const { stylesheets } = ctor;
     if (!isUndefined(stylesheets)) {
         const valid = validateComponentStylesheets(vm, stylesheets);
 
         if (valid) {
-            return stylesheets;
+            return flattenStylesheets(stylesheets);
         } else if (process.env.NODE_ENV !== 'production') {
             logError(
                 `static stylesheets must be an array of CSS stylesheets. Found invalid stylesheets on <${vm.tagName}>`,
