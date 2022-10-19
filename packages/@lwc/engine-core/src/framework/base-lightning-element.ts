@@ -55,6 +55,7 @@ import { Template, isUpdatingTemplate, getVMBeingRendered } from './template';
 import { HTMLElementConstructor } from './base-bridge-element';
 import { updateComponentValue } from './update-component-value';
 import { markLockerLiveObject } from './membrane';
+import { TemplateStylesheetFactories } from './stylesheet';
 
 /**
  * This operation is called with a descriptor of an standard html property
@@ -138,6 +139,7 @@ export interface LightningElementConstructor {
     delegatesFocus?: boolean;
     renderMode?: 'light' | 'shadow';
     shadowSupportMode?: ShadowSupportMode;
+    stylesheets: TemplateStylesheetFactories;
 }
 
 type HTMLElementTheGoodParts = Pick<Object, 'toString'> &
@@ -292,6 +294,10 @@ function warnIfInvokedDuringConstruction(vm: VM, methodOrPropName: string) {
         );
     }
 }
+
+const defaultStylesheets: TemplateStylesheetFactories = [];
+freeze([]);
+LightningElement.stylesheets = defaultStylesheets;
 
 // @ts-ignore
 LightningElement.prototype = {
