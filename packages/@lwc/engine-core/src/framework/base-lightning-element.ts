@@ -295,10 +295,6 @@ function warnIfInvokedDuringConstruction(vm: VM, methodOrPropName: string) {
     }
 }
 
-const defaultStylesheets: TemplateStylesheetFactories = [];
-freeze([]);
-LightningElement.stylesheets = defaultStylesheets;
-
 // @ts-ignore
 LightningElement.prototype = {
     constructor: LightningElement,

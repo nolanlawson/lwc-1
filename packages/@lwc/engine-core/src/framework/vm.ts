@@ -12,7 +12,9 @@ import {
     assert,
     create,
     getOwnPropertyNames,
+    isArray,
     isFalse,
+    isFunction,
     isNull,
     isObject,
     isTrue,
@@ -20,6 +22,7 @@ import {
 } from '@lwc/shared';
 
 import { addErrorComponentStack } from '../shared/error';
+import { logError } from '../shared/logger';
 
 import { HostNode, HostElement, RendererAPI } from './renderer';
 import { renderComponent, markComponentAsDirty, getTemplateReactiveObserver } from './component';
@@ -42,6 +45,7 @@ import { connectWireAdapters, disconnectWireAdapters, installWireAdapters } from
 import { AccessorReactiveObserver } from './accessor-reactive-observer';
 import { removeActiveVM } from './hot-swaps';
 import { VNodes, VCustomElement, VNode, VNodeType, VBaseElement } from './vnodes';
+import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
 
 type ShadowRootMode = 'open' | 'closed';
 
@@ -174,6 +178,9 @@ export interface VM<N = HostNode, E = HostElement> {
     /**
      * Renderer API */
     renderer: RendererAPI;
+    /**
+     * Any stylesheets associated with the component */
+    stylesheets: TemplateStylesheetFactories | null;
 }
 
 type VMAssociable = HostNode | LightningElement;
@@ -324,6 +331,7 @@ export function createVM<HostNode, HostElement>(
         // Properties set right after VM creation.
         tro: null!,
         shadowMode: null!,
+        stylesheets: null!,
 
         // Properties set by the LightningElement constructor.
         component: null!,
@@ -337,6 +345,7 @@ export function createVM<HostNode, HostElement>(
         renderer,
     };
 
+    vm.stylesheets = computeStylesheets(vm, def.ctor);
     vm.shadowMode = computeShadowMode(vm, renderer);
     vm.tro = getTemplateReactiveObserver(vm);
 
@@ -358,6 +367,45 @@ export function createVM<HostNode, HostElement>(
     }
 
     return vm;
+}
+
+function validateComponentStylesheets(vm: VM, stylesheets: TemplateStylesheetFactories): boolean {
+    let valid = true;
+
+    const validate = (arrayOrStylesheet: TemplateStylesheetFactories | StylesheetFactory) => {
+        if (isArray(arrayOrStylesheet)) {
+            for (let i = 0; i < arrayOrStylesheet.length; i++) {
+                validate((arrayOrStylesheet as TemplateStylesheetFactories)[i]);
+            }
+        } else if (!isFunction(arrayOrStylesheet)) {
+            // function assumed to be a stylesheet factory
+            valid = false;
+        }
+    };
+
+    if (!isArray(stylesheets)) {
+        valid = false;
+    } else {
+        validate(stylesheets);
+    }
+
+    return valid;
+}
+function computeStylesheets(vm: VM, ctor: LightningElementConstructor) {
+    const { stylesheets } = ctor;
+    if (!isUndefined(stylesheets)) {
+        const valid = validateComponentStylesheets(vm, stylesheets);
+
+        if (valid) {
+            return stylesheets;
+        } else if (process.env.NODE_ENV !== 'production') {
+            logError(
+                `static stylesheets must be an array of CSS stylesheets. Found invalid stylesheets on <${vm.tagName}>`,
+                vm
+            );
+        }
+    }
+    return null;
 }
 
 function computeShadowMode(vm: VM, renderer: RendererAPI) {
