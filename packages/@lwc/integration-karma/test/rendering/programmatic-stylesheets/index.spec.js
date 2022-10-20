@@ -4,6 +4,8 @@ import Scoped from 'x/scoped';
 import InheritFromLightningElement from 'x/inheritFromLightningElement';
 import Invalid from 'x/invalid';
 import Inherit from 'x/inherit';
+import Implicit from 'x/implicit';
+import Multi from 'x/multi';
 
 describe('programmatic stylesheets', () => {
     it('works for a basic usage of static stylesheets', () => {
@@ -60,17 +62,54 @@ describe('programmatic stylesheets', () => {
         });
     });
 
-    it('throws error if stylesheets is not an array of functions', () => {
-        let elm;
-        expect(() => {
-            elm = createElement('x-invalid', {
-                is: Invalid,
-            });
-        }).toLogErrorDev(
-            /\[LWC error]: static stylesheets must be an array of CSS stylesheets. Found invalid stylesheets on <x-invalid>/
-        );
-
+    it('can override implicit styles due to ordering', () => {
+        const elm = createElement('x-implicit', {
+            is: Implicit,
+        });
         document.body.appendChild(elm);
-        expect(elm.shadowRoot.querySelector('h1')).toBeTruthy(); // still renders the template correctly
+
+        return new Promise((resolve) => requestAnimationFrame(() => resolve())).then(() => {
+            expect(getComputedStyle(elm.shadowRoot.querySelector('h1')).color).toEqual(
+                'rgb(0, 0, 255)'
+            );
+        });
+    });
+
+    it('can override styles in a multi-template component', () => {
+        const elm = createElement('x-multi', {
+            is: Multi,
+        });
+        document.body.appendChild(elm);
+
+        // insertion order is 1) A, 2) static stylesheets, 3) B
+
+        return new Promise((resolve) => requestAnimationFrame(() => resolve()))
+            .then(() => {
+                const style = getComputedStyle(elm.shadowRoot.querySelector('h1'));
+                expect(style.color).toEqual('rgb(0, 0, 255)');
+                expect(style.backgroundColor).toEqual('rgb(255, 215, 0)');
+                elm.next();
+            })
+            .then(() => {
+                const style = getComputedStyle(elm.shadowRoot.querySelector('h1'));
+                expect(style.color).toEqual('rgb(0, 128, 0)');
+                expect(style.backgroundColor).toEqual('rgb(255, 215, 0)');
+            });
+    });
+
+    describe('errors', () => {
+        it('throws error if stylesheets is not an array of functions', () => {
+            let elm;
+            expect(() => {
+                elm = createElement('x-invalid', {
+                    is: Invalid,
+                });
+            }).toLogErrorDev(
+                /\[LWC error]: static stylesheets must be an array of CSS stylesheets. Found invalid stylesheets on <x-invalid>/
+            );
+
+            document.body.appendChild(elm);
+            expect(elm.shadowRoot.querySelector('h1')).toBeTruthy(); // still renders the template correctly
+        });
     });
 });
