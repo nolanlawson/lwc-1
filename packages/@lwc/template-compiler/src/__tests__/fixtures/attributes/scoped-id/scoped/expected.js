@@ -15,12 +15,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
         "aria-owns": api_scoped_id("scoped-foo"),
       },
       props: {
-        elementtiming: api_scoped_id("scoped-foo"),
         htmlFor: api_scoped_id("scoped-foo"),
-        list: api_scoped_id("scoped-foo"),
-        popuphidetarget: api_scoped_id("scoped-foo"),
-        popupshowtarget: api_scoped_id("scoped-foo"),
-        popuptoggletarget: api_scoped_id("scoped-foo"),
       },
       key: 0,
     }),
