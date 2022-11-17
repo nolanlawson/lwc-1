@@ -25,6 +25,7 @@ export const LWC_DIRECTIVE_SET: Set<string> = new Set(Object.values(ElementDirec
 
 // These attributes take either an ID or a list of IDs as values.
 export const ID_REFERENCING_ATTRIBUTES_SET: Set<string> = new Set([
+    // Any aria-* attribute with Element or FrozenArray<Element> here: https://w3c.github.io/aria/#ARIAMixin
     'aria-activedescendant',
     'aria-controls',
     'aria-describedby',
@@ -33,7 +34,16 @@ export const ID_REFERENCING_ATTRIBUTES_SET: Set<string> = new Set([
     'aria-flowto',
     'aria-labelledby',
     'aria-owns',
+    //https://developer.mozilla.org/en-US/docs/Web/API/Element_timing_API
+    'elementtiming',
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/for
     'for',
+    // https://html.spec.whatwg.org/multipage/input.html#attr-input-list
+    'list',
+    // https://open-ui.org/components/popup.research.explainer
+    'popuphidetarget',
+    'popupshowtarget',
+    'popuptoggletarget',
 ]);
 
 const ATTRIBUTE_NAME_CHAR = [
