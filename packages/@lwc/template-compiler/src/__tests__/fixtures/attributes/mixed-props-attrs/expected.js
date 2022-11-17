@@ -7,7 +7,12 @@ const stc0 = {
   r: true,
 };
 const stc1 = {
-  "data-xx": "foo",
+  ariaHidden: "hidden",
+  fooBar: "x",
+  foo: "bar",
+  role: "xx",
+  tabIndex: "0",
+  bgColor: "blue",
 };
 const stc2 = {
   classMap: {
@@ -40,16 +45,11 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_static_fragment($fragment1(), 2),
     api_custom_element("ns-bar", _nsBar, {
       classMap: stc0,
-      attrs: stc1,
-      props: {
-        ariaDescribedBy: api_scoped_id("ns-foo"),
-        ariaHidden: "hidden",
-        fooBar: "x",
-        foo: "bar",
-        role: "xx",
-        tabIndex: "0",
-        bgColor: "blue",
+      attrs: {
+        "data-xx": "foo",
+        "aria-describedby": api_scoped_id("ns-foo"),
       },
+      props: stc1,
       key: 3,
     }),
     api_element("svg", stc2, [

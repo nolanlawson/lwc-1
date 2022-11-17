@@ -55,12 +55,10 @@
                         "end": 551
                     }
                 },
-                "attributes": [],
-                "properties": [
+                "attributes": [
                     {
-                        "type": "Property",
-                        "name": "ariaDescribedBy",
-                        "attributeName": "aria-describedby",
+                        "type": "Attribute",
+                        "name": "aria-describedby",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -75,9 +73,8 @@
                         }
                     },
                     {
-                        "type": "Property",
-                        "name": "ariaActiveDescendant",
-                        "attributeName": "aria-activedescendant",
+                        "type": "Attribute",
+                        "name": "aria-activedescendant",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -92,9 +89,8 @@
                         }
                     },
                     {
-                        "type": "Property",
-                        "name": "ariaErrorMessage",
-                        "attributeName": "aria-errormessage",
+                        "type": "Attribute",
+                        "name": "aria-errormessage",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -109,9 +105,8 @@
                         }
                     },
                     {
-                        "type": "Property",
-                        "name": "ariaFlowTo",
-                        "attributeName": "aria-flowto",
+                        "type": "Attribute",
+                        "name": "aria-flowto",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -126,9 +121,8 @@
                         }
                     },
                     {
-                        "type": "Property",
-                        "name": "ariaLabelledBy",
-                        "attributeName": "aria-labelledby",
+                        "type": "Attribute",
+                        "name": "aria-labelledby",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -143,9 +137,8 @@
                         }
                     },
                     {
-                        "type": "Property",
-                        "name": "ariaControls",
-                        "attributeName": "aria-controls",
+                        "type": "Attribute",
+                        "name": "aria-controls",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -160,9 +153,8 @@
                         }
                     },
                     {
-                        "type": "Property",
-                        "name": "ariaDetails",
-                        "attributeName": "aria-details",
+                        "type": "Attribute",
+                        "name": "aria-details",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -177,9 +169,8 @@
                         }
                     },
                     {
-                        "type": "Property",
-                        "name": "ariaOwns",
-                        "attributeName": "aria-owns",
+                        "type": "Attribute",
+                        "name": "aria-owns",
                         "value": {
                             "type": "Literal",
                             "value": "scoped-foo"
@@ -192,7 +183,9 @@
                             "start": 303,
                             "end": 325
                         }
-                    },
+                    }
+                ],
+                "properties": [
                     {
                         "type": "Property",
                         "name": "elementtiming",

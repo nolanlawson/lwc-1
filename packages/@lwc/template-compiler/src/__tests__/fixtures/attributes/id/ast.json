@@ -211,7 +211,24 @@
                         "end": 204
                     }
                 },
-                "attributes": [],
+                "attributes": [
+                    {
+                        "type": "Attribute",
+                        "name": "aria-describedby",
+                        "value": {
+                            "type": "Literal",
+                            "value": "bar baz"
+                        },
+                        "location": {
+                            "startLine": 5,
+                            "startColumn": 26,
+                            "endLine": 5,
+                            "endColumn": 52,
+                            "start": 164,
+                            "end": 190
+                        }
+                    }
+                ],
                 "properties": [
                     {
                         "type": "Property",
@@ -228,23 +245,6 @@
                             "endColumn": 25,
                             "start": 155,
                             "end": 163
-                        }
-                    },
-                    {
-                        "type": "Property",
-                        "name": "ariaDescribedBy",
-                        "attributeName": "aria-describedby",
-                        "value": {
-                            "type": "Literal",
-                            "value": "bar baz"
-                        },
-                        "location": {
-                            "startLine": 5,
-                            "startColumn": 26,
-                            "endLine": 5,
-                            "endColumn": 52,
-                            "start": 164,
-                            "end": 190
                         }
                     }
                 ],

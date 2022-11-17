@@ -10,6 +10,7 @@ import {
     isAriaAttribute,
     isBooleanAttribute,
     isGlobalHtmlAttribute,
+    isIdReferencingAriaAttribute,
     HTML_NAMESPACE,
     SVG_NAMESPACE,
 } from '@lwc/shared';
@@ -203,7 +204,9 @@ export function isAttribute(element: BaseElement, attrName: string): boolean {
             // `exportparts` is only valid on a shadow host, and only available as an attribute, not a property
             // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/exportparts
             attrName === 'exportparts' ||
-            !!attrName.match(DATA_RE)
+            !!attrName.match(DATA_RE) ||
+            // IDREF ARIA attrs should not be camel-cased (e.g. `aria-activedescendant`, not `ariaActivedescendant`)
+            isIdReferencingAriaAttribute(attrName)
         );
     }
 

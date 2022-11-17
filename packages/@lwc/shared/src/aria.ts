@@ -17,7 +17,6 @@ import { create, forEach, StringReplace, StringToLowerCase } from './language';
  * https://wicg.github.io/aom/spec/aria-reflection.html
  */
 const AriaPropertyNames = [
-    'ariaActiveDescendant',
     'ariaAtomic',
     'ariaAutoComplete',
     'ariaBusy',
@@ -25,27 +24,20 @@ const AriaPropertyNames = [
     'ariaColCount',
     'ariaColIndex',
     'ariaColSpan',
-    'ariaControls',
     'ariaCurrent',
-    'ariaDescribedBy',
-    'ariaDetails',
     'ariaDisabled',
-    'ariaErrorMessage',
     'ariaExpanded',
-    'ariaFlowTo',
     'ariaHasPopup',
     'ariaHidden',
     'ariaInvalid',
     'ariaKeyShortcuts',
     'ariaLabel',
-    'ariaLabelledBy',
     'ariaLevel',
     'ariaLive',
     'ariaModal',
     'ariaMultiLine',
     'ariaMultiSelectable',
     'ariaOrientation',
-    'ariaOwns',
     'ariaPlaceholder',
     'ariaPosInSet',
     'ariaPressed',
@@ -65,6 +57,18 @@ const AriaPropertyNames = [
     'ariaValueText',
     'role',
 ] as const;
+
+// Any aria-* attribute with Element or FrozenArray<Element> here: https://w3c.github.io/aria/#ARIAMixin
+const AriaIdReferencingAttributes = new Set([
+    'aria-activedescendant',
+    'aria-controls',
+    'aria-describedby',
+    'aria-details',
+    'aria-errormessage',
+    'aria-flowto',
+    'aria-labelledby',
+    'aria-owns',
+]);
 
 export type AccessibleElementProperties = {
     [prop in typeof AriaPropertyNames[number]]: string | null;
@@ -87,7 +91,11 @@ const { AriaAttrNameToPropNameMap, AriaPropNameToAttrNameMap } = /*@__PURE__*/ (
 })();
 
 export function isAriaAttribute(attrName: string): boolean {
-    return attrName in AriaAttrNameToPropNameMap;
+    return attrName in AriaAttrNameToPropNameMap || AriaIdReferencingAttributes.has(attrName);
+}
+
+export function isIdReferencingAriaAttribute(attrName: string): boolean {
+    return AriaIdReferencingAttributes.has(attrName);
 }
 
 export { AriaAttrNameToPropNameMap, AriaPropNameToAttrNameMap };
