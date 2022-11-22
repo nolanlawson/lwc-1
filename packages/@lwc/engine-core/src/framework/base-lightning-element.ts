@@ -27,6 +27,8 @@ import {
     keys,
     setPrototypeOf,
 } from '@lwc/shared';
+import features from '@lwc/features';
+import { applyAriaReflectionPolyfill } from '@lwc/aria-reflection-polyfill';
 
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
@@ -693,6 +695,12 @@ for (const propName in HTMLElementOriginalDescriptors) {
 }
 
 defineProperties(LightningElement.prototype, lightningBasedDescriptors);
+
+if (features.DISABLE_ARIA_REFLECTION_POLYFILL) {
+    // If the polyfill is not being applied globally to Element.prototype,
+    // then apply it just to LightningElement.prototype.
+    applyAriaReflectionPolyfill(LightningElement.prototype);
+}
 
 defineProperty(LightningElement, 'CustomElementConstructor', {
     get() {

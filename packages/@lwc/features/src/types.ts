@@ -111,6 +111,13 @@ export interface FeatureFlagMap {
      * If this flag is disabled, then LWC components with the same tag name as third-party custom elements may conflict.
      */
     ENABLE_SCOPED_CUSTOM_ELEMENT_REGISTRY: FeatureFlagValue;
+
+    /**
+     * Flag to remove the ARIA reflection polyfill. When set to true, this flag will avoid the global DOM patching
+     * to polyfill ARIA reflection. Instead, the necessary ARIA properties will only exist on the LightningElement
+     * base class, not on every Element.
+     */
+    DISABLE_ARIA_REFLECTION_POLYFILL: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;

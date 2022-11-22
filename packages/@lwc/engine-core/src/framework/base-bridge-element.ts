@@ -22,6 +22,8 @@ import {
     keys,
     htmlPropertyToAttribute,
 } from '@lwc/shared';
+import features from '@lwc/features';
+import { applyAriaReflectionPolyfill } from '@lwc/aria-reflection-polyfill';
 
 import { getAssociatedVM } from './vm';
 import { getReadOnlyProxy } from './membrane';
@@ -177,6 +179,13 @@ export function HTMLBridgeElementFactory(
             configurable: true,
         };
     }
+    // expose aria reflected properties
+    if (features.DISABLE_ARIA_REFLECTION_POLYFILL) {
+        // If the polyfill is not being applied globally to Element.prototype,
+        // then apply it just to LightningElement.prototype.
+        applyAriaReflectionPolyfill(HTMLBridgeElement.prototype);
+    }
+
     // creating a new attributeChangedCallback per bridge because they are bound to the corresponding
     // map of attributes to props. We do this after all other props and methods to avoid the possibility
     // of getting overrule by a class declaration in user-land, and we make it non-writable, non-configurable

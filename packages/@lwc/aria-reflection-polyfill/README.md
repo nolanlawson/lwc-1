@@ -21,10 +21,12 @@ npm install @lwc/aria-reflection-polyfill
 ```
 
 ```js
-import '@lwc/aria-reflection-polyfill';
+import { applyAriaReflectionPolyfill } from '@lwc/aria-reflection-polyfill';
+
+applyAriaReflectionPolyfill();
 ```
 
-The polyfill is applied as soon as it's imported.
+The polyfill is applied as soon as the function is executed.
 
 ## Implementation
 
