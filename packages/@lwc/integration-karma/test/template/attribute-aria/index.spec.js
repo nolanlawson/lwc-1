@@ -16,6 +16,20 @@ describe('setting aria attributes', () => {
     });
 
     describe('on a component', () => {
+        function testAriaPropertyEquals(prop, expectedValue) {
+            // four cases:
+            // 1. prop outside
+            // 2. prop inside
+            // 3. attribute outside
+            // 4. attribute inside
+            expect(childComponent[prop]).toEqual(expectedValue);
+            expect(childComponent.callPropertyGetter(prop)).toEqual(expectedValue);
+            expect(childComponent.getAttribute(ariaPropertiesMapping[prop])).toEqual(expectedValue);
+            expect(childComponent.callGetAttribute(ariaPropertiesMapping[prop])).toEqual(
+                expectedValue
+            );
+        }
+
         it('attribute is set', () => {
             for (const attrName of ariaAttributes) {
                 expect(childComponent.getAttribute(attrName)).toMatch(/^foo/);
@@ -36,19 +50,17 @@ describe('setting aria attributes', () => {
             }
         });
 
-        it('can mutate aria prop from outside the component and it is reflected to attribute', () => {
+        it('can mutate aria prop from outside the component', () => {
             for (const prop of ariaProperties) {
                 childComponent[prop] = 'bar';
-                expect(childComponent[prop]).toEqual('bar');
-                expect(childComponent.getAttribute(ariaPropertiesMapping[prop])).toEqual('bar');
+                testAriaPropertyEquals(prop, 'bar');
             }
         });
 
-        it('can mutate aria prop from inside the component and it is reflected to attribute', () => {
+        it('can mutate aria prop from inside the component', () => {
             childComponent.setAllAriaProps('bar');
             for (const prop of ariaProperties) {
-                expect(childComponent[prop]).toEqual('bar');
-                expect(childComponent.getAttribute(ariaPropertiesMapping[prop])).toEqual('bar');
+                testAriaPropertyEquals(prop, 'bar');
             }
         });
     });

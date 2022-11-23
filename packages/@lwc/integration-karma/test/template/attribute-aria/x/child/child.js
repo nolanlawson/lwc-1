@@ -17,4 +17,14 @@ export default class extends LightningElement {
             this[prop] = value;
         }
     }
+
+    @api
+    callGetAttribute(attrName) {
+        return this.getAttribute(attrName);
+    }
+
+    @api
+    callPropertyGetter(propName) {
+        return this[propName];
+    }
 }
