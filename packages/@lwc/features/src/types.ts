@@ -28,11 +28,6 @@ export interface FeatureFlagMap {
     ENABLE_MIXED_SHADOW_MODE: FeatureFlagValue;
 
     /**
-     * LWC engine flag to make setter reactive.
-     */
-    ENABLE_REACTIVE_SETTER: FeatureFlagValue;
-
-    /**
      * Synthetic shadow DOM flag to enable strict `HTMLElement.prototype.innerText` and
      * `HTMLElement.prototype.outerText` shadow dom semantic.
      */
@@ -111,6 +106,16 @@ export interface FeatureFlagMap {
      * If this flag is disabled, then LWC components with the same tag name as third-party custom elements may conflict.
      */
     ENABLE_SCOPED_CUSTOM_ELEMENT_REGISTRY: FeatureFlagValue;
+
+    /**
+     * Flag to enable the "frozen template" feature. With this flag enabled, the template object
+     * imported from HTML files is frozen and cannot be modified. E.g. this will throw:
+     * ```js
+     * import template from './template.html';
+     * template.stylesheets = [];
+     * ```
+     */
+    ENABLE_FROZEN_TEMPLATE: FeatureFlagValue;
 
     /**
      * Flag to remove the ARIA reflection polyfill. When set to true, this flag will avoid the global DOM patching
