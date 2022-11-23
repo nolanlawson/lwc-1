@@ -697,8 +697,8 @@ for (const propName in HTMLElementOriginalDescriptors) {
 defineProperties(LightningElement.prototype, lightningBasedDescriptors);
 
 if (features.DISABLE_ARIA_REFLECTION_POLYFILL) {
-    // If the polyfill is not being applied globally to Element.prototype,
-    // then apply it just to LightningElement.prototype.
+    // If the polyfill is not applied globally to Element.prototype, apply it to LightningElement.prototype.
+    // This allows `this.aria*` property accessors to work from inside a component, and to reflect `aria-*` attrs.
     applyAriaReflectionPolyfill(LightningElement.prototype);
 }
 

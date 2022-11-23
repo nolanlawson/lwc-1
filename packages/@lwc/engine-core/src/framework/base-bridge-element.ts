@@ -179,10 +179,10 @@ export function HTMLBridgeElementFactory(
             configurable: true,
         };
     }
-    // expose aria reflected properties
     if (features.DISABLE_ARIA_REFLECTION_POLYFILL) {
-        // If the polyfill is not being applied globally to Element.prototype,
-        // then apply it just to LightningElement.prototype.
+        // If the polyfill is not applied globally to Element.prototype, apply it to HTMLBridgeElement.prototype.
+        // This allows `elm.aria*` property accessors to work from outside a component, and to reflect `aria-*` attrs.
+        // This is especially important because the template compiler compiles aria-* attrs on components to aria* props
         applyAriaReflectionPolyfill(HTMLBridgeElement.prototype);
     }
 

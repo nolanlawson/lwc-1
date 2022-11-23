@@ -10,4 +10,11 @@ export default class extends LightningElement {
         }
         return result;
     }
+
+    @api
+    setAllAriaProps(value) {
+        for (const prop of ariaProperties) {
+            this[prop] = value;
+        }
+    }
 }
