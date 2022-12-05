@@ -9,8 +9,12 @@ import { VM } from './vm';
 
 type ReportingDispatcher = (reportId: any, tagName?: string, vmIndex?: number) => void;
 
+type OnReportingEnabledCallback = () => void;
+
 /** Indicates if reporting is enabled or not */
 let enabled = false;
+
+const onReportingEnabledCallbacks: OnReportingEnabledCallback[] = [];
 
 /** The currently assigned reporting dispatcher. */
 let currentDispatcher: ReportingDispatcher = noop;
@@ -23,8 +27,16 @@ export const reportingControl = {
      */
     attachReportingControl(dispatcher: ReportingDispatcher): void {
         currentDispatcher = dispatcher;
-
         enabled = true;
+        for (const callback of onReportingEnabledCallbacks) {
+            try {
+                callback();
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.error('Could not call OnReportingEnabled callback', err);
+            }
+        }
+        onReportingEnabledCallbacks.length = 0; // clear the array
     },
 
     /**
@@ -41,6 +53,16 @@ export const reportingControl = {
  */
 export function isReportingEnabled(): boolean {
     return enabled;
+}
+
+export function onReportingEnabled(callback: OnReportingEnabledCallback) {
+    if (enabled) {
+        // call immediately
+        callback();
+    } else {
+        // call later
+        onReportingEnabledCallbacks.push(callback);
+    }
 }
 
 /**

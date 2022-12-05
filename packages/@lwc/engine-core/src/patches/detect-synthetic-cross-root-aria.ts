@@ -12,8 +12,7 @@ import {
     KEY__NATIVE_GET_ELEMENT_BY_ID,
     isNull,
 } from '@lwc/shared';
-
-const { setAttribute } = Element.prototype;
+import { onReportingEnabled } from '@lwc/engine-core/src/framework/reporting';
 
 // These attributes take either an ID or a list of IDs as values.
 export const ID_REFERENCING_ATTRIBUTES_SET: Set<string> = new Set([
@@ -32,11 +31,17 @@ function isSyntheticShadowRootInstance(shadowRoot: Node | undefined): shadowRoot
     return !isUndefined(shadowRoot) && isTrue((shadowRoot as any).synthetic);
 }
 
-function detectCrossRootAria(elm: Element, attrName: string, attrValue: string, root: ShadowRoot) {
+function detectSyntheticCrossRootAria(
+    elm: Element,
+    attrName: string,
+    attrValue: string,
+    root: ShadowRoot
+) {
     const getElementById = globalThis[
         KEY__NATIVE_GET_ELEMENT_BY_ID
     ] as typeof document.getElementById;
 
+    // FIXME: special characters in the ID
     const ids = attrValue.replace(/^\s+/g, '').replace(/\s+$/g, '').split(/\s+/);
     for (const id of ids) {
         const target = getElementById.call(document, id);
@@ -54,7 +59,16 @@ function detectCrossRootAria(elm: Element, attrName: string, attrValue: string, 
     }
 }
 
-if (process.env.NODE_ENV !== 'production') {
+let enabled = false;
+
+function enableDetection() {
+    if (enabled) {
+        return; // don't double-apply the patches
+    }
+    enabled = true;
+
+    const { setAttribute } = Element.prototype;
+
     assign(Element.prototype, {
         // FIXME: detect aria properties
         // FIXME: detect setting ID via prop or attr
@@ -63,9 +77,14 @@ if (process.env.NODE_ENV !== 'production') {
             if (ID_REFERENCING_ATTRIBUTES_SET.has(attrName)) {
                 const root = this.getRootNode();
                 if (isSyntheticShadowRootInstance(root)) {
-                    detectCrossRootAria(this, attrName, attrValue, root);
+                    detectSyntheticCrossRootAria(this, attrName, attrValue, root);
                 }
             }
         },
     } as Pick<Element, 'setAttribute'>);
+}
+
+// Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
+if (process.env.IS_BROWSER) {
+    onReportingEnabled(enableDetection);
 }
