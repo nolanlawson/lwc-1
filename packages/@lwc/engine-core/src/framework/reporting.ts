@@ -7,17 +7,27 @@
 import { noop } from '@lwc/shared';
 import { VM } from './vm';
 
-type ReportingDispatcher = (reportId: any, tagName?: string, vmIndex?: number) => void;
+export const enum ReportId {
+    CrossRootAriaInSyntheticShadow,
+}
+
+type ReportingDispatcher = (reportId: ReportId, tagName?: string, vmIndex?: number) => void;
 
 type OnReportingEnabledCallback = () => void;
 
-/** Indicates if reporting is enabled or not */
-let enabled = false;
-
+/** Callbacks to invoke when reporting is enabled **/
 const onReportingEnabledCallbacks: OnReportingEnabledCallback[] = [];
 
 /** The currently assigned reporting dispatcher. */
 let currentDispatcher: ReportingDispatcher = noop;
+
+/**
+ * Whether reporting is enabled.
+ *
+ * Note that this may seem redundant, given you can just check if the currentDispatcher is undefined,
+ * but it turns out that Terser only strips out unused code if we use this explicit boolean.
+ */
+let enabled = false;
 
 export const reportingControl = {
     /**
@@ -25,9 +35,9 @@ export const reportingControl = {
      *
      * @param dispatcher - reporting control
      */
-    attachReportingControl(dispatcher: ReportingDispatcher): void {
-        currentDispatcher = dispatcher;
+    attachDispatcher(dispatcher: ReportingDispatcher): void {
         enabled = true;
+        currentDispatcher = dispatcher;
         for (const callback of onReportingEnabledCallbacks) {
             try {
                 callback();
@@ -42,19 +52,17 @@ export const reportingControl = {
     /**
      * Detach the current reporting control (aka dispatcher).
      */
-    detachReportingControl(): void {
-        currentDispatcher = noop;
+    detachDispatcher(): void {
         enabled = false;
+        currentDispatcher = noop;
     },
 };
 
 /**
- * True if a reporting dispatcher is currently attached.
+ * Call a callback when reporting is enabled, or immediately if reporting is already enabled.
+ * Will only ever be called once.
+ * @param callback
  */
-export function isReportingEnabled(): boolean {
-    return enabled;
-}
-
 export function onReportingEnabled(callback: OnReportingEnabledCallback) {
     if (enabled) {
         // call immediately

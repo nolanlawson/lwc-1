@@ -5,4 +5,9 @@ export default class extends LightningElement {
     setAriaLabelledBy(id) {
         this.refs.input.setAttribute('aria-labelledby', id);
     }
+
+    @api
+    getAriaLabelledBy() {
+        return this.refs.input.getAttribute('aria-labelledby');
+    }
 }

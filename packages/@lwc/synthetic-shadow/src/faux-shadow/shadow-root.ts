@@ -18,6 +18,7 @@ import {
     KEY__SHADOW_RESOLVER,
     KEY__SHADOW_RESOLVER_PRIVATE,
     KEY__NATIVE_GET_ELEMENT_BY_ID,
+    KEY__NATIVE_QUERY_SELECTOR_ALL,
     setPrototypeOf,
     getPrototypeOf,
     isObject,
@@ -25,7 +26,12 @@ import {
 
 import { innerHTMLSetter } from '../env/element';
 import { dispatchEvent } from '../env/event-target';
-import { DocumentPrototypeActiveElement, createComment, getElementById } from '../env/document';
+import {
+    DocumentPrototypeActiveElement,
+    createComment,
+    getElementById,
+    querySelectorAll,
+} from '../env/document';
 import { isInstanceOfNativeShadowRoot, isNativeShadowRootDefined } from '../env/shadow-root';
 import {
     compareDocumentPosition,
@@ -97,12 +103,16 @@ defineProperty(Node.prototype, KEY__SHADOW_RESOLVER, {
     enumerable: true,
 });
 
-defineProperty(globalThis, KEY__IS_NATIVE_SHADOW_ROOT_DEFINED, {
-    value: isNativeShadowRootDefined,
-});
-
-defineProperty(globalThis, KEY__NATIVE_GET_ELEMENT_BY_ID, {
-    value: getElementById,
+defineProperties(globalThis, {
+    [KEY__IS_NATIVE_SHADOW_ROOT_DEFINED]: {
+        value: isNativeShadowRootDefined,
+    },
+    [KEY__NATIVE_GET_ELEMENT_BY_ID]: {
+        value: getElementById,
+    },
+    [KEY__NATIVE_QUERY_SELECTOR_ALL]: {
+        value: querySelectorAll,
+    },
 });
 
 // Function created per shadowRoot instance, it returns the shadowRoot, and is attached

@@ -5,4 +5,9 @@ export default class extends LightningElement {
     getId() {
         return this.refs.label.getAttribute('id');
     }
+
+    @api
+    setId(id) {
+        this.refs.label.setAttribute('id', id);
+    }
 }
