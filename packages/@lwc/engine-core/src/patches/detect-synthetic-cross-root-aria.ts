@@ -12,6 +12,8 @@ import {
     KEY__NATIVE_QUERY_SELECTOR_ALL,
     isNull,
     isUndefined,
+    getOwnPropertyDescriptor,
+    defineProperty,
 } from '@lwc/shared';
 import { onReportingEnabled, report, ReportId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
@@ -115,9 +117,8 @@ function enableDetection() {
 
     const { setAttribute } = Element.prototype;
 
+    // Detect calling `setAttribute` to set an idref or an id
     assign(Element.prototype, {
-        // FIXME: detect aria properties
-        // FIXME: detect setting ID via prop or attr
         setAttribute(this: Element, attrName: string, attrValue: any) {
             setAttribute.call(this, attrName, attrValue);
             if (ID_REFERENCING_ATTRIBUTES_SET.has(attrName) || attrName === 'id') {
@@ -125,6 +126,18 @@ function enableDetection() {
             }
         },
     } as Pick<Element, 'setAttribute'>);
+
+    // Detect `elm.id = 'foo'`
+    const id = getOwnPropertyDescriptor(Element.prototype, 'id');
+    defineProperty(Element.prototype, 'id', {
+        get() {
+            return id!.get!.call(this);
+        },
+        set(value: any) {
+            id!.set!.call(this, value);
+            detectSyntheticCrossRootAria(this, 'id', value);
+        },
+    });
 }
 
 // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser

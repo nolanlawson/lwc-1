@@ -103,17 +103,20 @@ defineProperty(Node.prototype, KEY__SHADOW_RESOLVER, {
     enumerable: true,
 });
 
-defineProperties(globalThis, {
-    [KEY__IS_NATIVE_SHADOW_ROOT_DEFINED]: {
-        value: isNativeShadowRootDefined,
-    },
-    [KEY__NATIVE_GET_ELEMENT_BY_ID]: {
-        value: getElementById,
-    },
-    [KEY__NATIVE_QUERY_SELECTOR_ALL]: {
-        value: querySelectorAll,
-    },
+defineProperty(globalThis, KEY__IS_NATIVE_SHADOW_ROOT_DEFINED, {
+    value: isNativeShadowRootDefined,
 });
+
+// The isUndefined check is because two copies of synthetic shadow may be loaded on the same page, and this
+// would throw an error if we tried to redefine it. Plus this only really works if it's the native method.
+if (isUndefined(globalThis[KEY__NATIVE_GET_ELEMENT_BY_ID])) {
+    defineProperty(globalThis, KEY__NATIVE_GET_ELEMENT_BY_ID, { value: getElementById });
+}
+
+// See note above.
+if (isUndefined(globalThis[KEY__NATIVE_QUERY_SELECTOR_ALL])) {
+    defineProperty(globalThis, KEY__NATIVE_QUERY_SELECTOR_ALL, { value: querySelectorAll });
+}
 
 // Function created per shadowRoot instance, it returns the shadowRoot, and is attached
 // into every new element inserted into the shadow via the GetShadowRootFnKey
