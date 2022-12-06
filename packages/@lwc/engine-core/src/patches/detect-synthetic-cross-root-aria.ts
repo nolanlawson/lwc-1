@@ -16,6 +16,9 @@ import {
     defineProperty,
     ID_REFERENCING_ATTRIBUTES_SET,
     isString,
+    isFunction,
+    StringSplit,
+    ArrayFilter,
 } from '@lwc/shared';
 import { onReportingEnabled, report, ReportId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
@@ -53,15 +56,9 @@ function reportViolation(source: Element, target: Element, attrName: string) {
     }
 }
 
-// String.prototype.trim is not supported in legacy browsers
-function trim(string: string) {
-    return string.replace(/^\s+/g, '').replace(/\s+$/g, '');
-}
-
-function parseIdRefAttributeValue(attrValue: string | null): string[] {
-    /* trim whitespace and split on whitespace */ return isNull(attrValue)
-        ? []
-        : trim(attrValue).split(/\s+/);
+function parseIdRefAttributeValue(attrValue: any): string[] {
+    // split on whitespace and skip empty strings after splitting
+    return isString(attrValue) ? ArrayFilter.call(StringSplit.call(attrValue, /\s+/), Boolean) : [];
 }
 
 function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue: any) {
@@ -71,25 +68,21 @@ function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue:
     }
 
     if (attrName === 'id') {
-        if (!isString(attrValue)) {
-            // if our id is null, nobody can reference us
-            return;
-        }
-        if (attrValue.length === 0) {
-            // if the ID was set to the empty string
-            return;
-        }
         // elm is the target, find the source
-        for (const attrName of ID_REFERENCING_ATTRIBUTES_SET) {
-            // query all global elements with this attribute
-            const query = `[${attrName}]`;
-            const candidates = querySelectorAll.call(document, query);
-            for (let i = 0; i < candidates.length; i++) {
-                const candidate = candidates[i];
-                const ids = parseIdRefAttributeValue(candidate.getAttribute(attrName));
-                const candidateRoot = candidate.getRootNode();
-                if (ids.includes(attrValue) && candidateRoot !== root) {
-                    reportViolation(candidate, elm, attrName);
+        if (!isString(attrValue) || attrValue.length === 0) {
+            // if our id is null or empty, nobody can reference us
+            return;
+        }
+        for (const idRefAttrName of ID_REFERENCING_ATTRIBUTES_SET) {
+            // Query all global elements with this attribute. The ~= is for values that
+            // reference multiple IDs, separated by whitespace.
+            const query = `[${idRefAttrName}~="${CSS.escape(attrValue)}"]`;
+            const sourceElements = querySelectorAll.call(document, query);
+            for (let i = 0; i < sourceElements.length; i++) {
+                const sourceElement = sourceElements[i];
+                const candidateRoot = sourceElement.getRootNode();
+                if (candidateRoot !== root) {
+                    reportViolation(sourceElement, elm, idRefAttrName);
                     break;
                 }
             }
@@ -126,31 +119,44 @@ function enableDetection() {
     assign(Element.prototype, {
         setAttribute(this: Element, attrName: string, attrValue: any) {
             setAttribute.call(this, attrName, attrValue);
-            if (ID_REFERENCING_ATTRIBUTES_SET.has(attrName) || attrName === 'id') {
+            if (attrName === 'id' || ID_REFERENCING_ATTRIBUTES_SET.has(attrName)) {
                 detectSyntheticCrossRootAria(this, attrName, attrValue);
             }
         },
     } as Pick<Element, 'setAttribute'>);
 
     // Detect `elm.id = 'foo'`
-    const id = getOwnPropertyDescriptor(Element.prototype, 'id');
-    defineProperty(Element.prototype, 'id', {
-        get() {
-            return id!.get!.call(this);
-        },
-        set(value: any) {
-            id!.set!.call(this, value);
-            detectSyntheticCrossRootAria(this, 'id', value);
-        },
-    });
+    const idDescriptor = getOwnPropertyDescriptor(Element.prototype, 'id');
+    if (!isUndefined(idDescriptor)) {
+        const { get, set } = idDescriptor;
+        // These should always be a getter and a setter, but is someone is monkeying with the global descriptor, ignore it
+        if (isFunction(get) && isFunction(set)) {
+            defineProperty(Element.prototype, 'id', {
+                get() {
+                    return get.call(this);
+                },
+                set(value: any) {
+                    set.call(this, value);
+                    detectSyntheticCrossRootAria(this, 'id', value);
+                },
+            });
+        }
+    }
+}
+
+// Our detection logic relies on some modern browser features. We can just skip reporting the data
+// for unsupported browsers
+function supportsCssEscape() {
+    return typeof CSS !== 'undefined' && isFunction(CSS.escape);
 }
 
 // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
-if (process.env.IS_BROWSER) {
+if (process.env.IS_BROWSER && supportsCssEscape()) {
+    // always run detection in dev mode, so we can at least print to the console
     if (process.env.NODE_ENV !== 'production') {
         enableDetection();
     } else {
-        // in prod mode, we only enable detection if reporting is enabled
+        // in prod mode, only enable detection if reporting is enabled
         onReportingEnabled(enableDetection);
     }
 }

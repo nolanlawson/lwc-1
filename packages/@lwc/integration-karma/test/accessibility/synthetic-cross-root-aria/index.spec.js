@@ -8,7 +8,8 @@ const ReportId = {
 };
 
 // These tests are designed to detect non-standard cross-root ARIA usage in synthetic shadow DOM
-if (!process.env.NATIVE_SHADOW) {
+// As for COMPAT, this detection logic is only enabled for modern browsers
+if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
     describe('synthetic shadow cross-root ARIA', () => {
         let dispatcher;
 
