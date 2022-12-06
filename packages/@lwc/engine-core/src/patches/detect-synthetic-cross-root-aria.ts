@@ -14,22 +14,10 @@ import {
     isUndefined,
     getOwnPropertyDescriptor,
     defineProperty,
+    ID_REFERENCING_ATTRIBUTES_SET,
 } from '@lwc/shared';
 import { onReportingEnabled, report, ReportId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
-
-// These attributes take either an ID or a list of IDs as values.
-export const ID_REFERENCING_ATTRIBUTES_SET: Set<string> = new Set([
-    'aria-activedescendant',
-    'aria-controls',
-    'aria-describedby',
-    'aria-details',
-    'aria-errormessage',
-    'aria-flowto',
-    'aria-labelledby',
-    'aria-owns',
-    'for',
-]);
 
 // Use the unpatched native getElementById/querySelectorAll rather than the synthetic one
 const getElementById = globalThis[KEY__NATIVE_GET_ELEMENT_BY_ID] as typeof document.getElementById;
@@ -59,7 +47,7 @@ function reportViolation(source: Element, target: Element, attrName: string) {
 }
 
 function parseIdRefAttributeValue(attrValue: string | null): string[] {
-    // FIXME: special characters in the ID
+    // trim whitespace and split on whitespace
     return !isNull(attrValue)
         ? attrValue.replace(/^\s+/g, '').replace(/\s+$/g, '').split(/\s+/)
         : [];
@@ -78,12 +66,14 @@ function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue:
         }
         // elm is the target, find the source
         for (const attrName of ID_REFERENCING_ATTRIBUTES_SET) {
+            // query all global elements with this attribute
             const query = `[${attrName}]`;
             const candidates = querySelectorAll.call(document, query);
             for (let i = 0; i < candidates.length; i++) {
                 const candidate = candidates[i];
                 const ids = parseIdRefAttributeValue(candidate.getAttribute(attrName));
-                if (ids.includes(attrValue)) {
+                const candidateRoot = candidate.getRootNode();
+                if (ids.includes(attrValue) && candidateRoot !== root) {
                     reportViolation(candidate, elm, attrName);
                     break;
                 }

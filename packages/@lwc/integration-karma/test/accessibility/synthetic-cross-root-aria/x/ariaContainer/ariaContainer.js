@@ -16,9 +16,46 @@ export default class extends LightningElement {
     }
 
     @api
-    linkUsingBothAriaLabelledByAndId() {
-        const id = 'my-brand-new-id';
-        this.refs.source.setAriaLabelledBy(id);
-        this.refs.target.setId(id);
+    linkUsingBoth({ reverseOrder = false, specialChars = false, addWhitespace = false } = {}) {
+        // For some examples of characters that may need escaping, see:
+        // https://developer.mozilla.org/en-US/docs/Web/API/CSS/escape#basic_results
+        // https://stackoverflow.com/a/9189067
+        const id = specialChars ? 'a.b#c()[]{}--><&"\'\\' : 'my-id';
+
+        const operations = [
+            () => {
+                this.refs.source.setAriaLabelledBy(addWhitespace ? `  ${id} \t` : id);
+            },
+            () => {
+                this.refs.target.setId(id);
+            },
+        ];
+        if (reverseOrder) {
+            operations.reverse();
+        }
+
+        for (const operation of operations) {
+            operation();
+        }
+    }
+
+    @api
+    linkMultipleTargets({ reverseOrder = false } = {}) {
+        const operations = [
+            () => {
+                this.refs.source.setAriaLabelledBy('id1 id2');
+            },
+            () => {
+                this.refs.target.setId('id1');
+                this.refs.target2.setId('id2');
+            },
+        ];
+        if (reverseOrder) {
+            operations.reverse();
+        }
+
+        for (const operation of operations) {
+            operation();
+        }
     }
 }
