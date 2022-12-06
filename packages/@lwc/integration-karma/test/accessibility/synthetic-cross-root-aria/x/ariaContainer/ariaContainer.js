@@ -16,38 +16,31 @@ export default class extends LightningElement {
     }
 
     @api
-    linkUsingBoth({ reverseOrder = false, specialChars = false, addWhitespace = false } = {}) {
+    linkUsingBoth({
+        reverseOrder = false,
+        specialChars = false,
+        addWhitespace = false,
+        multipleTargets = false,
+    } = {}) {
         // For some examples of characters that may need escaping, see:
         // https://developer.mozilla.org/en-US/docs/Web/API/CSS/escape#basic_results
         // https://stackoverflow.com/a/9189067
         const id = specialChars ? 'a.b#c()[]{}--><&"\'\\' : 'my-id';
+        const id2 = `${id}-2`;
+        let labelledBy = multipleTargets ? `${id} ${id2}` : id;
+        if (addWhitespace) {
+            labelledBy = `  ${labelledBy} \t`;
+        }
 
         const operations = [
             () => {
-                this.refs.source.setAriaLabelledBy(addWhitespace ? `  ${id} \t` : id);
+                this.refs.source.setAriaLabelledBy(labelledBy);
             },
             () => {
                 this.refs.target.setId(id);
-            },
-        ];
-        if (reverseOrder) {
-            operations.reverse();
-        }
-
-        for (const operation of operations) {
-            operation();
-        }
-    }
-
-    @api
-    linkMultipleTargets({ reverseOrder = false } = {}) {
-        const operations = [
-            () => {
-                this.refs.source.setAriaLabelledBy('id1 id2');
-            },
-            () => {
-                this.refs.target.setId('id1');
-                this.refs.target2.setId('id2');
+                if (multipleTargets) {
+                    this.refs.target2.setId(id2);
+                }
             },
         ];
         if (reverseOrder) {

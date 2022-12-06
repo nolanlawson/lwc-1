@@ -15,6 +15,7 @@ import {
     getOwnPropertyDescriptor,
     defineProperty,
     ID_REFERENCING_ATTRIBUTES_SET,
+    isString,
 } from '@lwc/shared';
 import { onReportingEnabled, report, ReportId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
@@ -31,37 +32,51 @@ function isSyntheticShadowRootInstance(rootNode: Node): rootNode is ShadowRoot {
 }
 
 function reportViolation(source: Element, target: Element, attrName: string) {
+    // The vm is either for the source, the target, or both. Either one or both must be using synthetic
+    // shadow for a violation to be detected.
     let vm: VM | undefined = getAssociatedVMIfPresent((source.getRootNode() as ShadowRoot).host);
     if (isUndefined(vm)) {
         vm = getAssociatedVMIfPresent((target.getRootNode() as ShadowRoot).host);
+    }
+    if (isUndefined(vm)) {
+        // vm should never be undefined here, but just to be safe, bail out and don't report
+        return;
     }
     report(ReportId.CrossRootAriaInSyntheticShadow, vm);
     if (process.env.NODE_ENV !== 'production') {
         // eslint-disable-next-line no-console
         console.error(
-            (isUndefined(vm) ? '' : `<${vm.elm.tagName.toLowerCase()}>: `) +
+            `<${vm.elm.tagName.toLowerCase()}>: ` +
                 `Element <${source.tagName.toLowerCase()}> uses attribute "${attrName}" to reference element ` +
                 `<${target.tagName.toLowerCase()}>, which is not in the same shadow root. This will break in native shadow DOM.`
         );
     }
 }
 
-function parseIdRefAttributeValue(attrValue: string | null): string[] {
-    // trim whitespace and split on whitespace
-    return !isNull(attrValue)
-        ? attrValue.replace(/^\s+/g, '').replace(/\s+$/g, '').split(/\s+/)
-        : [];
+// String.prototype.trim is not supported in legacy browsers
+function trim(string: string) {
+    return string.replace(/^\s+/g, '').replace(/\s+$/g, '');
 }
 
-function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue: string) {
+function parseIdRefAttributeValue(attrValue: string | null): string[] {
+    /* trim whitespace and split on whitespace */ return isNull(attrValue)
+        ? []
+        : trim(attrValue).split(/\s+/);
+}
+
+function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue: any) {
     const root = elm.getRootNode();
     if (!isSyntheticShadowRootInstance(root)) {
         return;
     }
 
     if (attrName === 'id') {
-        if (isNull(attrValue)) {
+        if (!isString(attrValue)) {
             // if our id is null, nobody can reference us
+            return;
+        }
+        if (attrValue.length === 0) {
+            // if the ID was set to the empty string
             return;
         }
         // elm is the target, find the source

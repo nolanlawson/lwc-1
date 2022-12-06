@@ -99,8 +99,20 @@ if (!process.env.NATIVE_SHADOW) {
                         );
                     });
 
-                    it('ignores setting id to null', () => {
-                        targetElm.setId(null);
+                    [null, '', '  '].forEach((value) => {
+                        it(`ignores setting id to ${JSON.stringify(value)}`, () => {
+                            targetElm.setId(value);
+                            expect(dispatcher).not.toHaveBeenCalled();
+                        });
+
+                        it(`ignores setting aria-labelledby to ${JSON.stringify(value)}`, () => {
+                            sourceElm.setAriaLabelledBy(value);
+                            expect(dispatcher).not.toHaveBeenCalled();
+                        });
+                    });
+
+                    it('ignores id that references nonexistent element', () => {
+                        sourceElm.setAriaLabelledBy('does-not-exist-at-all-lol');
                         expect(dispatcher).not.toHaveBeenCalled();
                     });
 
@@ -110,6 +122,7 @@ if (!process.env.NATIVE_SHADOW) {
                         { reverseOrder: true },
                         { reverseOrder: true, specialChars: true },
                         { addWhitespace: true },
+                        { addWhitespace: true, reverseOrder: true },
                     ].forEach((options) => {
                         describe(`${JSON.stringify(options)}`, () => {
                             it('setting both id and aria-labelledby', () => {
@@ -124,14 +137,10 @@ if (!process.env.NATIVE_SHADOW) {
                                     jasmine.any(Number)
                                 );
                             });
-                        });
-                    });
 
-                    [{}, { reverseOrder: true }].forEach((options) => {
-                        describe(`${JSON.stringify(options)}`, () => {
                             it('linking multiple targets', () => {
                                 expect(() => {
-                                    elm.linkMultipleTargets(options);
+                                    elm.linkUsingBoth({ ...options, multipleTargets: true });
                                 }).toLogErrorDev([
                                     /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root\. This will break in native shadow DOM\./,
                                     /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <div>, which is not in the same shadow root\. This will break in native shadow DOM\./,
