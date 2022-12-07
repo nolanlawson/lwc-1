@@ -11,7 +11,7 @@ export const enum ReportId {
     CrossRootAriaInSyntheticShadow,
 }
 
-type ReportingDispatcher = (reportId: ReportId, tagName?: string, vmIndex?: number) => void;
+type ReportingDispatcher = (reportId: ReportId, tagName: string, vmIndex: number) => void;
 
 type OnReportingEnabledCallback = () => void;
 
@@ -42,8 +42,9 @@ export const reportingControl = {
             try {
                 callback();
             } catch (err) {
+                // This should never happen. But if it does, we don't want one callback to cause another to fail
                 // eslint-disable-next-line no-console
-                console.error('Could not call OnReportingEnabled callback', err);
+                console.error('Could not invoke callback', err);
             }
         }
         onReportingEnabledCallbacks.length = 0; // clear the array
@@ -78,8 +79,8 @@ export function onReportingEnabled(callback: OnReportingEnabledCallback) {
  * @param reportId
  * @param vm
  */
-export function report(reportId: any, vm?: VM) {
+export function report(reportId: ReportId, vm: VM) {
     if (enabled) {
-        currentDispatcher(reportId, vm?.tagName, vm?.idx);
+        currentDispatcher(reportId, vm.tagName, vm.idx);
     }
 }
