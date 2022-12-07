@@ -132,7 +132,7 @@ function enableDetection() {
     const idDescriptor = getOwnPropertyDescriptor(Element.prototype, 'id');
     if (!isUndefined(idDescriptor)) {
         const { get, set } = idDescriptor;
-        // These should always be a getter and a setter, but is someone is monkeying with the global descriptor, ignore it
+        // These should always be a getter and a setter, but if someone is monkeying with the global descriptor, ignore it
         if (isFunction(get) && isFunction(set)) {
             defineProperty(Element.prototype, 'id', {
                 get() {
