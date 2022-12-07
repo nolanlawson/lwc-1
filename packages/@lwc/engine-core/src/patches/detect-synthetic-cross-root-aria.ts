@@ -26,6 +26,13 @@ import { onReportingEnabled, report, ReportId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
 import { logWarn } from '../shared/logger';
 
+//
+// The goal of this code is to detect invalid cross-root ARIA references in synthetic shadow DOM.
+// These invalid references should be fixed before the offending components can be migrated to native shadow DOM.
+// When invalid usage is detected, we warn in dev mode and call the reporting API if enabled.
+// See: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates
+//
+
 // Use the unpatched native getElementById/querySelectorAll rather than the synthetic one
 const getElementById = globalThis[KEY__NATIVE_GET_ELEMENT_BY_ID] as typeof document.getElementById;
 
@@ -142,6 +149,9 @@ function enableDetection() {
                     set.call(this, value);
                     detectSyntheticCrossRootAria(this, 'id', value);
                 },
+                // On the default descriptor for 'id', enumerable and configurable are true
+                enumerable: true,
+                configurable: true,
             });
         }
     }
@@ -163,11 +173,11 @@ function isSyntheticShadowLoaded() {
 
 // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
 if (process.env.IS_BROWSER && supportsCssEscape() && isSyntheticShadowLoaded()) {
-    // always run detection in dev mode, so we can at least print to the console
+    // Always run detection in dev mode, so we can at least print to the console
     if (process.env.NODE_ENV !== 'production') {
         enableDetection();
     } else {
-        // in prod mode, only enable detection if reporting is enabled
+        // In prod mode, only enable detection if reporting is enabled
         onReportingEnabled(enableDetection);
     }
 }
