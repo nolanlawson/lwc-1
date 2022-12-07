@@ -108,7 +108,7 @@ defineProperty(globalThis, KEY__IS_NATIVE_SHADOW_ROOT_DEFINED, {
 });
 
 // The isUndefined check is because two copies of synthetic shadow may be loaded on the same page, and this
-// would throw an error if we tried to redefine it. Plus this only really works if it's the native method.
+// would throw an error if we tried to redefine it. Plus the whole point is to expose the native method.
 if (isUndefined(globalThis[KEY__NATIVE_GET_ELEMENT_BY_ID])) {
     defineProperty(globalThis, KEY__NATIVE_GET_ELEMENT_BY_ID, { value: getElementById });
 }

@@ -84,14 +84,14 @@ function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue:
             return;
         }
         for (const idRefAttrName of ID_REFERENCING_ATTRIBUTES_SET) {
-            // Query all global elements with this attribute. The ~= is for values that
-            // reference multiple IDs, separated by whitespace.
+            // Query all global elements with this attribute. The attribute selector syntax `~=` is for values
+            // that reference multiple IDs, separated by whitespace.
             const query = `[${idRefAttrName}~="${CSS.escape(attrValue)}"]`;
             const sourceElements = querySelectorAll.call(document, query);
             for (let i = 0; i < sourceElements.length; i++) {
                 const sourceElement = sourceElements[i];
-                const candidateRoot = sourceElement.getRootNode();
-                if (candidateRoot !== root) {
+                const sourceRoot = sourceElement.getRootNode();
+                if (sourceRoot !== root) {
                     reportViolation(sourceElement, elm, idRefAttrName);
                     break;
                 }
