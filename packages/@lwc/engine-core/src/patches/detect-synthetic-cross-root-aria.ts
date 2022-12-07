@@ -150,8 +150,14 @@ function supportsCssEscape() {
     return typeof CSS !== 'undefined' && isFunction(CSS.escape);
 }
 
+// If this page is not using synthetic shadow, then we don't need to install detection. Note
+// that we are assuming synthetic shadow is loaded before LWC.
+function isSyntheticShadowLoaded() {
+    return document.body.attachShadow.toString().includes('[native code]');
+}
+
 // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
-if (process.env.IS_BROWSER && supportsCssEscape()) {
+if (process.env.IS_BROWSER && supportsCssEscape() && isSyntheticShadowLoaded()) {
     // always run detection in dev mode, so we can at least print to the console
     if (process.env.NODE_ENV !== 'production') {
         enableDetection();
