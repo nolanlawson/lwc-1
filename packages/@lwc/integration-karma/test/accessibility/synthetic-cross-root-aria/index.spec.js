@@ -7,6 +7,13 @@ const ReportId = {
     CrossRootAriaInSyntheticShadow: 0,
 };
 
+const expectedMessage =
+    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';
+const expectedMessageWithTargetAsVM =
+    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-target>';
+const expectedMessageForSecondTarget =
+    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <div>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';
+
 // These tests are designed to detect non-standard cross-root ARIA usage in synthetic shadow DOM
 // As for COMPAT, this detection logic is only enabled for modern browsers
 if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
@@ -44,9 +51,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                     it('setting aria-labelledby', () => {
                         expect(() => {
                             elm.linkUsingAriaLabelledBy();
-                        }).toLogErrorDev(
-                            /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root\. This will break in native shadow DOM\./
-                        );
+                        }).toLogWarningDev(expectedMessage);
                         expect(dispatcher).toHaveBeenCalledWith(
                             ReportId.CrossRootAriaInSyntheticShadow,
                             'x-aria-source',
@@ -57,9 +62,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                     it('setting id', () => {
                         expect(() => {
                             elm.linkUsingId();
-                        }).toLogErrorDev(
-                            /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root\. This will break in native shadow DOM\./
-                        );
+                        }).toLogWarningDev(expectedMessage);
                         expect(dispatcher).toHaveBeenCalledWith(
                             ReportId.CrossRootAriaInSyntheticShadow,
                             'x-aria-source',
@@ -73,9 +76,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         document.body.appendChild(label);
                         expect(() => {
                             sourceElm.setAriaLabelledBy('foo');
-                        }).toLogErrorDev(
-                            /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root\. This will break in native shadow DOM\./
-                        );
+                        }).toLogWarningDev(expectedMessage);
                         expect(dispatcher).toHaveBeenCalledWith(
                             ReportId.CrossRootAriaInSyntheticShadow,
                             'x-aria-source',
@@ -90,9 +91,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         document.body.appendChild(input);
                         expect(() => {
                             targetElm.setId('foo');
-                        }).toLogErrorDev(
-                            /<x-aria-target>: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root\. This will break in native shadow DOM\./
-                        );
+                        }).toLogWarningDev(expectedMessageWithTargetAsVM);
                         expect(dispatcher).toHaveBeenCalledWith(
                             ReportId.CrossRootAriaInSyntheticShadow,
                             'x-aria-target',
@@ -129,9 +128,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                             it('setting both id and aria-labelledby', () => {
                                 expect(() => {
                                     elm.linkUsingBoth(options);
-                                }).toLogErrorDev(
-                                    /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root\. This will break in native shadow DOM\./
-                                );
+                                }).toLogWarningDev(expectedMessage);
                                 expect(dispatcher).toHaveBeenCalledWith(
                                     ReportId.CrossRootAriaInSyntheticShadow,
                                     'x-aria-source',
@@ -142,9 +139,9 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                             it('linking multiple targets', () => {
                                 expect(() => {
                                     elm.linkUsingBoth({ ...options, multipleTargets: true });
-                                }).toLogErrorDev([
-                                    /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root\. This will break in native shadow DOM\./,
-                                    /<x-aria-source>: Element <input> uses attribute "aria-labelledby" to reference element <div>, which is not in the same shadow root\. This will break in native shadow DOM\./,
+                                }).toLogWarningDev([
+                                    expectedMessage,
+                                    expectedMessageForSecondTarget,
                                 ]);
                                 expect(dispatcher).toHaveBeenCalledTimes(2);
                                 expect(dispatcher.calls.allArgs()).toEqual([

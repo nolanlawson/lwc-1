@@ -19,9 +19,12 @@ import {
     isFunction,
     StringSplit,
     ArrayFilter,
+    hasOwnProperty,
+    KEY__SHADOW_TOKEN,
 } from '@lwc/shared';
 import { onReportingEnabled, report, ReportId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
+import { logWarn } from '../shared/logger';
 
 // Use the unpatched native getElementById/querySelectorAll rather than the synthetic one
 const getElementById = globalThis[KEY__NATIVE_GET_ELEMENT_BY_ID] as typeof document.getElementById;
@@ -47,11 +50,11 @@ function reportViolation(source: Element, target: Element, attrName: string) {
     }
     report(ReportId.CrossRootAriaInSyntheticShadow, vm);
     if (process.env.NODE_ENV !== 'production') {
-        // eslint-disable-next-line no-console
-        console.error(
-            `<${vm.elm.tagName.toLowerCase()}>: ` +
-                `Element <${source.tagName.toLowerCase()}> uses attribute "${attrName}" to reference element ` +
-                `<${target.tagName.toLowerCase()}>, which is not in the same shadow root. This will break in native shadow DOM.`
+        logWarn(
+            `Element <${source.tagName.toLowerCase()}> uses attribute "${attrName}" to reference element ` +
+                `<${target.tagName.toLowerCase()}>, which is not in the same shadow root. This will break in native shadow DOM. ` +
+                `For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates`,
+            vm
         );
     }
 }
@@ -153,7 +156,9 @@ function supportsCssEscape() {
 // If this page is not using synthetic shadow, then we don't need to install detection. Note
 // that we are assuming synthetic shadow is loaded before LWC.
 function isSyntheticShadowLoaded() {
-    return document.body.attachShadow.toString().includes('[native code]');
+    // We should probably be calling `renderer.isSyntheticShadowDefined`, but 1) we don't have access to the renderer,
+    // and 2) this code needs to run in @lwc/engine-core, so it can access `logWarn()` and `report()`.
+    return hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN);
 }
 
 // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
