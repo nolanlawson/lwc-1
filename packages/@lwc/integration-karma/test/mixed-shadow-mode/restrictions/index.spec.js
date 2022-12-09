@@ -41,7 +41,7 @@ describe('restrictions', () => {
             expect(() => {
                 elm.addEventListener('click', () => {}, { once: true });
             }).toLogErrorDev(
-                'Error: [LWC error]: The `addEventListener` method in `LightningElement` does not support any options.\n'
+                '[LWC error]: The `addEventListener` method in `LightningElement` does not support any options.\n'
             );
         });
     });
@@ -51,7 +51,7 @@ describe('restrictions', () => {
             expect(() => {
                 elm.dispatchEventWithInvalidName();
             }).toLogErrorDev(
-                'Error: [LWC error]: Invalid event type "UPPERCASE-AND-HYPHENS" dispatched in element <x-component>. Event name must start with a lowercase letter and followed only lowercase letters, numbers, and underscores\n'
+                '[LWC error]: Invalid event type "UPPERCASE-AND-HYPHENS" dispatched in element <x-component>. Event name must start with a lowercase letter and followed only lowercase letters, numbers, and underscores\n'
             );
         });
 
@@ -59,7 +59,7 @@ describe('restrictions', () => {
             expect(() => {
                 elm.getClassName();
             }).toLogErrorDev(
-                'Error: [LWC error]: Accessing the global HTML property "className" is disabled.\n' +
+                '[LWC error]: Accessing the global HTML property "className" is disabled.\n' +
                     'Using the `className` property is an anti-pattern because of slow runtime behavior and potential conflicts with classes provided by the owner element. Use the `classList` API instead.\n'
             );
         });
@@ -68,7 +68,7 @@ describe('restrictions', () => {
             expect(() => {
                 elm.setAccessKeyLabel('foo');
             }).toLogErrorDev(
-                'Error: [LWC error]: The global HTML property `accessKeyLabel` is read-only.\n'
+                '[LWC error]: The global HTML property `accessKeyLabel` is read-only.\n'
             );
         });
     });

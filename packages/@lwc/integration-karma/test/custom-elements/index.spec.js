@@ -138,7 +138,7 @@ if (SUPPORTS_CUSTOM_ELEMENTS) {
                         extends: 'button',
                     });
                 }).toThrowError(
-                    'NotSupportedError: "extends" key in customElements.define() options is not supported.'
+                    'NotSupported"extends" key in customElements.define() options is not supported.'
                 );
             });
         }

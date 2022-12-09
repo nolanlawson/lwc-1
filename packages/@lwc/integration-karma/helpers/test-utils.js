@@ -95,6 +95,10 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
                 },
                 compare: function compare(actual, expectedMessages) {
                     function matchMessage(message, expectedMessage) {
+                        if (Array.isArray(message)) {
+                            message = message.join(' ')
+                        }
+
                         if (typeof expectedMessage === 'string') {
                             return message === expectedMessage;
                         } else {

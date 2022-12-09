@@ -4,36 +4,31 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { isUndefined } from '@lwc/shared';
+import {isString, isUndefined} from '@lwc/shared';
 
 import { VM } from '../framework/vm';
 import { getComponentStack } from './format';
 
-function log(method: 'warn' | 'error', message: string, vm?: VM) {
-    let msg = `[LWC ${method}]: ${message}`;
+type Loggable = string | (string | Element)[]
+
+function log(method: 'warn' | 'error', message: Loggable, vm?: VM) {
+    const messageToLog = [
+        `[LWC ${method}]:`,
+        ...(isString(message) ? [message] : message)
+    ]
 
     if (!isUndefined(vm)) {
-        msg = `${msg}\n${getComponentStack(vm)}`;
+        messageToLog.push(`${messageToLog}\n${getComponentStack(vm)}`)
     }
 
-    if (process.env.NODE_ENV === 'test') {
-        /* eslint-disable-next-line no-console */
-        console[method](msg);
-        return;
-    }
-
-    try {
-        throw new Error(msg);
-    } catch (e) {
-        /* eslint-disable-next-line no-console */
-        console[method](e);
-    }
+    /* eslint-disable-next-line no-console */
+    console[method](...messageToLog)
 }
 
-export function logError(message: string, vm?: VM) {
+export function logError(message: Loggable, vm?: VM) {
     log('error', message, vm);
 }
 
-export function logWarn(message: string, vm?: VM) {
+export function logWarn(message: Loggable, vm?: VM) {
     log('warn', message, vm);
 }

@@ -8,11 +8,11 @@ const ReportingEventId = {
 };
 
 const expectedMessage =
-    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';
+    '[LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';
 const expectedMessageWithTargetAsVM =
-    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-target>';
+    '[LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-target>';
 const expectedMessageForSecondTarget =
-    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <div>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';
+    '[LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <div>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';
 
 // These tests are designed to detect non-standard cross-root ARIA usage in synthetic shadow DOM
 // As for COMPAT, this detection logic is only enabled for modern browsers

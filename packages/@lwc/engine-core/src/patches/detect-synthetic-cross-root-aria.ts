@@ -58,9 +58,10 @@ function reportViolation(source: Element, target: Element, attrName: string) {
     report(ReportingEventId.CrossRootAriaInSyntheticShadow, vm);
     if (process.env.NODE_ENV !== 'production') {
         logWarn(
-            `Element <${source.tagName.toLowerCase()}> uses attribute "${attrName}" to reference element ` +
-                `<${target.tagName.toLowerCase()}>, which is not in the same shadow root. This will break in native shadow DOM. ` +
-                `For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates`,
+            [source, `uses attribute "${attrName}" to reference`, target,
+                `which is not in the same shadow root. This will break in native shadow DOM. ` +
+                `For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates`
+            ],
             vm
         );
     }

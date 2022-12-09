@@ -14,7 +14,7 @@ import './custom-elements/ce-with-event';
 import './custom-elements/ce-with-property';
 
 const unknownPropTokyo =
-    /Error: \[LWC warn]: Unknown public property "tokyo" of element <ce-with-property>\. This is either a typo on the corresponding attribute "tokyo", or the attribute does not exist in this browser or DOM implementation\./;
+    /\[LWC warn]: Unknown public property "tokyo" of element <ce-with-property>\. This is either a typo on the corresponding attribute "tokyo", or the attribute does not exist in this browser or DOM implementation\./;
 
 if (!process.env.COMPAT) {
     describe('lwc:external directive basic tests', () => {
