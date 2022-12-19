@@ -12,6 +12,7 @@ const { getModulePath } = require('lwc');
 
 const karmaPluginLwc = require('../../karma-plugins/lwc');
 const karmaPluginEnv = require('../../karma-plugins/env');
+const karmaPluginHooks = require('../../karma-plugins/hooks');
 const { COMPAT, SYNTHETIC_SHADOW_ENABLED, GREP, COVERAGE } = require('../../shared/options');
 const { createPattern } = require('../utils');
 const TAGS = require('./tags');
@@ -25,6 +26,8 @@ const LWC_ENGINE = getModulePath('engine-dom', 'iife', 'es2017', 'dev');
 const LWC_ENGINE_COMPAT = getModulePath('engine-dom', 'iife', 'es5', 'dev');
 const WIRE_SERVICE = getModulePath('wire-service', 'iife', 'es2017', 'dev');
 const WIRE_SERVICE_COMPAT = getModulePath('wire-service', 'iife', 'es5', 'dev');
+
+console.log({ LWC_ENGINE })
 
 const POLYFILL_COMPAT = require.resolve('es5-proxy-compat/polyfills.js');
 const FETCH_COMPAT = require.resolve('whatwg-fetch'); // not included in es5-proxy-compat polyfills
@@ -76,6 +79,7 @@ module.exports = (config) => {
         // Transform all the spec files with the lwc karma plugin.
         preprocessors: {
             '**/*.spec.js': ['lwc'],
+            '**/*': ['hooks']
         },
 
         // Use the env plugin to inject the right environment variables into the app
@@ -83,7 +87,7 @@ module.exports = (config) => {
         frameworks: ['env', 'jasmine'],
 
         // Specify what plugin should be registered by Karma.
-        plugins: ['karma-jasmine', karmaPluginLwc, karmaPluginEnv],
+        plugins: ['karma-jasmine', karmaPluginLwc, karmaPluginEnv, karmaPluginHooks],
 
         // Leave the reporter empty on purpose. Extending configuration need to pick the right reporter they want
         // to use.
