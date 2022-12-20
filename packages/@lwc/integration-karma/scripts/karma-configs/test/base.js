@@ -27,13 +27,22 @@ const LWC_ENGINE_COMPAT = getModulePath('engine-dom', 'iife', 'es5', 'dev');
 const WIRE_SERVICE = getModulePath('wire-service', 'iife', 'es2017', 'dev');
 const WIRE_SERVICE_COMPAT = getModulePath('wire-service', 'iife', 'es5', 'dev');
 
-console.log({ LWC_ENGINE })
+console.log({ LWC_ENGINE });
 
 const POLYFILL_COMPAT = require.resolve('es5-proxy-compat/polyfills.js');
 const FETCH_COMPAT = require.resolve('whatwg-fetch'); // not included in es5-proxy-compat polyfills
 const TEST_UTILS = require.resolve('../../../helpers/test-utils');
 const WIRE_SETUP = require.resolve('../../../helpers/wire-setup');
 const TEST_SETUP = require.resolve('../../../helpers/test-setup');
+
+const ALL_FRAMEWORK_FILES = [
+    SYNTHETIC_SHADOW,
+    SYNTHETIC_SHADOW_COMPAT,
+    LWC_ENGINE,
+    LWC_ENGINE_COMPAT,
+    WIRE_SERVICE,
+    WIRE_SERVICE_COMPAT,
+];
 
 // Fix Node warning about >10 event listeners ("Possible EventEmitter memory leak detected").
 // This is due to the fact that we are running so many simultaneous rollup commands
@@ -79,7 +88,7 @@ module.exports = (config) => {
         // Transform all the spec files with the lwc karma plugin.
         preprocessors: {
             '**/*.spec.js': ['lwc'],
-            '**/*': ['hooks']
+            ...Object.fromEntries(ALL_FRAMEWORK_FILES.map((file) => [file, ['hooks']])),
         },
 
         // Use the env plugin to inject the right environment variables into the app
@@ -103,9 +112,9 @@ module.exports = (config) => {
     // The code coverage is only enabled when the flag is passed since it makes debugging the engine code harder.
     if (COVERAGE) {
         // Indicate to Karma to instrument the code to gather code coverage.
-        config.preprocessors[COMPAT ? LWC_ENGINE_COMPAT : LWC_ENGINE] = ['coverage'];
-        config.preprocessors[COMPAT ? WIRE_SERVICE_COMPAT : WIRE_SERVICE] = ['coverage'];
-        config.preprocessors[COMPAT ? SYNTHETIC_SHADOW_COMPAT : SYNTHETIC_SHADOW] = ['coverage'];
+        config.preprocessors[COMPAT ? LWC_ENGINE_COMPAT : LWC_ENGINE].push('coverage');
+        config.preprocessors[COMPAT ? WIRE_SERVICE_COMPAT : WIRE_SERVICE].push('coverage');
+        config.preprocessors[COMPAT ? SYNTHETIC_SHADOW_COMPAT : SYNTHETIC_SHADOW].push('coverage');
 
         config.reporters.push('coverage');
         config.plugins.push('karma-coverage');

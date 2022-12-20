@@ -11,18 +11,34 @@
  */
 'use strict';
 
+const MagicString = require('magic-string');
 const Watcher = require('./Watcher');
 
 function createPreprocessor(config, emitter, logger) {
-  const { basePath } = config;
+    const log = logger.create('preprocessor-hooks');
+    const watcher = new Watcher(config, emitter, log);
 
-  const log = logger.create('preprocessor-hooks');
-  const watcher = new Watcher(config, emitter, log);
+    return (code, file, done) => {
+        console.log('running', file.path);
+        const input = file.path;
 
-  return async (_content, file, done) => {
-      console.log('running', file.path)
-      done(null, _content.replaceAll(`process.env.NODE_ENV !== 'production' && typeof __karma__ !== 'undefined'`, `/* karma only */ true`))
-  };
+        watcher.watchSuite(input, []);
+
+        const magicString = new MagicString(code);
+        magicString.replaceAll(
+            `process.env.NODE_ENV !== 'production' && typeof __karma__ !== 'undefined'`,
+            `/* karma only */ true`
+        );
+
+        const map = magicString.generateMap({
+            source: file.path,
+            includeContent: true,
+        });
+
+        const output = magicString.toString() + `\n//# sourceMappingURL=${map.toUrl()}\n`;
+
+        done(null, output);
+    };
 }
 
 createPreprocessor.$inject = ['config', 'emitter', 'logger'];
