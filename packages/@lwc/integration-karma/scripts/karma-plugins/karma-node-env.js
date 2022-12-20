@@ -6,8 +6,10 @@
  */
 
 /**
- * This transformation enables "test hooks" from within LWC's source code. These hooks are
- * designed to only be used by Karma, hence they're enabled here.
+ * This transformation replaces
+ *     process.env.NODE_ENV !== 'production' && typeof __karma__ !== 'undefined'
+ * with
+ *     true
  */
 'use strict';
 
@@ -15,11 +17,10 @@ const MagicString = require('magic-string');
 const Watcher = require('./Watcher');
 
 function createPreprocessor(config, emitter, logger) {
-    const log = logger.create('preprocessor-hooks');
+    const log = logger.create('preprocessor-karma-node-env');
     const watcher = new Watcher(config, emitter, log);
 
     return (code, file, done) => {
-        console.log('running', file.path);
         const input = file.path;
 
         watcher.watchSuite(input, []);
@@ -27,7 +28,7 @@ function createPreprocessor(config, emitter, logger) {
         const magicString = new MagicString(code);
         magicString.replaceAll(
             `process.env.NODE_ENV !== 'production' && typeof __karma__ !== 'undefined'`,
-            `/* karma only */ true`
+            `true`
         );
 
         const map = magicString.generateMap({
@@ -48,4 +49,4 @@ function createPreprocessor(config, emitter, logger) {
 
 createPreprocessor.$inject = ['config', 'emitter', 'logger'];
 
-module.exports = { 'preprocessor:hooks': ['factory', createPreprocessor] };
+module.exports = { 'preprocessor:karma-node-env': ['factory', createPreprocessor] };
