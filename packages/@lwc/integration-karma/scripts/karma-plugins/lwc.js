@@ -107,9 +107,9 @@ function createPreprocessor(config, emitter, logger) {
             // also adding the source map inline for browser debugging.
             // eslint-disable-next-line require-atomic-updates
             file.sourceMap = map;
-            const codeWithSourceMap = code + `\n//# sourceMappingURL=${map.toUrl()}\n`;
+            code + `\n//# sourceMappingURL=${map.toUrl()}\n`;
 
-            done(null, codeWithSourceMap);
+            done(null, code);
         } catch (error) {
             const location = path.relative(basePath, file.path);
             log.error('Error processing “%s”\n\n%s\n', location, error.stack || error.message);
