@@ -76,9 +76,11 @@ if (SUPPORTS_CUSTOM_ELEMENTS) {
             const observedErrors = consoleSpy.calls.error
                 .flat()
                 .map((err) => (err instanceof Error ? err.message : err));
-            expect(observedErrors).toContain(
-                '[LWC error]: Hydration mismatch: incorrect number of rendered nodes. Client produced more nodes than the server.\n'
-            );
+            if (process.env.NODE_ENV !== 'production') {
+                expect(observedErrors).toContain(
+                    '[LWC error]: Hydration mismatch: incorrect number of rendered nodes. Client produced more nodes than the server.\n'
+                );
+            }
             expect(observedErrors).toContain('[LWC error]: Hydration completed with errors.\n');
         });
     });

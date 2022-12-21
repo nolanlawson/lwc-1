@@ -77,7 +77,9 @@ describe('restrictions', () => {
         it('should throw on setting outerHTML', () => {
             expect(() => {
                 elm.shadowRoot.querySelector('div').outerHTML = '';
-            }).toThrowError(TypeError, 'Invalid attempt to set outerHTML on Element.');
+            }).toThrowError(
+                /Invalid attempt to set outerHTML on Element\.|This element's parent is of type '#document-fragment', which is not an element node./
+            );
         });
     });
 });

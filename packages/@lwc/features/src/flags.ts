@@ -52,7 +52,7 @@ export function setFeatureFlag(name: FeatureFlagName, value: FeatureFlagValue): 
         );
         return;
     }
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'test-karma-lwc' || process.env.NODE_ENV !== 'production') {
         // Allow the same flag to be set more than once outside of production to enable testing
         lwcRuntimeFlags[name] = value;
     } else {
@@ -74,7 +74,8 @@ export function setFeatureFlag(name: FeatureFlagName, value: FeatureFlagValue): 
  * purposes. It is a no-op when invoked in production mode.
  */
 export function setFeatureFlagForTest(name: FeatureFlagName, value: FeatureFlagValue): void {
-    if (process.env.NODE_ENV !== 'production') {
+    // In our Karma tests, we want this enabled no matter what
+    if (process.env.NODE_ENV === 'test-karma-lwc' || process.env.NODE_ENV !== 'production') {
         setFeatureFlag(name, value);
     }
 }

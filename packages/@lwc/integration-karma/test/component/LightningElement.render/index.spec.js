@@ -31,7 +31,7 @@ it(`throws an error if returns an invalid template`, () => {
 
     expect(() => {
         document.body.appendChild(elm);
-    }).toThrowConnectedError(
+    }).toThrowConnectedErrorDev(
         Error,
         /Invalid template returned by the render\(\) method on .+\. It must return an imported template \(e\.g\.: `import html from "\.\/DynamicTemplate.html"`\), instead, it has returned: .+\./
     );
@@ -47,7 +47,7 @@ it(`throws an error if the returned compiled template is invalid`, () => {
 
     expect(() => {
         document.body.appendChild(elm);
-    }).toThrowConnectedError(
+    }).toThrowConnectedErrorDev(
         Error,
         /Invariant Violation: Compiler should produce html functions that always return an array\./
     );

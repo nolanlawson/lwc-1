@@ -192,7 +192,7 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
         };
     }
 
-    function errorMatcherFactory(errorListener) {
+    function errorMatcherFactory(errorListener, expectInProd) {
         return function toThrowError() {
             return {
                 compare: function (actual, expectedErrorCtor, expectedMessage) {
@@ -245,7 +245,7 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
 
                     var thrown = errorListener(actual);
 
-                    if (process.env.NODE_ENV === 'production') {
+                    if (!expectInProd && process.env.NODE_ENV === 'production') {
                         if (thrown !== undefined) {
                             return fail(
                                 'Expected function not to throw an error in production mode, but it threw ' +
@@ -330,7 +330,8 @@ window.TestUtils = (function (lwc, jasmine, beforeAll) {
         toLogErrorDev: consoleDevMatcherFactory('error'),
         toLogWarningDev: consoleDevMatcherFactory('warn'),
         toThrowErrorDev: errorMatcherFactory(directErrorListener),
-        toThrowConnectedError: errorMatcherFactory(customElementConnectedErrorListener),
+        toThrowConnectedErrorDev: errorMatcherFactory(customElementConnectedErrorListener),
+        toThrowConnectedError: errorMatcherFactory(customElementConnectedErrorListener, true),
     };
 
     beforeAll(function () {

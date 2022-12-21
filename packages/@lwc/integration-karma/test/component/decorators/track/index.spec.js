@@ -37,7 +37,7 @@ describe('restrictions', () => {
 
         expect(() => {
             document.body.appendChild(elm);
-        }).toThrowConnectedError(
+        }).toThrowConnectedErrorDev(
             Error,
             /Invariant Violation: \[.+\]\.render\(\) method has side effects on the state of \[.+\]\.prop/
         );

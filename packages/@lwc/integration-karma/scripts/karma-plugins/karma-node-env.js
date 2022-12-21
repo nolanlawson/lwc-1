@@ -7,7 +7,7 @@
 
 /**
  * This transformation replaces
- *     process.env.NODE_ENV !== 'production' && typeof __karma__ !== 'undefined'
+ *     process.env.NODE_ENV === 'test-karma-lwc'
  * with
  *     true
  */
@@ -26,10 +26,7 @@ function createPreprocessor(config, emitter, logger) {
         watcher.watchSuite(input, []);
 
         const magicString = new MagicString(code);
-        magicString.replaceAll(
-            `process.env.NODE_ENV !== 'production' && typeof __karma__ !== 'undefined'`,
-            `true`
-        );
+        magicString.replaceAll(`process.env.NODE_ENV === 'test-karma-lwc'`, `true`);
 
         const map = magicString.generateMap({
             source: file.path,
