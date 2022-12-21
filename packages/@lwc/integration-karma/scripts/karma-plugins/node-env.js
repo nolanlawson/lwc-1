@@ -6,9 +6,9 @@
  */
 
 /**
- * This transformation replaces
+ * This transformation replaces:
  *     process.env.NODE_ENV === 'test-karma-lwc'
- * with
+ * with:
  *     true
  */
 'use strict';
@@ -17,7 +17,7 @@ const MagicString = require('magic-string');
 const Watcher = require('./Watcher');
 
 function createPreprocessor(config, emitter, logger) {
-    const log = logger.create('preprocessor-karma-node-env');
+    const log = logger.create('preprocessor-node-env');
     const watcher = new Watcher(config, emitter, log);
 
     return (code, file, done) => {
@@ -46,4 +46,4 @@ function createPreprocessor(config, emitter, logger) {
 
 createPreprocessor.$inject = ['config', 'emitter', 'logger'];
 
-module.exports = { 'preprocessor:karma-node-env': ['factory', createPreprocessor] };
+module.exports = { 'preprocessor:node-env': ['factory', createPreprocessor] };

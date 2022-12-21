@@ -14,7 +14,6 @@ import { LightningElementConstructor } from './base-lightning-element';
 
 let warned = false;
 
-// @ts-ignore
 // Only used in LWC's Karma tests
 if (process.env.NODE_ENV === 'test-karma-lwc') {
     // @ts-ignore

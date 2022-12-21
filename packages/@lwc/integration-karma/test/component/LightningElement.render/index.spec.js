@@ -48,7 +48,6 @@ it(`throws an error if the returned compiled template is invalid`, () => {
     expect(() => {
         document.body.appendChild(elm);
     }).toThrowConnectedErrorDev(
-        Error,
         /Invariant Violation: Compiler should produce html functions that always return an array\./
     );
 });

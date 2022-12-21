@@ -80,7 +80,7 @@ describe('restrictions', () => {
                 elm.shadowRoot.querySelector('div').outerHTML = '';
             });
 
-            if (process.env.NODE_ENV === 'production' && /Firefox/.test(navigator.userAgent)) {
+            if (process.env.NODE_ENV === 'production' && !/Firefox/.test(navigator.userAgent)) {
                 // in prod mode and only in firefox, this doesn't throw
                 expected = expected.not;
             }
