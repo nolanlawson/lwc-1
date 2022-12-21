@@ -53,7 +53,7 @@ describe('restrictions', () => {
                 // eslint-disable-next-line no-dupe-class-members
                 showFeatures() {}
             }
-        }).toThrowError(
+        }).toThrowErrorDev(
             'Invalid @track showFeatures field. Found a duplicate method with the same name.'
         );
     });
@@ -72,7 +72,7 @@ describe('restrictions', () => {
                 // eslint-disable-next-line no-dupe-class-members
                 set showFeatures(v) {}
             }
-        }).toThrowError(
+        }).toThrowErrorDev(
             'Invalid @track showFeatures field. Found a duplicate accessor with the same name.'
         );
     });

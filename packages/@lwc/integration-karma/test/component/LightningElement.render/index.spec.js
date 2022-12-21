@@ -31,7 +31,7 @@ it(`throws an error if returns an invalid template`, () => {
 
     expect(() => {
         document.body.appendChild(elm);
-    }).toThrowConnectedErrorDev(
+    }).toThrowConnectedError(
         Error,
         /Invalid template returned by the render\(\) method on .+\. It must return an imported template \(e\.g\.: `import html from "\.\/DynamicTemplate.html"`\), instead, it has returned: .+\./
     );
