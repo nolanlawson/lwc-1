@@ -58,6 +58,7 @@ import { HTMLElementConstructor } from './base-bridge-element';
 import { updateComponentValue } from './update-component-value';
 import { markLockerLiveObject } from './membrane';
 import { TemplateStylesheetFactories } from './stylesheet';
+import { getShadowMode } from './utils';
 
 /**
  * This operation is called with a descriptor of an standard html property
@@ -264,16 +265,21 @@ function doAttachShadow(vm: VM): ShadowRoot {
     const {
         elm,
         mode,
-        shadowMode,
         def: { ctor },
         renderer: { attachShadow },
     } = vm;
+    const shadowMode = getShadowMode(vm);
 
-    const shadowRoot = attachShadow(elm, {
-        [KEY__SYNTHETIC_MODE]: shadowMode === ShadowMode.Synthetic,
+    const options: ShadowRootInit = {
         delegatesFocus: Boolean(ctor.delegatesFocus),
         mode,
-    } as any);
+    };
+
+    if (!features.DISABLE_SYNTHETIC_SHADOW_SUPPORT) {
+        (options as any)[KEY__SYNTHETIC_MODE] = shadowMode === ShadowMode.Synthetic;
+    }
+
+    const shadowRoot = attachShadow(elm, options);
 
     vm.shadowRoot = shadowRoot;
     associateVM(shadowRoot, vm);

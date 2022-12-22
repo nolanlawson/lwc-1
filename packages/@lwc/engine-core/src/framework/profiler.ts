@@ -8,6 +8,7 @@ import { isUndefined, noop } from '@lwc/shared';
 
 import { getComponentTag } from '../shared/format';
 import { RenderMode, ShadowMode, VM } from './vm';
+import { getShadowMode } from './utils';
 
 export const enum OperationId {
     Constructor = 0,
@@ -127,7 +128,7 @@ export function logOperationStart(opId: OperationId, vm: VM) {
     }
 
     if (isProfilerEnabled) {
-        currentDispatcher(opId, Phase.Start, vm.tagName, vm.idx, vm.renderMode, vm.shadowMode);
+        currentDispatcher(opId, Phase.Start, vm.tagName, vm.idx, vm.renderMode, getShadowMode(vm));
     }
 }
 
@@ -139,7 +140,7 @@ export function logOperationEnd(opId: OperationId, vm: VM) {
     }
 
     if (isProfilerEnabled) {
-        currentDispatcher(opId, Phase.Stop, vm.tagName, vm.idx, vm.renderMode, vm.shadowMode);
+        currentDispatcher(opId, Phase.Stop, vm.tagName, vm.idx, vm.renderMode, getShadowMode(vm));
     }
 }
 
@@ -151,7 +152,14 @@ export function logGlobalOperationStart(opId: GlobalOperationId, vm?: VM) {
     }
 
     if (isProfilerEnabled) {
-        currentDispatcher(opId, Phase.Start, vm?.tagName, vm?.idx, vm?.renderMode, vm?.shadowMode);
+        currentDispatcher(
+            opId,
+            Phase.Start,
+            vm?.tagName,
+            vm?.idx,
+            vm?.renderMode,
+            isUndefined(vm) ? undefined : getShadowMode(vm)
+        );
     }
 }
 
@@ -163,6 +171,13 @@ export function logGlobalOperationEnd(opId: GlobalOperationId, vm?: VM) {
     }
 
     if (isProfilerEnabled) {
-        currentDispatcher(opId, Phase.Stop, vm?.tagName, vm?.idx, vm?.renderMode, vm?.shadowMode);
+        currentDispatcher(
+            opId,
+            Phase.Stop,
+            vm?.tagName,
+            vm?.idx,
+            vm?.renderMode,
+            isUndefined(vm) ? undefined : getShadowMode(vm)
+        );
     }
 }

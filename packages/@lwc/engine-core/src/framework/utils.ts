@@ -5,8 +5,9 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { create, isUndefined, seal } from '@lwc/shared';
+import features from '@lwc/features';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
-import { RefVNodes, VM } from './vm';
+import { RefVNodes, ShadowMode, VM } from './vm';
 import { VBaseElement } from './vnodes';
 
 export const SPACE_CHAR = 32;
@@ -67,6 +68,13 @@ export function flattenStylesheets(stylesheets: TemplateStylesheetFactories): St
         }
     }
     return list;
+}
+
+export function getShadowMode(vm: VM) {
+    if (features.DISABLE_SYNTHETIC_SHADOW_SUPPORT) {
+        return ShadowMode.Native;
+    }
+    return vm.shadowMode;
 }
 
 // Set a ref (lwc:ref) on a VM, from a template API

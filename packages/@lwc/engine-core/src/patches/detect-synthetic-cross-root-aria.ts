@@ -22,6 +22,8 @@ import {
     hasOwnProperty,
     KEY__SHADOW_TOKEN,
 } from '@lwc/shared';
+import features from '@lwc/features';
+
 import { onReportingEnabled, report, ReportingEventId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
 import { logWarnOnce } from '../shared/logger';
@@ -172,13 +174,16 @@ function isSyntheticShadowLoaded() {
     return hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN);
 }
 
-// Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
-if (process.env.IS_BROWSER && supportsCssEscape() && isSyntheticShadowLoaded()) {
-    // Always run detection in dev mode, so we can at least print to the console
-    if (process.env.NODE_ENV !== 'production') {
-        enableDetection();
-    } else {
-        // In prod mode, only enable detection if reporting is enabled
-        onReportingEnabled(enableDetection);
+// No point running this if synthetic shadow is disabled
+if (!features.DISABLE_SYNTHETIC_SHADOW_SUPPORT) {
+    // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
+    if (process.env.IS_BROWSER && supportsCssEscape() && isSyntheticShadowLoaded()) {
+        // Always run detection in dev mode, so we can at least print to the console
+        if (process.env.NODE_ENV !== 'production') {
+            enableDetection();
+        } else {
+            // In prod mode, only enable detection if reporting is enabled
+            onReportingEnabled(enableDetection);
+        }
     }
 }

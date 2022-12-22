@@ -30,7 +30,7 @@ import {
     TemplateCache,
     VM,
 } from './vm';
-import { EmptyArray } from './utils';
+import { EmptyArray, getShadowMode } from './utils';
 import { defaultEmptyTemplate, isTemplateRegistered } from './secure-template';
 import {
     createStylesheet,
@@ -128,11 +128,12 @@ function buildParseFragmentFn(
         const cache = create(null);
 
         return function (): Element {
+            const vm = getVMBeingRendered()!;
             const {
                 context: { hasScopedStyles, stylesheetToken },
-                shadowMode,
                 renderer,
-            } = getVMBeingRendered()!;
+            } = vm;
+            const shadowMode = getShadowMode(vm);
             const hasStyleToken = !isUndefined(stylesheetToken);
             const isSyntheticShadow = shadowMode === ShadowMode.Synthetic;
 

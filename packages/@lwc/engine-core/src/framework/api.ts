@@ -27,7 +27,7 @@ import { logError } from '../shared/logger';
 
 import { invokeEventListener } from './invoker';
 import { getVMBeingRendered, setVMBeingRendered } from './template';
-import { EmptyArray, setRefVNode } from './utils';
+import { EmptyArray, getShadowMode, setRefVNode } from './utils';
 import { isComponentConstructor } from './def';
 import { ShadowMode, SlotSet, VM, RenderMode } from './vm';
 import { LightningElementConstructor } from './base-lightning-element';
@@ -231,7 +231,8 @@ function s(
         children = newChildren;
     }
     const vmBeingRendered = getVMBeingRendered()!;
-    const { renderMode, shadowMode } = vmBeingRendered;
+    const { renderMode } = vmBeingRendered;
+    const shadowMode = getShadowMode(vmBeingRendered);
 
     if (renderMode === RenderMode.Light) {
         sc(children);
@@ -499,7 +500,8 @@ function gid(id: string | undefined | null): string | null | undefined {
     if (isNull(id)) {
         return null;
     }
-    const { idx, shadowMode } = vmBeingRendered;
+    const { idx } = vmBeingRendered;
+    const shadowMode = getShadowMode(vmBeingRendered);
     if (shadowMode === ShadowMode.Synthetic) {
         return StringReplace.call(id, /\S+/g, (id) => `${id}-${idx}`);
     }
@@ -524,7 +526,8 @@ function fid(url: string | undefined | null): string | null | undefined {
     if (isNull(url)) {
         return null;
     }
-    const { idx, shadowMode } = vmBeingRendered;
+    const { idx } = vmBeingRendered;
+    const shadowMode = getShadowMode(vmBeingRendered);
     // Apply transformation only for fragment-only-urls, and only in shadow DOM
     if (shadowMode === ShadowMode.Synthetic && /^#/.test(url)) {
         return `${url}-${idx}`;

@@ -26,7 +26,7 @@ import { logError } from '../shared/logger';
 
 import { HostNode, HostElement, RendererAPI } from './renderer';
 import { renderComponent, markComponentAsDirty, getTemplateReactiveObserver } from './component';
-import { EmptyArray, EmptyObject, flattenStylesheets } from './utils';
+import { EmptyArray, EmptyObject, flattenStylesheets, getShadowMode } from './utils';
 import { invokeServiceHook, Services } from './services';
 import { invokeComponentCallback, invokeComponentConstructor } from './invoker';
 import { Template } from './template';
@@ -409,6 +409,10 @@ function computeStylesheets(vm: VM, ctor: LightningElementConstructor) {
 }
 
 function computeShadowMode(vm: VM, renderer: RendererAPI) {
+    if (features.DISABLE_SYNTHETIC_SHADOW_SUPPORT) {
+        return ShadowMode.Native;
+    }
+
     const { def } = vm;
     const { isSyntheticShadowDefined, isNativeShadowDefined } = renderer;
 
@@ -428,7 +432,7 @@ function computeShadowMode(vm: VM, renderer: RendererAPI) {
                     const shadowAncestor = getNearestShadowAncestor(vm);
                     if (
                         !isNull(shadowAncestor) &&
-                        shadowAncestor.shadowMode === ShadowMode.Native
+                        getShadowMode(shadowAncestor) === ShadowMode.Native
                     ) {
                         // Transitive support for native Shadow DOM. A component in native mode
                         // transitively opts all of its descendants into native.

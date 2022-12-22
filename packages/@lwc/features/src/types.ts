@@ -88,6 +88,11 @@ export interface FeatureFlagMap {
      * stylsheets.
      */
     ENABLE_PROGRAMMATIC_STYLESHEETS: FeatureFlagValue;
+
+    /**
+     * If set to true, disables support for synthetic shadow DOM in the LWC engine.
+     */
+    DISABLE_SYNTHETIC_SHADOW_SUPPORT: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;

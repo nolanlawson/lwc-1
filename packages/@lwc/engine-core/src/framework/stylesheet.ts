@@ -16,6 +16,7 @@ import { getStyleOrSwappedStyle } from './hot-swaps';
 import { VCustomElement, VNode } from './vnodes';
 import { checkVersionMismatch } from './check-version-mismatch';
 import { getComponentInternalDef } from './def';
+import { getShadowMode } from './utils';
 
 /**
  * Function producing style based on a host and a shadow selector. This function is invoked by
@@ -56,9 +57,9 @@ export function updateStylesheetToken(vm: VM, template: Template) {
         elm,
         context,
         renderMode,
-        shadowMode,
         renderer: { getClassList, removeAttribute, setAttribute },
     } = vm;
+    const shadowMode = getShadowMode(vm);
     const { stylesheets: newStylesheets, stylesheetToken: newStylesheetToken } = template;
     const { stylesheets: newVmStylesheets } = vm;
     const isSyntheticShadow =
@@ -146,7 +147,7 @@ function evaluateStylesheetsContent(
             // Apply the scope token only if the stylesheet itself is scoped, or if we're rendering synthetic shadow.
             const scopeToken =
                 isScopedCss ||
-                (vm.shadowMode === ShadowMode.Synthetic && vm.renderMode === RenderMode.Shadow)
+                (getShadowMode(vm) === ShadowMode.Synthetic && vm.renderMode === RenderMode.Shadow)
                     ? stylesheetToken
                     : undefined;
             // Use the actual `:host` selector if we're rendering global CSS for light DOM, or if we're rendering
@@ -154,12 +155,12 @@ function evaluateStylesheetsContent(
             const useActualHostSelector =
                 vm.renderMode === RenderMode.Light
                     ? !isScopedCss
-                    : vm.shadowMode === ShadowMode.Native;
+                    : getShadowMode(vm) === ShadowMode.Native;
             // Use the native :dir() pseudoclass only in native shadow DOM. Otherwise, in synthetic shadow,
             // we use an attribute selector on the host to simulate :dir().
             let useNativeDirPseudoclass;
             if (vm.renderMode === RenderMode.Shadow) {
-                useNativeDirPseudoclass = vm.shadowMode === ShadowMode.Native;
+                useNativeDirPseudoclass = getShadowMode(vm) === ShadowMode.Native;
             } else {
                 // Light DOM components should only render `[dir]` if they're inside of a synthetic shadow root.
                 // At the top level (root is null) or inside of a native shadow root, they should use `:dir()`.
@@ -167,7 +168,7 @@ function evaluateStylesheetsContent(
                     // Only calculate the root once as necessary
                     root = getNearestShadowComponent(vm);
                 }
-                useNativeDirPseudoclass = isNull(root) || root.shadowMode === ShadowMode.Native;
+                useNativeDirPseudoclass = isNull(root) || getShadowMode(root) === ShadowMode.Native;
             }
             ArrayPush.call(
                 content,
@@ -238,7 +239,7 @@ export function getStylesheetTokenHost(vnode: VCustomElement): string | null {
 
 function getNearestNativeShadowComponent(vm: VM): VM | null {
     const owner = getNearestShadowComponent(vm);
-    if (!isNull(owner) && owner.shadowMode === ShadowMode.Synthetic) {
+    if (!isNull(owner) && getShadowMode(owner) === ShadowMode.Synthetic) {
         // Synthetic-within-native is impossible. So if the nearest shadow component is
         // synthetic, we know we won't find a native component if we go any further.
         return null;
@@ -249,9 +250,9 @@ function getNearestNativeShadowComponent(vm: VM): VM | null {
 export function createStylesheet(vm: VM, stylesheets: string[]): VNode[] | null {
     const {
         renderMode,
-        shadowMode,
         renderer: { insertStylesheet },
     } = vm;
+    const shadowMode = getShadowMode(vm);
     if (renderMode === RenderMode.Shadow && shadowMode === ShadowMode.Synthetic) {
         for (let i = 0; i < stylesheets.length; i++) {
             insertStylesheet(stylesheets[i]);

@@ -25,7 +25,7 @@ import features from '@lwc/features';
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
 import { LifecycleCallback, RendererAPI } from './renderer';
-import { EmptyArray } from './utils';
+import { EmptyArray, getShadowMode } from './utils';
 import { markComponentAsDirty } from './component';
 import { getScopeTokenClass } from './stylesheet';
 import { lockDomMutation, patchElementWithRestrictions, unlockDomMutation } from './restrictions';
@@ -279,11 +279,14 @@ function mountStatic(
     applyElementRestrictions(elm, vnode);
 
     // Marks this node as Static to propagate the shadow resolver. must happen after elm is assigned to the proper shadow
-    const { renderMode, shadowMode } = owner;
+    const { renderMode } = owner;
+    const shadowMode = getShadowMode(owner);
 
-    if (isSyntheticShadowDefined) {
-        if (shadowMode === ShadowMode.Synthetic || renderMode === RenderMode.Light) {
-            (elm as any)[KEY__SHADOW_STATIC] = true;
+    if (!features.DISABLE_SYNTHETIC_SHADOW_SUPPORT) {
+        if (isSyntheticShadowDefined) {
+            if (shadowMode === ShadowMode.Synthetic || renderMode === RenderMode.Light) {
+                (elm as any)[KEY__SHADOW_STATIC] = true;
+            }
         }
     }
 
@@ -410,7 +413,8 @@ function patchCustomElement(
             // Example:
             // n1.children: [div, VFragment('', div, null, ''), div] => [div, div, null, div]; // marked dynamic
             // n2.children: [div, null, div] => [div, null, div] // marked ???
-            const { shadowMode, renderMode } = vm;
+            const { renderMode } = vm;
+            const shadowMode = getShadowMode(vm);
             if (
                 shadowMode == ShadowMode.Native &&
                 renderMode !== RenderMode.Light &&
@@ -474,7 +478,7 @@ function unmount(
             // Slot content is removed to trigger slotchange event when removing slot.
             // Only required for synthetic shadow.
             const shouldRemoveChildren =
-                sel === 'slot' && vnode.owner.shadowMode === ShadowMode.Synthetic;
+                sel === 'slot' && getShadowMode(vnode.owner) === ShadowMode.Synthetic;
             unmountVNodes(vnode.children, elm as ParentNode, renderer, shouldRemoveChildren);
             break;
         }
@@ -512,12 +516,15 @@ function isVNode(vnode: any): vnode is VNode {
 }
 
 function linkNodeToShadow(elm: Node, owner: VM, renderer: RendererAPI) {
-    const { renderRoot, renderMode, shadowMode } = owner;
+    const { renderRoot, renderMode } = owner;
+    const shadowMode = getShadowMode(owner);
     const { isSyntheticShadowDefined } = renderer;
     // TODO [#1164]: this should eventually be done by the polyfill directly
-    if (isSyntheticShadowDefined) {
-        if (shadowMode === ShadowMode.Synthetic || renderMode === RenderMode.Light) {
-            (elm as any)[KEY__SHADOW_RESOLVER] = renderRoot[KEY__SHADOW_RESOLVER];
+    if (!features.DISABLE_SYNTHETIC_SHADOW_SUPPORT) {
+        if (isSyntheticShadowDefined) {
+            if (shadowMode === ShadowMode.Synthetic || renderMode === RenderMode.Light) {
+                (elm as any)[KEY__SHADOW_RESOLVER] = renderRoot[KEY__SHADOW_RESOLVER];
+            }
         }
     }
 }
@@ -592,7 +599,7 @@ function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {
 
     // Set property element for synthetic shadow DOM style scoping.
     const { stylesheetToken: syntheticToken } = owner.context;
-    if (owner.shadowMode === ShadowMode.Synthetic && !isUndefined(syntheticToken)) {
+    if (getShadowMode(owner) === ShadowMode.Synthetic && !isUndefined(syntheticToken)) {
         (elm as any).$shadowToken$ = syntheticToken;
     }
 }
@@ -602,14 +609,14 @@ function applyDomManual(elm: Element, vnode: VBaseElement) {
         owner,
         data: { context },
     } = vnode;
-    if (owner.shadowMode === ShadowMode.Synthetic && context?.lwc?.dom === LwcDomMode.Manual) {
+    if (getShadowMode(owner) === ShadowMode.Synthetic && context?.lwc?.dom === LwcDomMode.Manual) {
         (elm as any).$domManual$ = true;
     }
 }
 
 function applyElementRestrictions(elm: Element, vnode: VElement | VStatic) {
     if (process.env.NODE_ENV !== 'production') {
-        const isSynthetic = vnode.owner.shadowMode === ShadowMode.Synthetic;
+        const isSynthetic = getShadowMode(vnode.owner) === ShadowMode.Synthetic;
         const isPortal =
             vnode.type === VNodeType.Element && vnode.data.context?.lwc?.dom === LwcDomMode.Manual;
         const isLight = vnode.owner.renderMode === RenderMode.Light;
@@ -634,7 +641,8 @@ export function allocateChildren(vnode: VCustomElement, vm: VM) {
     // In case #2, we will always get a fresh VCustomElement.
     const children = vnode.aChildren || vnode.children;
 
-    const { renderMode, shadowMode } = vm;
+    const { renderMode } = vm;
+    const shadowMode = getShadowMode(vm);
     if (process.env.NODE_ENV !== 'production') {
         // If any of the children being allocated is a scoped slot fragment, make sure the receiving
         // component is a light DOM component. This is mainly to validate light dom parent running

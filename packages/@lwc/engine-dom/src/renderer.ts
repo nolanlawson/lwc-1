@@ -12,11 +12,19 @@ import {
     KEY__IS_NATIVE_SHADOW_ROOT_DEFINED,
     KEY__SHADOW_TOKEN,
 } from '@lwc/shared';
+import features from '@lwc/features';
 import { insertStylesheet } from './styles';
 import { createCustomElement } from './custom-elements/create-custom-element';
 import { rendererFactory } from './renderer-factory';
 
 import type { RendererAPI } from '@lwc/engine-core';
+
+let isSyntheticShadowDefined;
+if (features.DISABLE_SYNTHETIC_SHADOW_SUPPORT) {
+    isSyntheticShadowDefined = false;
+} else {
+    isSyntheticShadowDefined = hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN);
+}
 
 /**
  * The base renderer that will be used by engine-core.
@@ -33,6 +41,6 @@ export const renderer: RendererAPI = assign(
         // relies on a shared global cache
         createCustomElement,
         isNativeShadowDefined: globalThis[KEY__IS_NATIVE_SHADOW_ROOT_DEFINED],
-        isSyntheticShadowDefined: hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN),
+        isSyntheticShadowDefined,
     }
 );
