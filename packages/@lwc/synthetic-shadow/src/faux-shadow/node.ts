@@ -16,6 +16,7 @@ import {
     isTrue,
     isUndefined,
 } from '@lwc/shared';
+import features from '@lwc/features';
 
 import { Node } from '../env/node';
 import {
@@ -180,16 +181,18 @@ function childNodesGetterPatched(this: Node): NodeListOf<Node> {
     if (isSyntheticShadowHost(this)) {
         const owner = getNodeOwner(this);
         const childNodes = isNull(owner) ? [] : getAllMatches(owner, getFilteredChildNodes(this));
-        if (
-            process.env.NODE_ENV !== 'production' &&
-            isFalse(hasNativeSymbolSupport) &&
-            isExternalChildNodeAccessorFlagOn()
-        ) {
-            // inserting a comment node as the first childNode to trick the IE11
-            // DevTool to show the content of the shadowRoot, this should only happen
-            // in dev-mode and in IE11 (which we detect by looking at the symbol).
-            // Plus it should only be in place if we know it is an external invoker.
-            ArrayUnshift.call(childNodes, getIE11FakeShadowRootPlaceholder(this));
+        if (!features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+            if (
+                process.env.NODE_ENV !== 'production' &&
+                isFalse(hasNativeSymbolSupport) &&
+                isExternalChildNodeAccessorFlagOn()
+            ) {
+                // inserting a comment node as the first childNode to trick the IE11
+                // DevTool to show the content of the shadowRoot, this should only happen
+                // in dev-mode and in IE11 (which we detect by looking at the symbol).
+                // Plus it should only be in place if we know it is an external invoker.
+                ArrayUnshift.call(childNodes, getIE11FakeShadowRootPlaceholder(this));
+            }
         }
         return createStaticNodeList(childNodes);
     }
@@ -438,8 +441,17 @@ let internalChildNodeAccessorFlag = false;
 export function isExternalChildNodeAccessorFlagOn(): boolean {
     return !internalChildNodeAccessorFlag;
 }
+
+let useInternalChildNodesPolyfill: boolean;
+if (features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+    useInternalChildNodesPolyfill = false;
+} else {
+    useInternalChildNodesPolyfill =
+        process.env.NODE_ENV !== 'production' && isFalse(hasNativeSymbolSupport);
+}
+
 export const getInternalChildNodes: (node: Node) => NodeListOf<ChildNode> =
-    process.env.NODE_ENV !== 'production' && isFalse(hasNativeSymbolSupport)
+    useInternalChildNodesPolyfill
         ? function (node) {
               internalChildNodeAccessorFlag = true;
               let childNodes;
@@ -462,19 +474,21 @@ export const getInternalChildNodes: (node: Node) => NodeListOf<ChildNode> =
               return node.childNodes;
           };
 
-// IE11 extra patches for wrong prototypes
-if (hasOwnProperty.call(HTMLElement.prototype, 'contains')) {
-    defineProperty(
-        HTMLElement.prototype,
-        'contains',
-        getOwnPropertyDescriptor(Node.prototype, 'contains')!
-    );
-}
+if (!features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+    // IE11 extra patches for wrong prototypes
+    if (hasOwnProperty.call(HTMLElement.prototype, 'contains')) {
+        defineProperty(
+            HTMLElement.prototype,
+            'contains',
+            getOwnPropertyDescriptor(Node.prototype, 'contains')!
+        );
+    }
 
-if (hasOwnProperty.call(HTMLElement.prototype, 'parentElement')) {
-    defineProperty(
-        HTMLElement.prototype,
-        'parentElement',
-        getOwnPropertyDescriptor(Node.prototype, 'parentElement')!
-    );
+    if (hasOwnProperty.call(HTMLElement.prototype, 'parentElement')) {
+        defineProperty(
+            HTMLElement.prototype,
+            'parentElement',
+            getOwnPropertyDescriptor(Node.prototype, 'parentElement')!
+        );
+    }
 }

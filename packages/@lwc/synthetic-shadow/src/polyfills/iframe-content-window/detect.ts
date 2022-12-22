@@ -5,8 +5,13 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { isTrue } from '@lwc/shared';
+import features from '@lwc/features';
 
 export default function detect(): boolean {
+    if (features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+        return false;
+    }
+
     // Note: when using this in mobile apps, we might have a DOM that does not support iframes.
     const hasIframe = typeof HTMLIFrameElement !== 'undefined';
 
