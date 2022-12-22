@@ -5,7 +5,12 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
+import features from '@lwc/features';
+
 function isCustomElementRegistryAvailable() {
+    if (features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+        return true;
+    }
     if (typeof customElements === 'undefined') {
         return false;
     }

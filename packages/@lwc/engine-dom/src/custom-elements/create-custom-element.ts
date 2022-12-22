@@ -31,6 +31,7 @@ export let createCustomElement: (
     disconnectedCallback?: LifecycleCallback
 ) => HTMLElement;
 
+/* istanbul ignore else */
 if (hasCustomElements) {
     if (features.ENABLE_SCOPED_CUSTOM_ELEMENT_REGISTRY) {
         createCustomElement = createCustomElementScoped;

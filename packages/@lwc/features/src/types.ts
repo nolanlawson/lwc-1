@@ -88,6 +88,11 @@ export interface FeatureFlagMap {
      * stylsheets.
      */
     ENABLE_PROGRAMMATIC_STYLESHEETS: FeatureFlagValue;
+
+    /**
+     * When set to true, code that supports legacy browsers (such as IE11) is disabled.
+     */
+    DISABLE_LEGACY_BROWSER_SUPPORT: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;

@@ -136,7 +136,14 @@ export function HTMLBridgeElementFactory(
      * wc.ts relies on the construction path of the bridges to create new
      * fully qualifying web components.
      */
-    if (isFunction(SuperClass)) {
+    let isModernBrowser: boolean;
+    if (features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+        isModernBrowser = true;
+    } else {
+        isModernBrowser = isFunction(SuperClass);
+    }
+    /* istanbul ignore else */
+    if (isModernBrowser) {
         HTMLBridgeElement = class extends SuperClass {};
     } else {
         HTMLBridgeElement = function () {

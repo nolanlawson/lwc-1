@@ -6,6 +6,7 @@
  */
 
 import { assert, isNull, isUndefined } from '@lwc/shared';
+import features from '@lwc/features';
 
 function cloneNode(node: Node, deep: boolean): Node {
     return node.cloneNode(deep);
@@ -27,8 +28,14 @@ function createComment(content: string): Node {
 
 let createFragment: (html: string) => Node | null;
 // IE11 lacks support for this feature
-const SUPPORTS_TEMPLATE = typeof HTMLTemplateElement === 'function';
-if (SUPPORTS_TEMPLATE) {
+let supportsTemplate;
+if (features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+    supportsTemplate = true;
+} else {
+    supportsTemplate = typeof HTMLTemplateElement === 'function';
+}
+/* istanbul ignore else */
+if (supportsTemplate) {
     // Parse the fragment HTML string into DOM
     createFragment = function (html: string) {
         const template = document.createElement('template');

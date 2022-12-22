@@ -6,6 +6,7 @@
  */
 
 import { isUndefined, getOwnPropertyDescriptor, isArray, isFunction } from '@lwc/shared';
+import features from '@lwc/features';
 
 //
 // Feature detection
@@ -23,8 +24,14 @@ const supportsConstructableStylesheets =
 const supportsMutableAdoptedStyleSheets =
     supportsConstructableStylesheets &&
     getOwnPropertyDescriptor(document.adoptedStyleSheets, 'length')!.writable;
-// Detect IE, via https://stackoverflow.com/a/9851769
-const isIE11 = !isUndefined((document as any).documentMode);
+
+let isIE11: boolean;
+if (features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+    isIE11 = false;
+} else {
+    // Detect IE, via https://stackoverflow.com/a/9851769
+    isIE11 = !isUndefined((document as any).documentMode);
+}
 
 //
 // Style sheet cache

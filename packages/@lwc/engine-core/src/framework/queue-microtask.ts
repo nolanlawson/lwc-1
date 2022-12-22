@@ -5,6 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { ArrayPush, isFunction, globalThis } from '@lwc/shared';
+import features from '@lwc/features';
 
 type Callback = () => void;
 
@@ -45,6 +46,12 @@ function queueMicrotaskPolyfill() {
 // This is supported in all modern browsers https://developer.mozilla.org/en-US/docs/Web/API/queueMicrotask#browser_compatibility
 // Basically the fallback is just for IE11
 /* istanbul ignore next */
-export const queueMicrotask = isFunction(globalThis.queueMicrotask)
-    ? globalThis.queueMicrotask
-    : queueMicrotaskPolyfill();
+export let queueMicrotask: (callback: Callback) => void;
+/* istanbul ignore next */
+if (features.DISABLE_LEGACY_BROWSER_SUPPORT) {
+    queueMicrotask = globalThis.queueMicrotask;
+} else if (isFunction(globalThis.queueMicrotask)) {
+    queueMicrotask = globalThis.queueMicrotask;
+} else {
+    queueMicrotask = queueMicrotaskPolyfill();
+}
