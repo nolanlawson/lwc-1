@@ -1,11 +1,7 @@
 import { createElement, __unstable__ReportingControl as reportingControl } from 'lwc';
+import { ReportingEventId } from 'test-utils';
 import AriaContainer from 'x/ariaContainer';
 import Valid from 'x/valid';
-
-// Should be kept in sync with the enum ReportingEventId in reporting.ts
-const ReportingEventId = {
-    CrossRootAriaInSyntheticShadow: 0,
-};
 
 const expectedMessage =
     'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';

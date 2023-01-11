@@ -9,12 +9,14 @@ import { VM } from './vm';
 
 export const enum ReportingEventId {
     CrossRootAriaInSyntheticShadow = 0,
+    CompilerRuntimeVersionMismatch = 1,
+    NonStandardAriaReflection = 2,
 }
 
 type ReportingDispatcher = (
     reportingEventId: ReportingEventId,
-    tagName: string,
-    vmIndex: number
+    tagName?: string,
+    vmIndex?: number
 ) => void;
 
 type OnReportingEnabledCallback = () => void;
@@ -83,8 +85,16 @@ export function onReportingEnabled(callback: OnReportingEnabledCallback) {
  * @param reportingEventId
  * @param vm
  */
-export function report(reportingEventId: ReportingEventId, vm: VM) {
+export function report(reportingEventId: ReportingEventId, vm?: VM) {
     if (enabled) {
-        currentDispatcher(reportingEventId, vm.tagName, vm.idx);
+        currentDispatcher(reportingEventId, vm?.tagName, vm?.idx);
     }
+}
+
+/**
+ * Return true if reporting is currently enabled.
+ * @return true if enabled
+ */
+export function isReportingEnabled(): boolean {
+    return enabled;
 }
