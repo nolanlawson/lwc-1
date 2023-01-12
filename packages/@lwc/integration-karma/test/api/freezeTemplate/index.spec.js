@@ -12,8 +12,8 @@ describe('freezeTemplate', () => {
 
         expect(() => {
             template.stylesheetToken = 'newToken';
-        }).toLogErrorDev(
-            /Dynamically setting the "stylesheetToken" property on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "stylesheetToken" property on a template is deprecated and will be removed in a future version of LWC/
         );
 
         expect(template.stylesheetToken).toEqual('newToken');
@@ -36,8 +36,8 @@ describe('freezeTemplate', () => {
                 hostAttribute: 'newToken-host',
                 shadowAttribute: 'newToken',
             };
-        }).toLogErrorDev(
-            /Dynamically setting the "stylesheetTokens" property on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "stylesheetTokens" property on a template is deprecated and will be removed in a future version of LWC/
         );
 
         expect(template.stylesheetTokens).toEqual({
@@ -60,8 +60,8 @@ describe('freezeTemplate', () => {
 
         expect(() => {
             template.stylesheets = [newStylesheet];
-        }).toLogErrorDev(
-            /Dynamically setting the "stylesheets" property on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "stylesheets" property on a template is deprecated and will be removed in a future version of LWC/
         );
 
         expect(template.stylesheets.length).toEqual(1);
@@ -82,9 +82,11 @@ describe('freezeTemplate', () => {
 
         expect(() => {
             template.stylesheets.push(newStylesheet);
-        }).toLogErrorDev(
-            /Mutating the "stylesheets" array on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "stylesheets" property on a template is deprecated and will be removed in a future version of LWC/
         );
+
+        window.__lwcResetAlreadyLoggedMessages();
 
         expect(template.stylesheets.length).toEqual(2);
         expect(template.stylesheets[0]).toBe(stylesheet);
@@ -92,8 +94,8 @@ describe('freezeTemplate', () => {
 
         expect(() => {
             template.stylesheets.pop();
-        }).toLogErrorDev(
-            /Mutating the "stylesheets" array on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "stylesheets" property on a template is deprecated and will be removed in a future version of LWC/
         );
 
         expect(template.stylesheets.length).toEqual(1);
@@ -112,8 +114,8 @@ describe('freezeTemplate', () => {
 
         expect(() => {
             template.stylesheets[1].push(newStylesheet);
-        }).toLogErrorDev(
-            /Mutating the "stylesheets" array on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "stylesheets" property on a template is deprecated and will be removed in a future version of LWC/
         );
     });
 
@@ -128,8 +130,8 @@ describe('freezeTemplate', () => {
         const newSlots = [];
         expect(() => {
             template.slots = newSlots;
-        }).toLogErrorDev(
-            /Dynamically setting the "slots" property on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "slots" property on a template is deprecated and will be removed in a future version of LWC/
         );
 
         expect(template.slots).toBe(newSlots);
@@ -144,8 +146,8 @@ describe('freezeTemplate', () => {
 
         expect(() => {
             template.renderMode = undefined;
-        }).toLogErrorDev(
-            /Dynamically setting the "renderMode" property on a template function is deprecated and may be removed in a future version of LWC./
+        }).toLogWarningDev(
+            /Mutating the "renderMode" property on a template is deprecated and will be removed in a future version of LWC/
         );
 
         expect(template.renderMode).toBe(undefined);
@@ -160,8 +162,8 @@ describe('freezeTemplate', () => {
 
         expect(() => {
             stylesheet.$scoped$ = true;
-        }).toLogErrorDev(
-            /Dynamically setting the "\$scoped\$" property on a stylesheet function is deprecated and may be removed in a future version of LWC\./
+        }).toLogWarningDev(
+            /Mutating the "\$scoped\$" property on a stylesheet function is deprecated and will be removed in a future version of LWC\./
         );
     });
 

@@ -9,6 +9,8 @@ const expectedMessageWithTargetAsVM =
     'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-target>';
 const expectedMessageForSecondTarget =
     'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <div>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://lwc.dev/guide/accessibility#link-ids-and-aria-attributes-from-different-templates\n<x-aria-source>';
+const expectedMessageForNonStandardAria =
+    'Error: [LWC warn]: Element <input> owned by <x-aria-source> uses non-standard property "ariaLabelledBy". This will be removed in a future version of LWC. See <insert link>';
 
 // These tests are designed to detect non-standard cross-root ARIA usage in synthetic shadow DOM
 // As for COMPAT, this detection logic is only enabled for modern browsers
@@ -38,6 +40,17 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
             });
 
             [false, true].forEach((usePropertyAccess) => {
+                function expectWarningForNonStandardPropertyAccess(callback) {
+                    // eslint-disable-next-line jest/valid-expect
+                    let expected = expect(callback);
+                    if (!usePropertyAccess) {
+                        expected = expected.not;
+                    }
+                    expected.toLogWarningDev(
+                        `Error: [LWC warn]: Element <input> owned by <x-aria-source> uses non-standard property "ariaLabelledBy". This will be removed in a future version of LWC. See <insert link>`
+                    );
+                }
+
                 describe(usePropertyAccess ? 'property' : 'attribute', () => {
                     beforeEach(() => {
                         elm.usePropertyAccess = usePropertyAccess;
@@ -47,23 +60,54 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                     it('setting aria-labelledby', () => {
                         expect(() => {
                             elm.linkUsingAriaLabelledBy();
-                        }).toLogWarningDev(expectedMessage);
-                        expect(dispatcher).toHaveBeenCalledWith(
-                            ReportingEventId.CrossRootAriaInSyntheticShadow,
-                            'x-aria-source',
-                            jasmine.any(Number)
-                        );
+                        }).toLogWarningDev([
+                            ...(usePropertyAccess ? [expectedMessageForNonStandardAria] : []),
+                            expectedMessage,
+                        ]);
+                        expect(dispatcher).toHaveBeenCalledTimes(usePropertyAccess ? 2 : 1);
+                        expect(dispatcher.calls.allArgs()).toEqual([
+                            ...(usePropertyAccess
+                                ? [
+                                      [
+                                          ReportingEventId.NonStandardAriaReflection,
+                                          'x-aria-source',
+                                          jasmine.any(Number),
+                                      ],
+                                  ]
+                                : []),
+                            [
+                                ReportingEventId.CrossRootAriaInSyntheticShadow,
+                                'x-aria-source',
+                                jasmine.any(Number),
+                            ],
+                        ]);
                     });
 
                     it('setting id', () => {
                         expect(() => {
                             elm.linkUsingId();
-                        }).toLogWarningDev(expectedMessage);
-                        expect(dispatcher).toHaveBeenCalledWith(
-                            ReportingEventId.CrossRootAriaInSyntheticShadow,
-                            'x-aria-source',
-                            jasmine.any(Number)
-                        );
+                        }).toLogWarningDev([
+                            ...(usePropertyAccess ? [expectedMessageForNonStandardAria] : []),
+                            expectedMessage,
+                        ]);
+                        expect(dispatcher).toHaveBeenCalledTimes(usePropertyAccess ? 2 : 1);
+                        expect(dispatcher.calls.allArgs()).toEqual([
+                            ...(usePropertyAccess
+                                ? [
+                                      [
+                                          ReportingEventId.NonStandardAriaReflection,
+                                          'x-aria-source',
+                                          jasmine.any(Number),
+                                      ],
+                                  ]
+                                : []),
+
+                            [
+                                ReportingEventId.CrossRootAriaInSyntheticShadow,
+                                'x-aria-source',
+                                jasmine.any(Number),
+                            ],
+                        ]);
                     });
 
                     it('linking to an element in global light DOM', () => {
@@ -72,12 +116,27 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         document.body.appendChild(label);
                         expect(() => {
                             sourceElm.setAriaLabelledBy('foo');
-                        }).toLogWarningDev(expectedMessage);
-                        expect(dispatcher).toHaveBeenCalledWith(
-                            ReportingEventId.CrossRootAriaInSyntheticShadow,
-                            'x-aria-source',
-                            jasmine.any(Number)
-                        );
+                        }).toLogWarningDev([
+                            ...(usePropertyAccess ? [expectedMessageForNonStandardAria] : []),
+                            expectedMessage,
+                        ]);
+                        expect(dispatcher).toHaveBeenCalledTimes(usePropertyAccess ? 2 : 1);
+                        expect(dispatcher.calls.allArgs()).toEqual([
+                            ...(usePropertyAccess
+                                ? [
+                                      [
+                                          ReportingEventId.NonStandardAriaReflection,
+                                          'x-aria-source',
+                                          jasmine.any(Number),
+                                      ],
+                                  ]
+                                : []),
+                            [
+                                ReportingEventId.CrossRootAriaInSyntheticShadow,
+                                'x-aria-source',
+                                jasmine.any(Number),
+                            ],
+                        ]);
                     });
 
                     it('linking from an element in global light DOM', () => {
@@ -88,11 +147,14 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         expect(() => {
                             targetElm.setId('foo');
                         }).toLogWarningDev(expectedMessageWithTargetAsVM);
-                        expect(dispatcher).toHaveBeenCalledWith(
-                            ReportingEventId.CrossRootAriaInSyntheticShadow,
-                            'x-aria-target',
-                            jasmine.any(Number)
-                        );
+                        expect(dispatcher).toHaveBeenCalledTimes(1);
+                        expect(dispatcher.calls.allArgs()).toEqual([
+                            [
+                                ReportingEventId.CrossRootAriaInSyntheticShadow,
+                                'x-aria-target',
+                                jasmine.any(Number),
+                            ],
+                        ]);
                     });
 
                     [null, '', '  '].forEach((value) => {
@@ -102,14 +164,38 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         });
 
                         it(`ignores setting aria-labelledby to ${JSON.stringify(value)}`, () => {
-                            sourceElm.setAriaLabelledBy(value);
-                            expect(dispatcher).not.toHaveBeenCalled();
+                            expectWarningForNonStandardPropertyAccess(() => {
+                                sourceElm.setAriaLabelledBy(value);
+                            });
+                            if (usePropertyAccess) {
+                                expect(dispatcher).toHaveBeenCalledTimes(1);
+                                expect(dispatcher).toHaveBeenCalledWith(
+                                    ReportingEventId.NonStandardAriaReflection,
+                                    'x-aria-source',
+                                    jasmine.any(Number)
+                                );
+                            } else {
+                                expect(dispatcher).not.toHaveBeenCalled();
+                            }
                         });
                     });
 
                     it('ignores id that references nonexistent element', () => {
-                        sourceElm.setAriaLabelledBy('does-not-exist-at-all-lol');
-                        expect(dispatcher).not.toHaveBeenCalled();
+                        expectWarningForNonStandardPropertyAccess(() => {
+                            sourceElm.setAriaLabelledBy('does-not-exist-at-all-lol');
+                        });
+                        expect(dispatcher).toHaveBeenCalledTimes(usePropertyAccess ? 1 : 0);
+                        expect(dispatcher.calls.allArgs()).toEqual([
+                            ...(usePropertyAccess
+                                ? [
+                                      [
+                                          ReportingEventId.NonStandardAriaReflection,
+                                          'x-aria-source',
+                                          jasmine.any(Number),
+                                      ],
+                                  ]
+                                : []),
+                        ]);
                     });
 
                     [
@@ -124,23 +210,52 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                             it('setting both id and aria-labelledby', () => {
                                 expect(() => {
                                     elm.linkUsingBoth(options);
-                                }).toLogWarningDev(expectedMessage);
-                                expect(dispatcher).toHaveBeenCalledWith(
-                                    ReportingEventId.CrossRootAriaInSyntheticShadow,
-                                    'x-aria-source',
-                                    jasmine.any(Number)
-                                );
+                                }).toLogWarningDev([
+                                    ...(usePropertyAccess
+                                        ? [expectedMessageForNonStandardAria]
+                                        : []),
+                                    expectedMessage,
+                                ]);
+                                expect(dispatcher).toHaveBeenCalledTimes(usePropertyAccess ? 2 : 1);
+                                expect(dispatcher.calls.allArgs()).toEqual([
+                                    ...(usePropertyAccess
+                                        ? [
+                                              [
+                                                  ReportingEventId.NonStandardAriaReflection,
+                                                  'x-aria-source',
+                                                  jasmine.any(Number),
+                                              ],
+                                          ]
+                                        : []),
+                                    [
+                                        ReportingEventId.CrossRootAriaInSyntheticShadow,
+                                        'x-aria-source',
+                                        jasmine.any(Number),
+                                    ],
+                                ]);
                             });
 
                             it('linking multiple targets', () => {
                                 expect(() => {
                                     elm.linkUsingBoth({ ...options, multipleTargets: true });
                                 }).toLogWarningDev([
+                                    ...(usePropertyAccess
+                                        ? [expectedMessageForNonStandardAria]
+                                        : []),
                                     expectedMessage,
                                     expectedMessageForSecondTarget,
                                 ]);
-                                expect(dispatcher).toHaveBeenCalledTimes(2);
+                                expect(dispatcher).toHaveBeenCalledTimes(usePropertyAccess ? 3 : 2);
                                 expect(dispatcher.calls.allArgs()).toEqual([
+                                    ...(usePropertyAccess
+                                        ? [
+                                              [
+                                                  ReportingEventId.NonStandardAriaReflection,
+                                                  'x-aria-source',
+                                                  jasmine.any(Number),
+                                              ],
+                                          ]
+                                        : []),
                                     [
                                         ReportingEventId.CrossRootAriaInSyntheticShadow,
                                         'x-aria-source',

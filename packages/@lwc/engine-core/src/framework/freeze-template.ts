@@ -21,9 +21,10 @@ import {
     isArray,
 } from '@lwc/shared';
 import features from '@lwc/features';
-import { logError } from '../shared/logger';
+import { logWarnOnce } from '../shared/logger';
 import { Template } from './template';
 import { TemplateStylesheetFactories, StylesheetFactory } from './stylesheet';
+import { onReportingEnabled, report, ReportingEventId } from './reporting';
 
 // See @lwc/engine-core/src/framework/template.ts
 const TEMPLATE_PROPS = ['slots', 'stylesheetToken', 'stylesheets', 'renderMode'] as const;
@@ -46,6 +47,8 @@ const STYLESHEET_FUNCTION_EXPANDOS = [
     // SEE `KEY__SCOPED_CSS` in @lwc/style-compiler
     '$scoped$',
 ];
+
+let mutationTrackingDisabled = false;
 
 function getOriginalArrayMethod(prop: typeof ARRAY_MUTATION_METHODS[number]) {
     switch (prop) {
@@ -70,7 +73,14 @@ function getOriginalArrayMethod(prop: typeof ARRAY_MUTATION_METHODS[number]) {
     }
 }
 
-let mutationWarningsSilenced = false;
+function reportViolation(prop: string) {
+    logWarnOnce(
+        `Mutating the "${prop}" property on a template ` +
+            `is deprecated and will be removed in a future version of LWC. ` +
+            `See: <link we need to add>`
+    );
+    report(ReportingEventId.TemplateMutation);
+}
 
 // Warn if the user tries to mutate a stylesheets array, e.g.:
 // `tmpl.stylesheets.push(someStylesheetFunction)`
@@ -80,10 +90,7 @@ function warnOnArrayMutation(stylesheets: TemplateStylesheetFactories) {
     for (const prop of ARRAY_MUTATION_METHODS) {
         const originalArrayMethod = getOriginalArrayMethod(prop);
         stylesheets[prop] = function arrayMutationWarningWrapper() {
-            logError(
-                `Mutating the "stylesheets" array on a template function ` +
-                    `is deprecated and may be removed in a future version of LWC.`
-            );
+            reportViolation('stylesheets');
             // @ts-ignore
             return originalArrayMethod.apply(this, arguments);
         };
@@ -103,10 +110,7 @@ function warnOnStylesheetFunctionMutation(stylesheet: StylesheetFactory) {
                 return value;
             },
             set(newValue) {
-                logError(
-                    `Dynamically setting the "${prop}" property on a stylesheet function ` +
-                        `is deprecated and may be removed in a future version of LWC.`
-                );
+                reportViolation('stylesheets');
                 value = newValue;
             },
         });
@@ -114,7 +118,7 @@ function warnOnStylesheetFunctionMutation(stylesheet: StylesheetFactory) {
 }
 
 // Warn on either array or stylesheet (function) mutation, in a deeply-nested array
-function warnOnStylesheetsMutation(stylesheets: TemplateStylesheetFactories) {
+function trackStylesheetsMutation(stylesheets: TemplateStylesheetFactories) {
     traverseStylesheets(stylesheets, (subStylesheets) => {
         if (isArray(subStylesheets)) {
             warnOnArrayMutation(subStylesheets);
@@ -147,7 +151,72 @@ function traverseStylesheets(
     }
 }
 
+function trackMutations(tmpl: Template) {
+    if (!isUndefined(tmpl.stylesheets)) {
+        trackStylesheetsMutation(tmpl.stylesheets);
+    }
+    for (const prop of TEMPLATE_PROPS) {
+        let value = tmpl[prop];
+        defineProperty(tmpl, prop, {
+            enumerable: true,
+            configurable: true,
+            get() {
+                return value;
+            },
+            set(newValue) {
+                if (!mutationTrackingDisabled) {
+                    reportViolation(prop);
+                }
+                value = newValue;
+            },
+        });
+    }
+
+    const originalDescriptor = getOwnPropertyDescriptor(tmpl, 'stylesheetTokens');
+    defineProperty(tmpl, 'stylesheetTokens', {
+        enumerable: true,
+        configurable: true,
+        get: originalDescriptor!.get,
+        set(value) {
+            reportViolation('stylesheetTokens');
+            // Avoid logging/reporting twice (for both stylesheetToken and stylesheetTokens)
+            mutationTrackingDisabled = true;
+            originalDescriptor!.set!.call(this, value);
+            mutationTrackingDisabled = false;
+        },
+    });
+}
+
+function addLegacyStylesheetTokensShim(tmpl: Template) {
+    // When ENABLE_FROZEN_TEMPLATE is false, then we shim stylesheetTokens on top of stylesheetToken for anyone who
+    // is accessing the old internal API (backwards compat). Details: https://salesforce.quip.com/v1rmAFu2cKAr
+    defineProperty(tmpl, 'stylesheetTokens', {
+        enumerable: true,
+        configurable: true,
+        get() {
+            const { stylesheetToken } = this;
+            if (isUndefined(stylesheetToken)) {
+                return stylesheetToken;
+            }
+            // Shim for the old `stylesheetTokens` property
+            // See https://github.com/salesforce/lwc/pull/2332/files#diff-7901555acef29969adaa6583185b3e9bce475cdc6f23e799a54e0018cb18abaa
+            return {
+                hostAttribute: `${stylesheetToken}-host`,
+                shadowAttribute: stylesheetToken,
+            };
+        },
+
+        set(value) {
+            // If the value is null or some other exotic object, you would be broken anyway in the past
+            // because the engine would try to access hostAttribute/shadowAttribute, which would throw an error.
+            // However it may be undefined in newer versions of LWC, so we need to guard against that case.
+            this.stylesheetToken = isUndefined(value) ? undefined : (value as any).shadowAttribute;
+        },
+    });
+}
+
 export function freezeTemplate(tmpl: Template) {
+    // TODO [#2782]: remove this flag and delete the legacy behavior
     if (features.ENABLE_FROZEN_TEMPLATE) {
         // Deep freeze the template
         freeze(tmpl);
@@ -155,76 +224,18 @@ export function freezeTemplate(tmpl: Template) {
             deepFreeze(tmpl.stylesheets);
         }
     } else {
-        // TODO [#2782]: remove this flag and delete the legacy behavior
+        // template is not frozen - shim, report, and warn
 
-        // When ENABLE_FROZEN_TEMPLATE is false, then we shim stylesheetTokens on top of stylesheetToken for anyone who
-        // is accessing the old internal API (backwards compat). Details: https://salesforce.quip.com/v1rmAFu2cKAr
-        defineProperty(tmpl, 'stylesheetTokens', {
-            enumerable: true,
-            configurable: true,
-            get() {
-                const { stylesheetToken } = this;
-                if (isUndefined(stylesheetToken)) {
-                    return stylesheetToken;
-                }
-                // Shim for the old `stylesheetTokens` property
-                // See https://github.com/salesforce/lwc/pull/2332/files#diff-7901555acef29969adaa6583185b3e9bce475cdc6f23e799a54e0018cb18abaa
-                return {
-                    hostAttribute: `${stylesheetToken}-host`,
-                    shadowAttribute: stylesheetToken,
-                };
-            },
+        // this shim should be applied in both dev and prod
+        addLegacyStylesheetTokensShim(tmpl);
 
-            set(value) {
-                // If the value is null or some other exotic object, you would be broken anyway in the past
-                // because the engine would try to access hostAttribute/shadowAttribute, which would throw an error.
-                // However it may be undefined in newer versions of LWC, so we need to guard against that case.
-                this.stylesheetToken = isUndefined(value)
-                    ? undefined
-                    : (value as any).shadowAttribute;
-            },
-        });
-
-        // When ENABLE_FROZEN_TEMPLATE is false, warn in dev mode whenever someone is mutating the template
+        // When ENABLE_FROZEN_TEMPLATE is false, we want to warn in dev mode whenever someone is mutating the template
         if (process.env.NODE_ENV !== 'production') {
-            if (!isUndefined(tmpl.stylesheets)) {
-                warnOnStylesheetsMutation(tmpl.stylesheets);
-            }
-            for (const prop of TEMPLATE_PROPS) {
-                let value = tmpl[prop];
-                defineProperty(tmpl, prop, {
-                    enumerable: true,
-                    configurable: true,
-                    get() {
-                        return value;
-                    },
-                    set(newValue) {
-                        if (!mutationWarningsSilenced) {
-                            logError(
-                                `Dynamically setting the "${prop}" property on a template function ` +
-                                    `is deprecated and may be removed in a future version of LWC.`
-                            );
-                        }
-                        value = newValue;
-                    },
-                });
-            }
-
-            const originalDescriptor = getOwnPropertyDescriptor(tmpl, 'stylesheetTokens');
-            defineProperty(tmpl, 'stylesheetTokens', {
-                enumerable: true,
-                configurable: true,
-                get: originalDescriptor!.get,
-                set(value) {
-                    logError(
-                        `Dynamically setting the "stylesheetTokens" property on a template function ` +
-                            `is deprecated and may be removed in a future version of LWC.`
-                    );
-                    // Avoid logging twice (for both stylesheetToken and stylesheetTokens)
-                    mutationWarningsSilenced = true;
-                    originalDescriptor!.set!.call(this, value);
-                    mutationWarningsSilenced = false;
-                },
+            trackMutations(tmpl);
+        } else {
+            // In prod mode, we only track mutations if reporting is enabled
+            onReportingEnabled(() => {
+                trackMutations(tmpl);
             });
         }
     }
