@@ -50,14 +50,35 @@ function testAriaProperty(property, attribute) {
             expect(value).toBe('foo');
         });
 
-        it('should remove the attribute if the property is set to null', () => {
-            const el = document.createElement('div');
-            el.setAttribute(attribute, 'foo');
+        // Falsy values that are treated as removing the attribute in the native Chromium/WebKit implementations
+        [undefined, null].forEach((value) => {
+            it(`should remove the attribute if the property is set to ${value}`, () => {
+                const el = document.createElement('div');
+                el.setAttribute(attribute, 'foo');
 
-            expectWarningIfNonStandard(() => {
-                el[property] = null;
+                expectWarningIfNonStandard(() => {
+                    el[property] = value;
+                });
+                expect(el.hasAttribute(attribute)).toBe(false);
+                expect(el[property]).toBeNull();
             });
-            expect(el.hasAttribute(attribute)).toBe(false);
+        });
+
+        // Falsy values that are _not_ treated as removing the attribute in the native Chromium/WebKit implementations
+        [0, false, '', NaN].forEach((value) => {
+            it(`should not remove the attribute if the property is set to ${
+                value === '' ? 'the empty string' : value
+            }`, () => {
+                const el = document.createElement('div');
+                el.setAttribute(attribute, 'foo');
+
+                expectWarningIfNonStandard(() => {
+                    el[property] = value;
+                });
+                expect(el.hasAttribute(attribute)).toBe(true);
+                expect(el.getAttribute(attribute)).toBe('' + value);
+                expect(el[property]).toBe('' + value);
+            });
         });
     });
 }

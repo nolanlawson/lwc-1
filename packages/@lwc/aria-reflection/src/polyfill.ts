@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { AriaPropNameToAttrNameMap, isNull, defineProperty } from '@lwc/shared';
+import { AriaPropNameToAttrNameMap, isNull, defineProperty, isUndefined } from '@lwc/shared';
 
 function createAriaPropertyPropertyDescriptor(attrName: string): PropertyDescriptor {
     // Note that we need to call this.{get,set,has,remove}Attribute rather than dereferencing
@@ -16,7 +16,9 @@ function createAriaPropertyPropertyDescriptor(attrName: string): PropertyDescrip
         },
         set(this: HTMLElement, newValue: any) {
             // reflect into the corresponding attribute
-            if (isNull(newValue)) {
+            if (isNull(newValue) || isUndefined(newValue)) {
+                // In Chromium/WebKit, only setting null and undefined are treated as removing the attribute
+                // https://github.com/w3c/aria/issues/1858
                 this.removeAttribute(attrName);
             } else {
                 this.setAttribute(attrName, newValue);
