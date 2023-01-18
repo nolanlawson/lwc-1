@@ -15,6 +15,7 @@ const {
     getOwnPropertyNames,
     getPrototypeOf,
     hasOwnProperty,
+    isExtensible,
     isFrozen,
     keys,
     seal,
@@ -30,6 +31,7 @@ const {
     filter: ArrayFilter,
     find: ArrayFind,
     forEach,
+    includes: ArrayIncludes,
     indexOf: ArrayIndexOf,
     join: ArrayJoin,
     map: ArrayMap,
@@ -49,13 +51,18 @@ const { fromCharCode: StringFromCharCode } = String;
 
 const {
     charCodeAt: StringCharCodeAt,
+    endsWith: StringEndsWith,
     match: StringMatch,
     replace: StringReplace,
     slice: StringSlice,
     split: StringSplit,
+    startsWith: StringStartsWith,
+    substring: StringSubstring,
     toLowerCase: StringToLowerCase,
-    trim: StringTrim
+    trim: StringTrim,
 } = String.prototype;
+
+const { toString: NumberToString } = Number.prototype;
 
 export {
     ArrayConcat,
@@ -63,6 +70,7 @@ export {
     ArrayFill,
     ArrayFilter,
     ArrayFind,
+    ArrayIncludes,
     ArrayIndexOf,
     ArrayJoin,
     ArrayMap,
@@ -76,12 +84,16 @@ export {
     ArraySort,
     ArraySplice,
     ArrayUnshift,
+    NumberToString,
     StringCharCodeAt,
+    StringEndsWith,
     StringFromCharCode,
     StringMatch,
     StringReplace,
     StringSlice,
     StringSplit,
+    StringStartsWith,
+    StringSubstring,
     StringToLowerCase,
     StringTrim,
     assign,
@@ -96,6 +108,7 @@ export {
     getPrototypeOf,
     hasOwnProperty,
     isArray,
+    isExtensible,
     isFrozen,
     keys,
     seal,

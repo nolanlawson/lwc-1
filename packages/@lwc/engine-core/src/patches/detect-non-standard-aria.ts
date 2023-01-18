@@ -62,8 +62,10 @@ function checkAndReportViolation(elm: Element, prop: string) {
 
         if (process.env.NODE_ENV !== 'production') {
             logWarnOnce(
-                `Element <${elm.tagName.toLowerCase()}> ` +
-                    (isUndefined(vm) ? '' : `owned by <${vm.elm.tagName.toLowerCase()}> `) +
+                `Element <${StringToLowerCase.call(elm.tagName)()}> ` +
+                    (isUndefined(vm)
+                        ? ''
+                        : `owned by <${StringToLowerCase.call(vm.elm.tagName)()}> `) +
                     `uses non-standard property "${prop}". This will be removed in a future version of LWC. ` +
                     `See https://lwc.dev/guide/accessibility#deprecated-aria-reflected-properties`
             );
