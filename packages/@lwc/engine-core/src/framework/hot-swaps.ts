@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { isFalse, isUndefined, isNull } from '@lwc/shared';
+import {isFalse, isUndefined, isNull, forEach} from '@lwc/shared';
 import { VM, scheduleRehydration, forceRehydration } from './vm';
 import { isComponentConstructor } from './def';
 import { LightningElementConstructor } from './base-lightning-element';
@@ -25,7 +25,7 @@ const activeStyles = new WeakMap<StylesheetFactory, Set<VM>>();
 function rehydrateHotTemplate(tpl: Template): boolean {
     const list = activeTemplates.get(tpl);
     if (!isUndefined(list)) {
-        list.forEach((vm) => {
+        forEach.call(list, (vm) => {
             if (isFalse(vm.isDirty)) {
                 // forcing the vm to rehydrate in the micro-task:
                 markComponentAsDirty(vm);
@@ -43,7 +43,7 @@ function rehydrateHotTemplate(tpl: Template): boolean {
 function rehydrateHotStyle(style: StylesheetFactory): boolean {
     const list = activeStyles.get(style);
     if (!isUndefined(list)) {
-        list.forEach((vm) => {
+        forEach.call(list, (vm) => {
             // if a style definition is swapped, we must reset
             // vm's template content in the next micro-task:
             forceRehydration(vm);
@@ -60,7 +60,7 @@ function rehydrateHotComponent(Ctor: LightningElementConstructor): boolean {
     const list = activeComponents.get(Ctor);
     let canRefreshAllInstances = true;
     if (!isUndefined(list)) {
-        list.forEach((vm) => {
+        forEach.call(list, (vm) => {
             const { owner } = vm;
             if (!isNull(owner)) {
                 // if a component class definition is swapped, we must reset
@@ -150,7 +150,7 @@ export function setActiveVM(vm: VM) {
         // tracking active styles associated to template
         const stylesheets = tpl.stylesheets;
         if (!isUndefined(stylesheets)) {
-            flattenStylesheets(stylesheets).forEach((stylesheet) => {
+            forEach.call(flattenStylesheets(stylesheets), (stylesheet) => {
                 // this is necessary because we don't hold the list of styles
                 // in the vm, we only hold the selected (already swapped template)
                 // but the styles attached to the template might not be the actual
@@ -190,7 +190,7 @@ export function removeActiveVM(vm: VM) {
         // removing active styles associated to template
         const styles = tpl.stylesheets;
         if (!isUndefined(styles)) {
-            flattenStylesheets(styles).forEach((style) => {
+            forEach.call(flattenStylesheets(styles), (style) => {
                 list = activeStyles.get(style);
                 if (!isUndefined(list)) {
                     // deleting the vm from the set to avoid leaking memory

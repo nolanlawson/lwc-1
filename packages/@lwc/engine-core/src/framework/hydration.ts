@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { isUndefined, ArrayJoin, assert, keys, isNull, ArrayFilter } from '@lwc/shared';
+import {isUndefined, ArrayJoin, assert, keys, isNull, ArrayFilter, StringToLowerCase} from '@lwc/shared';
 
 import { logError, logWarn } from '../shared/logger';
 
@@ -38,6 +38,7 @@ import { patchProps } from './modules/props';
 import { applyEventListeners } from './modules/events';
 import { getScopeTokenClass, getStylesheetTokenHost } from './stylesheet';
 import { renderComponent } from './component';
+import {entries} from "@lwc/shared/src";
 
 // These values are the ones from Node.nodeType (https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType)
 const enum EnvNodeTypes {
@@ -358,10 +359,10 @@ function hasCorrectNodeType<T extends Node>(
 
 function isMatchingElement(vnode: VBaseElement, elm: Element, renderer: RendererAPI) {
     const { getProperty } = renderer;
-    if (vnode.sel.toLowerCase() !== getProperty(elm, 'tagName').toLowerCase()) {
+    if (StringToLowerCase.call(vnode.sel) !== getProperty(elm, 'tagName').toLowerCase()) {
         if (process.env.NODE_ENV !== 'production') {
             logError(
-                `Hydration mismatch: expecting element with tag "${vnode.sel.toLowerCase()}" but found "${getProperty(
+                `Hydration mismatch: expecting element with tag "${StringToLowerCase.call(vnode.sel)}" but found "${getProperty(
                     elm,
                     'tagName'
                 ).toLowerCase()}".`,
@@ -388,7 +389,7 @@ function validateAttrs(vnode: VBaseElement, elm: Element, renderer: RendererAPI)
 
     // Validate attributes, though we could always recovery from those by running the update mods.
     // Note: intentionally ONLY matching vnodes.attrs to elm.attrs, in case SSR is adding extra attributes.
-    for (const [attrName, attrValue] of Object.entries(attrs)) {
+    for (const [attrName, attrValue] of entries(attrs)) {
         const { owner } = vnode;
         const { getAttribute } = renderer;
         const elmAttrValue = getAttribute(elm, attrName);
@@ -396,10 +397,10 @@ function validateAttrs(vnode: VBaseElement, elm: Element, renderer: RendererAPI)
             if (process.env.NODE_ENV !== 'production') {
                 const { getProperty } = renderer;
                 logError(
-                    `Mismatch hydrating element <${getProperty(
+                    `Mismatch hydrating element <${StringToLowerCase.call(getProperty(
                         elm,
                         'tagName'
-                    ).toLowerCase()}>: attribute "${attrName}" has different values, expected "${attrValue}" but found "${elmAttrValue}"`,
+                    ))}>: attribute "${attrName}" has different values, expected "${attrValue}" but found "${elmAttrValue}"`,
                     owner
                 );
             }
@@ -466,7 +467,7 @@ function validateClassAttr(vnode: VBaseElement, elm: Element, renderer: Renderer
             }
         }
 
-        readableVnodeClassname = computedClassName.trim();
+        readableVnodeClassname = StringTrim.call(computedClassName);
 
         if (classList.length > keys(classMap).length) {
             nodesAreCompatible = false;

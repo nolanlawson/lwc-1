@@ -9,6 +9,7 @@ const {
     create,
     defineProperties,
     defineProperty,
+    entries,
     freeze,
     getOwnPropertyDescriptor,
     getOwnPropertyNames,
@@ -28,6 +29,7 @@ const {
     fill: ArrayFill,
     filter: ArrayFilter,
     find: ArrayFind,
+    forEach,
     indexOf: ArrayIndexOf,
     join: ArrayJoin,
     map: ArrayMap,
@@ -41,26 +43,27 @@ const {
     sort: ArraySort,
     splice: ArraySplice,
     unshift: ArrayUnshift,
-    forEach,
 } = Array.prototype;
 
 const { fromCharCode: StringFromCharCode } = String;
 
 const {
     charCodeAt: StringCharCodeAt,
+    match: StringMatch,
     replace: StringReplace,
-    split: StringSplit,
     slice: StringSlice,
+    split: StringSplit,
     toLowerCase: StringToLowerCase,
+    trim: StringTrim
 } = String.prototype;
 
 export {
     ArrayConcat,
+    ArrayCopyWithin,
+    ArrayFill,
     ArrayFilter,
     ArrayFind,
-    ArrayFill,
     ArrayIndexOf,
-    ArrayCopyWithin,
     ArrayJoin,
     ArrayMap,
     ArrayPop,
@@ -73,10 +76,19 @@ export {
     ArraySort,
     ArraySplice,
     ArrayUnshift,
+    StringCharCodeAt,
+    StringFromCharCode,
+    StringMatch,
+    StringReplace,
+    StringSlice,
+    StringSplit,
+    StringToLowerCase,
+    StringTrim,
     assign,
     create,
     defineProperties,
     defineProperty,
+    entries,
     forEach,
     freeze,
     getOwnPropertyDescriptor,
@@ -88,12 +100,6 @@ export {
     keys,
     seal,
     setPrototypeOf,
-    StringCharCodeAt,
-    StringReplace,
-    StringSlice,
-    StringSplit,
-    StringToLowerCase,
-    StringFromCharCode,
 };
 
 export function isUndefined(obj: any): obj is undefined {
