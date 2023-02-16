@@ -5,21 +5,23 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {
+    APIVersion,
     assert,
     assign,
     isFunction,
     isNull,
     isObject,
     isUndefined,
-    toString,
     StringToLowerCase,
+    toString,
 } from '@lwc/shared';
 import {
-    createVM,
     connectRootElement,
+    createVM,
     disconnectRootElement,
-    LightningElement,
     LifecycleCallback,
+    LightningElement,
+    getComponentAPIVersion,
 } from '@lwc/engine-core';
 import { renderer } from '../renderer';
 
@@ -46,7 +48,13 @@ function callNodeSlot(node: Node, slot: WeakMap<any, NodeSlotCallback>): Node {
     return node; // for convenience
 }
 
-if (!lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+let monkeyPatched = false;
+
+function monkeyPatchDomAPIs() {
+    if (monkeyPatched) {
+        return;
+    }
+    monkeyPatched = true;
     // Monkey patching Node methods to be able to detect the insertions and removal of root elements
     // created via createElement.
     const { appendChild, insertBefore, removeChild, replaceChild } = _Node.prototype;
@@ -112,6 +120,9 @@ export function createElement(
     // the following line guarantees that this does not leaks beyond this point.
     const tagName = StringToLowerCase.call(sel);
 
+    // @ts-ignore
+    const apiVersion = getComponentAPIVersion(Ctor);
+
     // the custom element from the registry is expecting an upgrade callback
     /**
      * Note: if the upgradable constructor does not expect, or throw when we new it
@@ -125,7 +136,8 @@ export function createElement(
             mode: options.mode !== 'closed' ? 'open' : 'closed',
             owner: null,
         });
-        if (!lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+        if (apiVersion < APIVersion.FIFTY_NINE) {
+            monkeyPatchDomAPIs();
             ConnectingSlot.set(elm, connectRootElement);
             DisconnectingSlot.set(elm, disconnectRootElement);
         }
@@ -134,7 +146,7 @@ export function createElement(
     let connectedCallback: LifecycleCallback | undefined;
     let disconnectedCallback: LifecycleCallback | undefined;
 
-    if (lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+    if (apiVersion >= APIVersion.FIFTY_NINE) {
         connectedCallback = (elm: HTMLElement) => {
             connectRootElement(elm);
         };

@@ -19,10 +19,7 @@ it('should throw if a component tries to use a template that is not registered',
 
     expect(() => {
         document.body.appendChild(elm);
-    }).toThrowConnectedError(
-        TypeError,
-        /Invalid template returned by the render\(\) method on \[.*\]\./
-    );
+    }).toThrowError(TypeError, /Invalid template returned by the render\(\) method on \[.*\]\./);
 });
 
 it('should not throw if the template is registered first', () => {

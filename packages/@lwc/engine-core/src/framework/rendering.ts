@@ -5,8 +5,9 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {
-    ArrayPush,
+    APIVersion,
     ArrayPop,
+    ArrayPush,
     ArraySome,
     assert,
     create,
@@ -25,7 +26,7 @@ import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
 import { LifecycleCallback, RendererAPI } from './renderer';
 import { EmptyArray } from './utils';
-import { markComponentAsDirty } from './component';
+import { getComponentAPIVersion, markComponentAsDirty } from './component';
 import { getScopeTokenClass } from './stylesheet';
 import { lockDomMutation, patchElementWithRestrictions, unlockDomMutation } from './restrictions';
 import {
@@ -69,6 +70,7 @@ import { patchStyleAttribute } from './modules/computed-style-attr';
 import { applyEventListeners } from './modules/events';
 import { applyStaticClassAttribute } from './modules/static-class-attr';
 import { applyStaticStyleAttribute } from './modules/static-style-attr';
+import { LightningElementConstructor } from './base-lightning-element';
 
 export function patchChildren(
     c1: VNodes,
@@ -313,7 +315,11 @@ function mountCustomElement(
     let connectedCallback: LifecycleCallback | undefined;
     let disconnectedCallback: LifecycleCallback | undefined;
 
-    if (lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+    const apiVersion = getComponentAPIVersion(
+        owner.component.constructor as LightningElementConstructor
+    );
+
+    if (apiVersion >= APIVersion.FIFTY_NINE) {
         connectedCallback = (elm: HTMLElement) => {
             connectRootElement(elm);
         };
@@ -349,7 +355,7 @@ function mountCustomElement(
 
     if (vm) {
         if (process.env.IS_BROWSER) {
-            if (!lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE) {
+            if (apiVersion < APIVersion.FIFTY_NINE) {
                 if (process.env.NODE_ENV !== 'production') {
                     // With synthetic lifecycle callbacks, it's possible for elements to be removed without the engine
                     // noticing it (e.g. `appendChild` the same host element twice). This test ensures we don't regress.

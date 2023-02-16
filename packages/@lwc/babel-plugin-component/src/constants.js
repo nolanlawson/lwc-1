@@ -51,7 +51,7 @@ const DECORATOR_TYPES = {
 const REGISTER_COMPONENT_ID = 'registerComponent';
 const REGISTER_DECORATORS_ID = 'registerDecorators';
 const TEMPLATE_KEY = 'tmpl';
-const API_VERSION_KEY = 'apiVersion';
+const API_VERSION_KEY = 'v';
 
 module.exports = {
     AMBIGUOUS_PROP_SET,

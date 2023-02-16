@@ -1,4 +1,5 @@
 import { createElement } from 'lwc';
+import { nativeCustomElementLifecycleIsEnabled } from 'test-utils';
 
 import ShadowParent from 'x/shadowParent';
 import ShadowLightParent from 'x/shadowLightParent';
@@ -23,7 +24,7 @@ const fixtures = [
         tagName: 'x-shadow-parent',
         ctor: ShadowParent,
         connect: process.env.NATIVE_SHADOW
-            ? window.lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+            ? nativeCustomElementLifecycleIsEnabled()
                 ? [
                       'shadowParent:connectedCallback',
                       'leaf:before-container:connectedCallback',
@@ -119,7 +120,7 @@ const fixtures = [
         tagName: 'x-light-shadow-parent',
         ctor: LightShadowParent,
         connect: process.env.NATIVE_SHADOW
-            ? window.lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+            ? nativeCustomElementLifecycleIsEnabled()
                 ? [
                       'lightShadowContainer:connectedCallback',
                       'shadowContainer:connectedCallback',
@@ -171,7 +172,7 @@ it('should invoke callbacks on the right order (issue #1199 and #1198)', () => {
     document.body.appendChild(elm);
     expect(window.timingBuffer).toEqual(
         process.env.NATIVE_SHADOW
-            ? window.lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+            ? nativeCustomElementLifecycleIsEnabled()
                 ? [
                       'shadowContainer:connectedCallback',
                       'leaf:before-slot:connectedCallback',
@@ -206,7 +207,7 @@ it('should invoke callbacks on the right order (issue #1199 and #1198)', () => {
     elm.hide = true;
     return Promise.resolve().then(() => {
         expect(window.timingBuffer).toEqual(
-            window.lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+            nativeCustomElementLifecycleIsEnabled()
                 ? [
                       'shadowContainer:disconnectedCallback',
                       'leaf:after-slot:disconnectedCallback',

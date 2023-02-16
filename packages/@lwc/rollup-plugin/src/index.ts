@@ -12,6 +12,7 @@ import { Plugin, SourceMapInput, RollupWarning } from 'rollup';
 import pluginUtils, { FilterPattern } from '@rollup/pluginutils';
 import { transformSync, StylesheetConfig, DynamicComponentConfig } from '@lwc/compiler';
 import { resolveModule, ModuleRecord } from '@lwc/module-resolver';
+import { APIVersion } from '@lwc/shared';
 import type { CompilerDiagnostic } from '@lwc/errors';
 
 export interface RollupLwcOptions {
@@ -37,6 +38,7 @@ export interface RollupLwcOptions {
     enableScopedSlots?: boolean;
     /** The configuration to pass to `@lwc/compiler` to disable synthetic shadow support */
     disableSyntheticShadowSupport?: boolean;
+    apiVersion?: APIVersion;
 }
 
 const PLUGIN_NAME = 'rollup-plugin-lwc-compiler';
@@ -134,6 +136,7 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
         enableLwcSpread,
         enableScopedSlots,
         disableSyntheticShadowSupport,
+        apiVersion,
     } = pluginOptions;
 
     return {
@@ -257,6 +260,7 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
                 enableLwcSpread,
                 enableScopedSlots,
                 disableSyntheticShadowSupport,
+                apiVersion,
             });
 
             if (warnings) {

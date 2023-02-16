@@ -24,7 +24,7 @@ const createUpgradableConstructor = (
     const hasDisconnectedCallback = !isUndefined(disconnectedCallback);
 
     // TODO [#2972]: this class should expose observedAttributes as necessary
-    class UpgradableConstructor extends HTMLElement {
+    return class UpgradableConstructor extends HTMLElement {
         constructor(upgradeCallback: LifecycleCallback) {
             super();
             // If the element is not created using lwc.createElement(), e.g. `document.createElement('x-foo')`,
@@ -41,27 +41,19 @@ const createUpgradableConstructor = (
                 // Do we want to support this? Throw an error? Currently for backwards compat it's a no-op.
             }
         }
-    }
 
-    // Do not unnecessarily add a connectedCallback/disconnectedCallback, as it introduces perf overhead
-    // See: https://github.com/salesforce/lwc/pull/3162#issuecomment-1311851174
-    if (hasConnectedCallback) {
-        (UpgradableConstructor.prototype as any).connectedCallback = function () {
-            if (!elementsUpgradedOutsideLWC.has(this)) {
+        connectedCallback() {
+            if (hasConnectedCallback && !elementsUpgradedOutsideLWC.has(this)) {
                 connectedCallback(this);
             }
-        };
-    }
+        }
 
-    if (hasDisconnectedCallback) {
-        (UpgradableConstructor.prototype as any).disconnectedCallback = function () {
-            if (!elementsUpgradedOutsideLWC.has(this)) {
+        disconnectedCallback() {
+            if (hasDisconnectedCallback && !elementsUpgradedOutsideLWC.has(this)) {
                 disconnectedCallback(this);
             }
-        };
-    }
-
-    return UpgradableConstructor;
+        }
+    };
 };
 
 export const createCustomElementUsingUpgradableConstructor = (
