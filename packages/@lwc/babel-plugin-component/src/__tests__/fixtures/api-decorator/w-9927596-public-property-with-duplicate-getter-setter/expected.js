@@ -14,5 +14,5 @@ _registerDecorators(Text, {
 });
 export default _registerComponent(Text, {
   tmpl: _tmpl,
-  apiVersion: 58
+  v: 58
 });

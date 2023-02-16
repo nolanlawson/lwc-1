@@ -9,9 +9,8 @@ import fs from 'fs';
 import path from 'path';
 
 import { rollup } from 'rollup';
-// @ts-ignore
 import lwcRollupPlugin from '@lwc/rollup-plugin';
-import { isVoidElement, HTML_NAMESPACE } from '@lwc/shared';
+import { APIVersion, HTML_NAMESPACE, isVoidElement } from '@lwc/shared';
 import { testFixtureDir } from '@lwc/jest-utils-lwc-internals';
 import { setFeatureFlagForTest } from '../index';
 import type { FeatureFlagMap } from '@lwc/features';
@@ -26,7 +25,15 @@ interface FixtureModule {
 
 jest.setTimeout(10_000 /* 10 seconds */);
 
-async function compileFixture({ input, dirname }: { input: string; dirname: string }) {
+async function compileFixture({
+    input,
+    dirname,
+    apiVersion,
+}: {
+    input: string;
+    dirname: string;
+    apiVersion: APIVersion;
+}) {
     const modulesDir = path.resolve(dirname, './modules');
     const outputFile = path.resolve(dirname, './dist/compiled.js');
 
@@ -41,6 +48,7 @@ async function compileFixture({ input, dirname }: { input: string; dirname: stri
                         dir: modulesDir,
                     },
                 ],
+                apiVersion,
             }),
         ],
     });
@@ -119,7 +127,7 @@ function formatHTML(src: string): string {
     return res.trim();
 }
 
-function testFixtures() {
+function testFixtures(apiVersion: APIVersion) {
     testFixtureDir(
         {
             root: path.resolve(__dirname, 'fixtures'),
@@ -136,6 +144,7 @@ function testFixtures() {
             const compiledFixturePath = await compileFixture({
                 input: filename,
                 dirname,
+                apiVersion,
             });
 
             // The LWC engine holds global state like the current VM index, which has an impact on
@@ -180,8 +189,12 @@ function testFixtures() {
 // Run the fixtures with both synthetic and native custom element lifecycle.
 // The expectation is that the fixtures will be exactly the same for both.
 describe('fixtures', () => {
-    describe('synthetic custom element lifecycle', () => {
-        testFixtures();
+    describe('API Version 58', () => {
+        testFixtures(APIVersion.V58);
+    });
+
+    describe('APIVersion 59', () => {
+        testFixtures(APIVersion.V59);
     });
 
     function testWithFeatureFlagEnabled(flagName: keyof FeatureFlagMap) {
@@ -193,12 +206,8 @@ describe('fixtures', () => {
             setFeatureFlagForTest(flagName, false);
         });
 
-        testFixtures();
+        testFixtures(APIVersion.V58);
     }
-
-    describe('native custom element lifecycle', () => {
-        testWithFeatureFlagEnabled('ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE');
-    });
 
     describe('disable aria reflection polyfill', () => {
         testWithFeatureFlagEnabled('DISABLE_ARIA_REFLECTION_POLYFILL');

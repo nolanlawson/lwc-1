@@ -5,5 +5,5 @@ export default _registerComponent(class extends lwc.LightningElement {
   /*LWC compiler vX.X.X*/
 }, {
   tmpl: _tmpl,
-  apiVersion: 58
+  v: 58
 });

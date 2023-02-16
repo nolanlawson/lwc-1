@@ -7,5 +7,5 @@ const DATA_FROM_NETWORK = [{
 }];
 export default _registerComponent(DATA_FROM_NETWORK, {
   tmpl: _tmpl,
-  apiVersion: 58
+  v: 58
 });

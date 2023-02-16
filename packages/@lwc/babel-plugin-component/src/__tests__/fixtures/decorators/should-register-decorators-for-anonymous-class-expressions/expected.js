@@ -12,5 +12,5 @@ const foo = _registerDecorators(class extends LightningElement {
 });
 export default _registerComponent(foo, {
   tmpl: _tmpl,
-  apiVersion: 58
+  v: 58
 });

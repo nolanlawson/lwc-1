@@ -11,5 +11,5 @@ export default _registerComponent(_registerDecorators(class extends LightningEle
   }
 }), {
   tmpl: _tmpl,
-  apiVersion: 58
+  v: 58
 });
