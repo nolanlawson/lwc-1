@@ -15,7 +15,7 @@ export const enum APIVersion {
 export const LOWEST_API_VERSION = APIVersion.V58;
 export const HIGHEST_API_VERSION = APIVersion.V59;
 
-const allVersionsSet = new Set([APIVersion.V58, APIVersion.V59]);
+const allVersions = new Set([APIVersion.V58, APIVersion.V59]);
 
 export function getAPIVersionFromNumber(version: number | undefined): APIVersion {
     if (isUndefined(version)) {
@@ -27,7 +27,7 @@ export function getAPIVersionFromNumber(version: number | undefined): APIVersion
     if (version > HIGHEST_API_VERSION) {
         return HIGHEST_API_VERSION;
     }
-    if (allVersionsSet.has(version)) {
+    if (allVersions.has(version)) {
         return version;
     }
     throw new Error('Could not find APIVersion matching: ' + version);
