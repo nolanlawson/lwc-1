@@ -5,10 +5,15 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 const { basename, extname } = require('path');
-
 const moduleImports = require('@babel/helper-module-imports');
+const { getAPIVersionFromNumber } = require('@lwc/shared');
 
-const { LWC_PACKAGE_ALIAS, REGISTER_COMPONENT_ID, TEMPLATE_KEY } = require('./constants');
+const {
+    LWC_PACKAGE_ALIAS,
+    REGISTER_COMPONENT_ID,
+    TEMPLATE_KEY,
+    API_VERSION_KEY,
+} = require('./constants');
 
 function getBaseName(classPath) {
     const ext = extname(classPath);
@@ -54,9 +59,14 @@ module.exports = function ({ types: t }) {
             }
         }
 
+        const apiVersion = getAPIVersionFromNumber(state.opts.apiVersion);
+
         return t.callExpression(registerComponentId, [
             node,
-            t.objectExpression([t.objectProperty(t.identifier(TEMPLATE_KEY), templateIdentifier)]),
+            t.objectExpression([
+                t.objectProperty(t.identifier(TEMPLATE_KEY), templateIdentifier),
+                t.objectProperty(t.identifier(API_VERSION_KEY), t.numericLiteral(apiVersion)),
+            ]),
         ]);
     }
 
