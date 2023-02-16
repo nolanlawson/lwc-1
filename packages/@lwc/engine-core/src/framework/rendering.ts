@@ -24,7 +24,7 @@ import {
 
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
-import { LifecycleCallback, RendererAPI } from './renderer';
+import { RendererAPI } from './renderer';
 import { EmptyArray } from './utils';
 import { getComponentAPIVersion, markComponentAsDirty } from './component';
 import { getScopeTokenClass } from './stylesheet';
@@ -312,21 +312,20 @@ function mountCustomElement(
         vm = createViewModelHook(elm, vnode, renderer);
     };
 
-    let connectedCallback: LifecycleCallback | undefined;
-    let disconnectedCallback: LifecycleCallback | undefined;
-
     const apiVersion = getComponentAPIVersion(
         owner.component.constructor as LightningElementConstructor
     );
 
-    if (apiVersion >= APIVersion.FIFTY_NINE) {
-        connectedCallback = (elm: HTMLElement) => {
+    const connectedCallback = (elm: HTMLElement) => {
+        if (apiVersion >= APIVersion.FIFTY_NINE) {
             connectRootElement(elm);
-        };
-        disconnectedCallback = (elm: HTMLElement) => {
+        }
+    };
+    const disconnectedCallback = (elm: HTMLElement) => {
+        if (apiVersion >= APIVersion.FIFTY_NINE) {
             disconnectRootElement(elm);
-        };
-    }
+        }
+    };
 
     // Should never get a tag with upper case letter at this point; the compiler
     // should produce only tags with lowercase letters. However, the Java

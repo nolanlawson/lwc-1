@@ -19,7 +19,6 @@ import {
     connectRootElement,
     createVM,
     disconnectRootElement,
-    LifecycleCallback,
     LightningElement,
     getComponentAPIVersion,
 } from '@lwc/engine-core';
@@ -143,17 +142,16 @@ export function createElement(
         }
     };
 
-    let connectedCallback: LifecycleCallback | undefined;
-    let disconnectedCallback: LifecycleCallback | undefined;
-
-    if (apiVersion >= APIVersion.FIFTY_NINE) {
-        connectedCallback = (elm: HTMLElement) => {
+    const connectedCallback = (elm: HTMLElement) => {
+        if (apiVersion >= APIVersion.FIFTY_NINE) {
             connectRootElement(elm);
-        };
-        disconnectedCallback = (elm: HTMLElement) => {
+        }
+    };
+    const disconnectedCallback = (elm: HTMLElement) => {
+        if (apiVersion >= APIVersion.FIFTY_NINE) {
             disconnectRootElement(elm);
-        };
-    }
+        }
+    };
 
     const element = createCustomElement(
         tagName,

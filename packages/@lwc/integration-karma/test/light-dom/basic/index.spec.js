@@ -1,7 +1,8 @@
-import { createElement, LightningElement } from 'lwc';
+import { createElement } from 'lwc';
 
 import Test from 'x/test';
 import InvalidRenderMode from 'x/invalidRenderMode';
+import GetTemplate from 'x/getTemplate';
 
 describe('Basic Light DOM', () => {
     it('should render properly', () => {
@@ -13,22 +14,15 @@ describe('Basic Light DOM', () => {
     });
 
     it('should return null for template', () => {
-        let template;
-        class TemplateTest extends LightningElement {
-            static renderMode = 'light';
-            connectedCallback() {
-                template = this.template;
-            }
-        }
-
+        let elm;
         expect(() => {
-            const elm = createElement('x-test', { is: TemplateTest });
+            elm = createElement('x-test', { is: GetTemplate });
             document.body.appendChild(elm);
         }).toLogErrorDev(
             'Error: [LWC error]: `this.template` returns null for light DOM components. Since there is no shadow, the rendered content can be accessed via `this` itself. e.g. instead of `this.template.querySelector`, use `this.querySelector`.'
         );
 
-        expect(template).toBeNull();
+        expect(elm.getTemplate()).toBeNull();
     });
 
     it('should throw error when renderMode is invalid', () => {

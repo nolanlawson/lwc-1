@@ -17,12 +17,9 @@ let elementBeingUpgradedByLWC = false;
 // `customElements.define('x-foo')`, then you don't have access to the upgradeCallback, so it's a dummy custom element.
 // This class should be created once per tag name.
 const createUpgradableConstructor = (
-    connectedCallback?: LifecycleCallback,
-    disconnectedCallback?: LifecycleCallback
+    connectedCallback: LifecycleCallback,
+    disconnectedCallback: LifecycleCallback
 ) => {
-    const hasConnectedCallback = !isUndefined(connectedCallback);
-    const hasDisconnectedCallback = !isUndefined(disconnectedCallback);
-
     // TODO [#2972]: this class should expose observedAttributes as necessary
     return class UpgradableConstructor extends HTMLElement {
         constructor(upgradeCallback: LifecycleCallback) {
@@ -31,7 +28,7 @@ const createUpgradableConstructor = (
             // then elementBeingUpgraded will be false
             if (elementBeingUpgradedByLWC) {
                 upgradeCallback(this);
-            } else if (hasConnectedCallback || hasDisconnectedCallback) {
+            } else {
                 // If this element has connected or disconnected callbacks, then we need to keep track of
                 // instances that were created outside LWC (i.e. not created by `lwc.createElement()`).
                 // If the element has no connected or disconnected callbacks, then we don't need to track this.
@@ -43,13 +40,13 @@ const createUpgradableConstructor = (
         }
 
         connectedCallback() {
-            if (hasConnectedCallback && !elementsUpgradedOutsideLWC.has(this)) {
+            if (!elementsUpgradedOutsideLWC.has(this)) {
                 connectedCallback(this);
             }
         }
 
         disconnectedCallback() {
-            if (hasDisconnectedCallback && !elementsUpgradedOutsideLWC.has(this)) {
+            if (!elementsUpgradedOutsideLWC.has(this)) {
                 disconnectedCallback(this);
             }
         }
@@ -59,8 +56,8 @@ const createUpgradableConstructor = (
 export const createCustomElementUsingUpgradableConstructor = (
     tagName: string,
     upgradeCallback: LifecycleCallback,
-    connectedCallback?: LifecycleCallback,
-    disconnectedCallback?: LifecycleCallback
+    connectedCallback: LifecycleCallback,
+    disconnectedCallback: LifecycleCallback
 ) => {
     // use global custom elements registry
     let UpgradableConstructor = cachedConstructors.get(tagName);
