@@ -52,6 +52,7 @@ let monkeyPatched = false;
 
 function monkeyPatchDomAPIs() {
     if (monkeyPatched) {
+        // don't double-patch
         return;
     }
     monkeyPatched = true;
@@ -120,8 +121,11 @@ export function createElement(
     // the following line guarantees that this does not leaks beyond this point.
     const tagName = StringToLowerCase.call(sel);
 
-    // @ts-ignore
     const apiVersion = getComponentAPIVersion(Ctor);
+    const useNativeCustomElementLifecycle = isAPIFeatureEnabled(
+        APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
+        apiVersion
+    );
 
     // the custom element from the registry is expecting an upgrade callback
     /**
@@ -136,7 +140,9 @@ export function createElement(
             mode: options.mode !== 'closed' ? 'open' : 'closed',
             owner: null,
         });
-        if (!isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
+        if (!useNativeCustomElementLifecycle) {
+            // Monkey-patch on-demand, because if there are no components on the page using an old API
+            // version, then we don't want to monkey patch at all
             monkeyPatchDomAPIs();
             ConnectingSlot.set(elm, connectRootElement);
             DisconnectingSlot.set(elm, disconnectRootElement);
@@ -144,12 +150,12 @@ export function createElement(
     };
 
     const connectedCallback = (elm: HTMLElement) => {
-        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
+        if (useNativeCustomElementLifecycle) {
             connectRootElement(elm);
         }
     };
     const disconnectedCallback = (elm: HTMLElement) => {
-        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
+        if (useNativeCustomElementLifecycle) {
             disconnectRootElement(elm);
         }
     };

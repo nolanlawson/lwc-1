@@ -317,13 +317,18 @@ function mountCustomElement(
         owner.component.constructor as LightningElementConstructor
     );
 
+    const useNativeCustomElementLifecycle = isAPIFeatureEnabled(
+        APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
+        apiVersion
+    );
+
     const connectedCallback = (elm: HTMLElement) => {
-        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
+        if (useNativeCustomElementLifecycle) {
             connectRootElement(elm);
         }
     };
     const disconnectedCallback = (elm: HTMLElement) => {
-        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
+        if (useNativeCustomElementLifecycle) {
             disconnectRootElement(elm);
         }
     };
@@ -355,9 +360,7 @@ function mountCustomElement(
 
     if (vm) {
         if (process.env.IS_BROWSER) {
-            if (
-                !isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)
-            ) {
+            if (!useNativeCustomElementLifecycle) {
                 if (process.env.NODE_ENV !== 'production') {
                     // With synthetic lifecycle callbacks, it's possible for elements to be removed without the engine
                     // noticing it (e.g. `appendChild` the same host element twice). This test ensures we don't regress.

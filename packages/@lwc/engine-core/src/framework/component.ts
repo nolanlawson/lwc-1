@@ -58,6 +58,8 @@ export function getComponentAPIVersion(Ctor: LightningElementConstructor): APIVe
     const apiVersion = templateToApiVersionMap.get(Ctor);
 
     if (isUndefined(apiVersion)) {
+        // This should only occur in our Karma tests; in practice every component
+        // is registered, and so this code path should not get hit
         return LOWEST_API_VERSION;
     }
     return apiVersion;
