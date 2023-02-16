@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {
-    APIVersion,
+    APIFeature,
     ArrayPop,
     ArrayPush,
     ArraySome,
@@ -20,6 +20,7 @@ import {
     KEY__SHADOW_STATIC,
     keys,
     SVG_NAMESPACE,
+    isAPIFeatureEnabled,
 } from '@lwc/shared';
 
 import { logError } from '../shared/logger';
@@ -317,12 +318,12 @@ function mountCustomElement(
     );
 
     const connectedCallback = (elm: HTMLElement) => {
-        if (apiVersion >= APIVersion.FIFTY_NINE) {
+        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
             connectRootElement(elm);
         }
     };
     const disconnectedCallback = (elm: HTMLElement) => {
-        if (apiVersion >= APIVersion.FIFTY_NINE) {
+        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
             disconnectRootElement(elm);
         }
     };
@@ -354,7 +355,9 @@ function mountCustomElement(
 
     if (vm) {
         if (process.env.IS_BROWSER) {
-            if (apiVersion < APIVersion.FIFTY_NINE) {
+            if (
+                !isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)
+            ) {
                 if (process.env.NODE_ENV !== 'production') {
                     // With synthetic lifecycle callbacks, it's possible for elements to be removed without the engine
                     // noticing it (e.g. `appendChild` the same host element twice). This test ensures we don't regress.

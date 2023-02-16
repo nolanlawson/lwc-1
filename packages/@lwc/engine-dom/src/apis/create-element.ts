@@ -5,7 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {
-    APIVersion,
     assert,
     assign,
     isFunction,
@@ -14,6 +13,8 @@ import {
     isUndefined,
     StringToLowerCase,
     toString,
+    APIFeature,
+    isAPIFeatureEnabled,
 } from '@lwc/shared';
 import {
     connectRootElement,
@@ -135,7 +136,7 @@ export function createElement(
             mode: options.mode !== 'closed' ? 'open' : 'closed',
             owner: null,
         });
-        if (apiVersion < APIVersion.FIFTY_NINE) {
+        if (!isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
             monkeyPatchDomAPIs();
             ConnectingSlot.set(elm, connectRootElement);
             DisconnectingSlot.set(elm, disconnectRootElement);
@@ -143,12 +144,12 @@ export function createElement(
     };
 
     const connectedCallback = (elm: HTMLElement) => {
-        if (apiVersion >= APIVersion.FIFTY_NINE) {
+        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
             connectRootElement(elm);
         }
     };
     const disconnectedCallback = (elm: HTMLElement) => {
-        if (apiVersion >= APIVersion.FIFTY_NINE) {
+        if (isAPIFeatureEnabled(APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE, apiVersion)) {
             disconnectRootElement(elm);
         }
     };

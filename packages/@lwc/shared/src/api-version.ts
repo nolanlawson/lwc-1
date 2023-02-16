@@ -8,14 +8,14 @@
 import { isUndefined } from './language';
 
 export const enum APIVersion {
-    FIFTY_EIGHT = 58,
-    FIFTY_NINE = 59,
+    V58 = 58,
+    V59 = 59,
 }
 
-export const LOWEST_API_VERSION = APIVersion.FIFTY_EIGHT;
-export const HIGHEST_API_VERSION = APIVersion.FIFTY_NINE;
+export const LOWEST_API_VERSION = APIVersion.V58;
+export const HIGHEST_API_VERSION = APIVersion.V59;
 
-const allVersions = new Set([APIVersion.FIFTY_EIGHT, APIVersion.FIFTY_NINE]);
+const allVersionsSet = new Set([APIVersion.V58, APIVersion.V59]);
 
 export function getAPIVersionFromNumber(version: number | undefined): APIVersion {
     if (isUndefined(version)) {
@@ -27,8 +27,19 @@ export function getAPIVersionFromNumber(version: number | undefined): APIVersion
     if (version > HIGHEST_API_VERSION) {
         return HIGHEST_API_VERSION;
     }
-    if (allVersions.has(version)) {
+    if (allVersionsSet.has(version)) {
         return version;
     }
     throw new Error('Could not find APIVersion matching: ' + version);
+}
+
+export const enum APIFeature {
+    ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
+}
+
+export function isAPIFeatureEnabled(apiVersionFeature: APIFeature, apiVersion: APIVersion) {
+    switch (apiVersionFeature) {
+        case APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE:
+            return apiVersion >= APIVersion.V59;
+    }
 }
