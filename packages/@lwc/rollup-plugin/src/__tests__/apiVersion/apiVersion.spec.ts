@@ -105,4 +105,12 @@ describe('API versioning', () => {
         expect(code).toContain(`v: 58`);
         expect(warnings).toHaveLength(0);
     });
+
+    it('uses *.js-meta.xml file based on the directory name, not file name', async () => {
+        const { code, warnings } = await runRollup('fixtures/differentName/foo.js', {
+            apiVersion: APIVersion.V58,
+        });
+        expect(code).toContain(`v: 59`);
+        expect(warnings).toHaveLength(0);
+    });
 });
