@@ -45,11 +45,13 @@ export function getAPIVersionFromNumber(version: number | undefined): APIVersion
 
 export const enum APIFeature {
     ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
+    TREAT_ALL_PARSE5_ERRORS_AS_ERRORS,
 }
 
 export function isAPIFeatureEnabled(apiVersionFeature: APIFeature, apiVersion: APIVersion) {
     switch (apiVersionFeature) {
         case APIFeature.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE:
+        case APIFeature.TREAT_ALL_PARSE5_ERRORS_AS_ERRORS:
             return apiVersion >= APIVersion.V59;
     }
 }

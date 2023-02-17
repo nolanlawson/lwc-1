@@ -13,6 +13,7 @@ import {
     LWCErrorInfo,
     normalizeToDiagnostic,
 } from '@lwc/errors';
+import { APIVersion } from '@lwc/shared';
 import { NormalizedConfig } from '../config';
 import { isPreserveCommentsDirective, isRenderModeDirective } from '../shared/ast';
 
@@ -106,12 +107,14 @@ export default class ParserCtx {
 
     renderMode: LWCDirectiveRenderMode;
     preserveComments: boolean;
+    apiVersion: APIVersion;
 
     constructor(source: String, config: NormalizedConfig) {
         this.source = source;
         this.config = config;
         this.renderMode = LWCDirectiveRenderMode.shadow;
         this.preserveComments = config.preserveHtmlComments;
+        this.apiVersion = config.apiVersion;
     }
 
     getSource(start: number, end: number): string {
