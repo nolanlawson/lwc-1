@@ -7,8 +7,9 @@
 import fs from 'fs';
 import path from 'path';
 import { URLSearchParams } from 'url';
+import { XMLParser } from 'fast-xml-parser';
 
-import { Plugin, SourceMapInput, RollupWarning } from 'rollup';
+import { Plugin, SourceMapInput, RollupWarning, TransformPluginContext } from 'rollup';
 import pluginUtils, { FilterPattern } from '@rollup/pluginutils';
 import { transformSync, StylesheetConfig, DynamicComponentConfig } from '@lwc/compiler';
 import { resolveModule, ModuleRecord } from '@lwc/module-resolver';
@@ -40,6 +41,8 @@ export interface RollupLwcOptions {
     disableSyntheticShadowSupport?: boolean;
     apiVersion?: APIVersion;
 }
+
+const xmlParser = new XMLParser();
 
 const PLUGIN_NAME = 'rollup-plugin-lwc-compiler';
 
@@ -122,6 +125,35 @@ function transformWarningToRollupWarning(
         }
     }
     return result;
+}
+
+function findColocatedApiVersion(
+    context: TransformPluginContext,
+    filename: string
+): number | undefined {
+    const dirname = path.dirname(filename);
+    const basename = path.basename(dirname);
+    const jsMetaFilename = `${basename}.js-meta.xml`;
+    const jsMetaFullFilename = path.join(dirname, jsMetaFilename);
+    context.addWatchFile(jsMetaFullFilename);
+    if (!fs.existsSync(jsMetaFullFilename)) {
+        return undefined;
+    }
+    let parsed;
+    try {
+        parsed = xmlParser.parse(fs.readFileSync(jsMetaFullFilename, 'utf-8'), true);
+    } catch (err) {
+        context.warn({
+            message: `Ignoring malformed XML file "${jsMetaFilename}"`,
+            cause: err,
+        });
+        return undefined;
+    }
+    const apiVersion = parsed?.LightningComponentBundle?.apiVersion;
+    if (typeof apiVersion !== 'number') {
+        return undefined;
+    }
+    return apiVersion;
 }
 
 export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
@@ -249,6 +281,11 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
             // Extract module name and namespace from file path
             const [namespace, name] = path.dirname(id).split(path.sep).slice(-2);
 
+            // If an explicit version is passed in, use that unless the component declares its own API version
+            const colocatedApiVersion = findColocatedApiVersion(this, id);
+            const apiVersionToUse =
+                typeof colocatedApiVersion === 'number' ? colocatedApiVersion : apiVersion;
+
             const { code, map, warnings } = transformSync(src, id, {
                 name,
                 namespace,
@@ -260,7 +297,7 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
                 enableLwcSpread,
                 enableScopedSlots,
                 disableSyntheticShadowSupport,
-                apiVersion,
+                apiVersion: apiVersionToUse,
             });
 
             if (warnings) {

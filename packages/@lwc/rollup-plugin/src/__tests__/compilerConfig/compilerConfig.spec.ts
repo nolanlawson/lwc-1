@@ -6,7 +6,6 @@
  */
 import path from 'path';
 import { rollup } from 'rollup';
-import { APIVersion } from '@lwc/shared';
 
 import lwc from '../../index';
 
@@ -74,24 +73,5 @@ describe('templateConfig', () => {
         // This function takes no arguments, corresponding to the optimization used
         // for `disableSyntheticShadowSupport: true` by serialize.ts in @lwc/style-compiler
         expect(output[0].code).toContain('function stylesheet()');
-    });
-});
-
-describe('API versioning', () => {
-    it('passes the apiVersion on to the compiled JS component', async () => {
-        const bundle = await rollup({
-            input: path.resolve(__dirname, 'fixtures/test/test.js'),
-            plugins: [
-                lwc({
-                    apiVersion: APIVersion.V58,
-                }),
-            ],
-        });
-
-        const { output } = await bundle.generate({
-            format: 'esm',
-        });
-
-        expect(output[0].code).toContain('v: 58');
     });
 });

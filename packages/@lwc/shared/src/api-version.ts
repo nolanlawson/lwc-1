@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
-import { isUndefined } from './language';
+import { isNumber } from './language';
 
 export const enum APIVersion {
     V58 = 58,
@@ -15,10 +15,11 @@ export const enum APIVersion {
 export const LOWEST_API_VERSION = APIVersion.V58;
 export const HIGHEST_API_VERSION = APIVersion.V59;
 
-const allVersions = new Set([APIVersion.V58, APIVersion.V59]);
+const allVersions = [APIVersion.V58, APIVersion.V59];
+const allVersionsSet = new Set(allVersions);
 
 export function getAPIVersionFromNumber(version: number | undefined): APIVersion {
-    if (isUndefined(version)) {
+    if (!isNumber(version)) {
         return LOWEST_API_VERSION;
     }
     if (version < LOWEST_API_VERSION) {
@@ -27,10 +28,19 @@ export function getAPIVersionFromNumber(version: number | undefined): APIVersion
     if (version > HIGHEST_API_VERSION) {
         return HIGHEST_API_VERSION;
     }
-    if (allVersions.has(version)) {
+    if (allVersionsSet.has(version)) {
         return version;
     }
-    throw new Error('Could not find APIVersion matching: ' + version);
+    // If it's a number, and it's within the bounds of our known versions, then we should find the
+    // highest version lower than the requested number.
+    // For instance, if we know about versions 1, 2, 5, and 6, and the user requests 3, then we should return 2.
+    for (let i = 1; i < allVersions.length; i++) {
+        if (allVersions[i] > version) {
+            return allVersions[i - 1];
+        }
+    }
+    // We should never hit this condition, but if we do, default to the lowest version to be safe
+    return LOWEST_API_VERSION;
 }
 
 export const enum APIFeature {
