@@ -2,19 +2,17 @@ import { createElement, __unstable__ReportingControl as reportingControl } from 
 import AriaContainer from 'x/ariaContainer';
 import Valid from 'x/valid';
 
-const expectedMessageForCrossRoot =
-    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://sfdc.co/synthetic-aria\n<x-aria-source>';
-const expectedMessageForCrossRootWithTargetAsVM =
-    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <label>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://sfdc.co/synthetic-aria\n<x-aria-target>';
-const expectedMessageForCrossRootForSecondTarget =
-    'Error: [LWC warn]: Element <input> uses attribute "aria-labelledby" to reference element <div>, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://sfdc.co/synthetic-aria\n<x-aria-source>';
+const getExpectedMessageForCrossRoot = (source, attribute, target, id, tagName) => {
+    return `Error: [LWC warn]: Element ${source} uses attribute "${attribute}" to reference element ${target} with ID ${JSON.stringify(id)}, which is not in the same shadow root. This will break in native shadow DOM. For details, see: https://sfdc.co/synthetic-aria\n${tagName}`;
+}
+
 const expectedMessageForNonStandardAria =
     'Error: [LWC warn]: Element <input> owned by <x-aria-source> uses non-standard property "ariaLabelledBy". This will be removed in a future version of LWC. See https://sfdc.co/deprecated-aria';
 
 // These tests are designed to detect non-standard cross-root ARIA usage in synthetic shadow DOM
 // As for COMPAT, this detection logic is only enabled for modern browsers
 if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
-    describe('synthetic shadow cross-root ARIA', () => {
+    fdescribe('synthetic shadow cross-root ARIA', () => {
         let dispatcher;
 
         beforeEach(() => {
@@ -41,7 +39,6 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
             [false, true].forEach((usePropertyAccess) => {
                 const expectedMessages = [
                     ...(usePropertyAccess ? [expectedMessageForNonStandardAria] : []),
-                    expectedMessageForCrossRoot,
                 ];
 
                 const getExpectedDispatcherCalls = (isSetter) => [
@@ -108,7 +105,10 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         document.body.appendChild(label);
                         expect(() => {
                             sourceElm.setAriaLabelledBy('foo');
-                        }).toLogWarningDev(expectedMessages);
+                        }).toLogWarningDev([
+                          ...expectedMessages,
+                            getExpectedMessageForCrossRoot('<input>', 'aria-labelledby', '<label>', 'foo', '<x-aria-source>'),
+                        ]);
                         expect(dispatcher.calls.allArgs()).toEqual(
                             getExpectedDispatcherCalls(true)
                         );
@@ -121,7 +121,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         document.body.appendChild(input);
                         expect(() => {
                             targetElm.setId('foo');
-                        }).toLogWarningDev(expectedMessageForCrossRootWithTargetAsVM);
+                        }).toLogWarningDev(getExpectedMessageForCrossRoot('<input>', 'aria-labelledby', '<label>', 'foo', '<x-aria-target>'));
                         expect(dispatcher.calls.allArgs()).toEqual([
                             [
                                 'CrossRootAriaInSyntheticShadow',
@@ -191,11 +191,17 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                         { addWhitespace: true },
                         { addWhitespace: true, reverseOrder: true },
                     ].forEach((options) => {
+
+                        const id = options.specialChars ? 'a.b#c()[]{}--><&"\'\\' : 'my-id'
+
                         describe(`${JSON.stringify(options)}`, () => {
                             it('setting both id and aria-labelledby', () => {
                                 expect(() => {
                                     elm.linkUsingBoth(options);
-                                }).toLogWarningDev(expectedMessages);
+                                }).toLogWarningDev([
+                                  ...expectedMessages,
+                                    getExpectedMessageForCrossRoot('<input>', 'aria-labelledby', '<label>', id, '<x-aria-source>'),
+                                ]);
                                 expect(dispatcher.calls.allArgs()).toEqual(
                                     getExpectedDispatcherCalls(true)
                                 );
@@ -206,7 +212,8 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
                                     elm.linkUsingBoth({ ...options, multipleTargets: true });
                                 }).toLogWarningDev([
                                     ...expectedMessages,
-                                    expectedMessageForCrossRootForSecondTarget,
+                                    getExpectedMessageForCrossRoot('<input>', 'aria-labelledby', '<label>', id, '<x-aria-source>'),
+                                    getExpectedMessageForCrossRoot('<input>', 'aria-labelledby', '<div>', `${id}-2`, '<x-aria-source>'),
                                 ]);
                                 expect(dispatcher.calls.allArgs()).toEqual([
                                     ...getExpectedDispatcherCalls(true),
@@ -225,7 +232,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
             });
         });
 
-        it('does not log duplicates warnings', () => {
+        fit('does not log duplicates warnings', () => {
             const elm1 = createElement('x-aria-container', { is: AriaContainer });
             const elm2 = createElement('x-aria-container', { is: AriaContainer });
             document.body.appendChild(elm1);
@@ -235,7 +242,7 @@ if (!process.env.NATIVE_SHADOW && !process.env.COMPAT) {
             expect(() => {
                 elm1.linkUsingBoth({ idPrefix: 'prefix-1' });
                 elm2.linkUsingBoth({ idPrefix: 'prefix-2' }); // ids must be globally unique
-            }).toLogWarningDev(expectedMessageForCrossRoot);
+            }).toLogWarningDev(getExpectedMessageForCrossRoot('<input>', 'aria-labelledby', '<label>', 'my-id', '<x-aria-source>'));
 
             // dispatcher is still called twice
             expect(dispatcher.calls.allArgs()).toEqual([

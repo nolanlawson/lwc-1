@@ -44,7 +44,7 @@ function isSyntheticShadowRootInstance(rootNode: Node): rootNode is ShadowRoot {
     return rootNode !== document && isTrue((rootNode as any).synthetic);
 }
 
-function reportViolation(source: Element, target: Element, attrName: string) {
+function reportViolation(source: Element, target: Element, attrName: string, id: string) {
     // The vm is either for the source, the target, or both. Either one or both must be using synthetic
     // shadow for a violation to be detected.
     let vm: VM | undefined = getAssociatedVMIfPresent((source.getRootNode() as ShadowRoot).host);
@@ -63,7 +63,7 @@ function reportViolation(source: Element, target: Element, attrName: string) {
         // Avoid excessively logging to the console in the case of duplicates.
         logWarnOnce(
             `Element <${source.tagName.toLowerCase()}> uses attribute "${attrName}" to reference element ` +
-                `<${target.tagName.toLowerCase()}>, which is not in the same shadow root. This will break in native shadow DOM. ` +
+                `<${target.tagName.toLowerCase()}> with ID ${JSON.stringify(id)}, which is not in the same shadow root. This will break in native shadow DOM. ` +
                 `For details, see: https://sfdc.co/synthetic-aria`,
             vm
         );
@@ -96,7 +96,7 @@ function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue:
                 const sourceElement = sourceElements[i];
                 const sourceRoot = sourceElement.getRootNode();
                 if (sourceRoot !== root) {
-                    reportViolation(sourceElement, elm, idRefAttrName);
+                    reportViolation(sourceElement, elm, idRefAttrName, attrValue);
                     break;
                 }
             }
@@ -110,7 +110,7 @@ function detectSyntheticCrossRootAria(elm: Element, attrName: string, attrValue:
                 const targetRoot = target.getRootNode();
                 if (targetRoot !== root) {
                     // target element's shadow root is not the same as ours
-                    reportViolation(elm, target, attrName);
+                    reportViolation(elm, target, attrName, id);
                 }
             }
         }
