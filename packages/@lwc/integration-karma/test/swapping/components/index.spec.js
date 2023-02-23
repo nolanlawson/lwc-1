@@ -1,4 +1,4 @@
-import { createElement, swapComponent } from 'lwc';
+import { createElement, swapComponent, setFeatureFlagForTest } from 'lwc';
 
 import Container from 'base/container';
 import A from 'base/a';
@@ -41,6 +41,22 @@ if (process.env.NODE_ENV !== 'production') {
             expect(() => {
                 swapComponent(D, function () {});
             }).toThrow();
+        });
+    });
+
+    describe('DISABLE_HMR', () => {
+        beforeEach(() => {
+            setFeatureFlagForTest('DISABLE_HMR', true);
+        });
+
+        afterEach(() => {
+            setFeatureFlagForTest('DISABLE_HMR', false);
+        });
+
+        it('can disable HMR', () => {
+            expect(() => {
+                swapComponent(D, E);
+            }).toThrowError('HMR is not enabled');
         });
     });
 }

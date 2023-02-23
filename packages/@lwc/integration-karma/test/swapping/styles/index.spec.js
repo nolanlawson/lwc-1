@@ -1,4 +1,4 @@
-import { createElement, swapStyle } from 'lwc';
+import { createElement, setFeatureFlagForTest, swapStyle } from 'lwc';
 import Simple from 'base/simple';
 
 const { blockStyle, inlineStyle, noneStyle } = Simple;
@@ -26,6 +26,22 @@ if (process.env.NODE_ENV !== 'production') {
                         'none'
                     );
                 });
+        });
+    });
+
+    describe('DISABLE_HMR', () => {
+        beforeEach(() => {
+            setFeatureFlagForTest('DISABLE_HMR', true);
+        });
+
+        afterEach(() => {
+            setFeatureFlagForTest('DISABLE_HMR', false);
+        });
+
+        it('can disable HMR', () => {
+            expect(() => {
+                swapStyle(blockStyle[0], inlineStyle[0]);
+            }).toThrowError('HMR is not enabled');
         });
     });
 }

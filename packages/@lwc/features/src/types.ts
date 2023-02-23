@@ -73,6 +73,13 @@ export interface FeatureFlagMap {
      * and HTMLBridgeElement base classes, not on every Element.
      */
     DISABLE_ARIA_REFLECTION_POLYFILL: FeatureFlagValue;
+
+    /**
+     * LWC engine flag to disable hot module replacement. This can be set to true if the APIs associated with
+     * HMR are never used, i.e.: swapComponent, swapTemplate, swapStyle. Setting this to true will skip running some
+     * extra logic that is only needed for HMR.
+     */
+    DISABLE_HMR: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;

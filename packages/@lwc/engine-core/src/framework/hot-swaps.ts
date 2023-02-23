@@ -87,6 +87,9 @@ function rehydrateHotComponent(Ctor: LightningElementConstructor): boolean {
 export function getTemplateOrSwappedTemplate(tpl: Template): Template {
     assertNotProd(); // this method should never leak to prod
 
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        return tpl;
+    }
     const visited: Set<Template> = new Set();
     while (swappedTemplateMap.has(tpl) && !visited.has(tpl)) {
         visited.add(tpl);
@@ -101,6 +104,9 @@ export function getComponentOrSwappedComponent(
 ): LightningElementConstructor {
     assertNotProd(); // this method should never leak to prod
 
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        return Ctor;
+    }
     const visited: Set<LightningElementConstructor> = new Set();
     while (swappedComponentMap.has(Ctor) && !visited.has(Ctor)) {
         visited.add(Ctor);
@@ -113,6 +119,9 @@ export function getComponentOrSwappedComponent(
 export function getStyleOrSwappedStyle(style: StylesheetFactory): StylesheetFactory {
     assertNotProd(); // this method should never leak to prod
 
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        return style;
+    }
     const visited: Set<StylesheetFactory> = new Set();
     while (swappedStyleMap.has(style) && !visited.has(style)) {
         visited.add(style);
@@ -125,6 +134,9 @@ export function getStyleOrSwappedStyle(style: StylesheetFactory): StylesheetFact
 export function setActiveVM(vm: VM) {
     assertNotProd(); // this method should never leak to prod
 
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        return;
+    }
     // tracking active component
     const Ctor = vm.def.ctor;
     let componentVMs = activeComponents.get(Ctor);
@@ -172,6 +184,9 @@ export function setActiveVM(vm: VM) {
 export function removeActiveVM(vm: VM) {
     assertNotProd(); // this method should never leak to prod
 
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        return;
+    }
     // tracking inactive component
     const Ctor = vm.def.ctor;
     let list = activeComponents.get(Ctor);
@@ -202,6 +217,9 @@ export function removeActiveVM(vm: VM) {
 }
 
 export function swapTemplate(oldTpl: Template, newTpl: Template): boolean {
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        throw new Error('HMR is not enabled');
+    }
     if (process.env.NODE_ENV !== 'production') {
         if (isTemplateRegistered(oldTpl) && isTemplateRegistered(newTpl)) {
             swappedTemplateMap.set(oldTpl, newTpl);
@@ -218,6 +236,9 @@ export function swapComponent(
     oldComponent: LightningElementConstructor,
     newComponent: LightningElementConstructor
 ): boolean {
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        throw new Error('HMR is not enabled');
+    }
     if (process.env.NODE_ENV !== 'production') {
         if (isComponentConstructor(oldComponent) && isComponentConstructor(newComponent)) {
             swappedComponentMap.set(oldComponent, newComponent);
@@ -231,6 +252,9 @@ export function swapComponent(
 }
 
 export function swapStyle(oldStyle: StylesheetFactory, newStyle: StylesheetFactory): boolean {
+    if (lwcRuntimeFlags.DISABLE_HMR) {
+        throw new Error('HMR is not enabled');
+    }
     if (process.env.NODE_ENV !== 'production') {
         // TODO [#1887]: once the support for registering styles is implemented
         // we can add the validation of both styles around this block.
