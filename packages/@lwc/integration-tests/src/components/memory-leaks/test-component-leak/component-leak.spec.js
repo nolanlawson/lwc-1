@@ -19,7 +19,28 @@ if (!/compat/.test(process.env.MODE)) {
 
             // Query all objects for Object.prototype
             const queryObjectsResult = await browser.cdp('Runtime', 'queryObjects', { prototypeObjectId: protoObjectId });
-            return queryObjectsResult.objects.length
+
+            const queriedObjectsObjectId = queryObjectsResult.objects.objectId;
+
+            // Call .length on the returned array
+            const functionDeclaration = (function () {
+                return this.length
+            }).toString();
+
+            const callFunctionOnResult = await browser.cp('Runtime', 'callFunctionOn', {
+                objectId: queriedObjectsObjectId,
+                functionDeclaration,
+                returnByValue: true,
+            });
+            const length = callFunctionOnResult.result.value;
+
+            // cleanup so we don't leak memory ourselves
+            await Promise.all([
+                browser.cdp('Runtime', 'releaseObject', { objectId: protoObjectId }),
+                browser.cdp('Runtime', 'releaseObject', { objectId: queriedObjectsObjectId })
+            ]);
+
+            return length
         }
 
         before(async () => {
