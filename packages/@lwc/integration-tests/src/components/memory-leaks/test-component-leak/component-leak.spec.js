@@ -11,11 +11,13 @@ if (!/compat/.test(process.env.MODE)) {
     describe('Component does not leak', () => {
         const URL = '/component-leak';
 
-        // Count the number of Object.prototype objects using queryObjects(). Based on:
+        // Count the number of HTMLBridgeElement.prototype objects using queryObjects(). Based on:
         // https://media-codings.com/articles/automatically-detect-memory-leaks-with-puppeteer
         async function getObjectsCount() {
             const protoResult = await browser.cdp('Runtime', 'evaluate', {
-                expression: 'HTMLElement.prototype',
+                // returns HTMLBridgeElement.prototype
+                expression:
+                    'document.querySelector("integration-component-leak").constructor.prototype',
             });
             const protoObjectId = protoResult.result.objectId;
 
