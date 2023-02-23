@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
+
 import { isFalse, isUndefined, isNull } from '@lwc/shared';
 import { VM, scheduleRehydration, forceRehydration } from './vm';
 import { isComponentConstructor } from './def';
@@ -13,14 +14,15 @@ import { markComponentAsDirty } from './component';
 import { isTemplateRegistered } from './secure-template';
 import { StylesheetFactory } from './stylesheet';
 import { assertNotProd, flattenStylesheets } from './utils';
+import { createWeakMultiMap, WeakMultiMap } from './weak-multimap';
 
 const swappedTemplateMap = new WeakMap<Template, Template>();
 const swappedComponentMap = new WeakMap<LightningElementConstructor, LightningElementConstructor>();
 const swappedStyleMap = new WeakMap<StylesheetFactory, StylesheetFactory>();
 
-const activeTemplates = new WeakMap<Template, Set<VM>>();
-const activeComponents = new WeakMap<LightningElementConstructor, Set<VM>>();
-const activeStyles = new WeakMap<StylesheetFactory, Set<VM>>();
+const activeTemplates: WeakMultiMap<Template, VM> = createWeakMultiMap();
+const activeComponents: WeakMultiMap<LightningElementConstructor, VM> = createWeakMultiMap();
+const activeStyles: WeakMultiMap<StylesheetFactory, VM> = createWeakMultiMap();
 
 function rehydrateHotTemplate(tpl: Template): boolean {
     const list = activeTemplates.get(tpl);
@@ -127,25 +129,15 @@ export function setActiveVM(vm: VM) {
 
     // tracking active component
     const Ctor = vm.def.ctor;
-    let componentVMs = activeComponents.get(Ctor);
-    if (isUndefined(componentVMs)) {
-        componentVMs = new Set();
-        activeComponents.set(Ctor, componentVMs);
-    }
     // this will allow us to keep track of the hot components
-    componentVMs.add(vm);
+    activeComponents.add(Ctor, vm);
 
     // tracking active template
     const tpl = vm.cmpTemplate;
     if (tpl) {
-        let templateVMs = activeTemplates.get(tpl);
-        if (isUndefined(templateVMs)) {
-            templateVMs = new Set();
-            activeTemplates.set(tpl, templateVMs);
-        }
         // this will allow us to keep track of the templates that are
         // being used by a hot component
-        templateVMs.add(vm);
+        activeTemplates.add(tpl, vm);
 
         // tracking active styles associated to template
         const stylesheets = tpl.stylesheets;
@@ -156,14 +148,9 @@ export function setActiveVM(vm: VM) {
                 // but the styles attached to the template might not be the actual
                 // active ones, but the swapped versions of those.
                 stylesheet = getStyleOrSwappedStyle(stylesheet);
-                let stylesheetVMs = activeStyles.get(stylesheet);
-                if (isUndefined(stylesheetVMs)) {
-                    stylesheetVMs = new Set();
-                    activeStyles.set(stylesheet, stylesheetVMs);
-                }
                 // this will allow us to keep track of the stylesheet that are
                 // being used by a hot component
-                stylesheetVMs.add(vm);
+                activeStyles.add(stylesheet, vm);
             });
         }
     }
