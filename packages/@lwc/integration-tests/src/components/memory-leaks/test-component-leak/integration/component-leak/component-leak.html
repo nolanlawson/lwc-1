@@ -1,0 +1,7 @@
+<template>
+    <button class="add-child" onclick={addChild}>Add child</button>
+    <button class="remove-child" onclick={removeChild}>Remove child</button>
+    <template for:each={children} for:item="child">
+        <integration-child key={child}></integration-child>
+    </template>
+</template>
