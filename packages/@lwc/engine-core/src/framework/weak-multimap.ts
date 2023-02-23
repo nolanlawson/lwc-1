@@ -8,12 +8,12 @@
 import { isUndefined } from '@lwc/shared';
 
 const supportsWeakRefs =
-    typeof WeakRef === 'undefined' || typeof FinalizationRegistry === 'undefined';
+    typeof WeakRef === 'function' && typeof FinalizationRegistry === 'function';
 
 // A map where the keys are weakly held and the values are a Set that are also each weakly held.
 // The goal is to avoid leaking the Values, which is what would happen with a WeakMap<T, Set<V>>.
 export interface WeakMultiMap<T extends object, V extends object> {
-    get(key: T): Set<V>;
+    get(key: T): ReadonlySet<V>;
     add(key: T, vm: V): void;
 }
 
@@ -22,17 +22,22 @@ export interface WeakMultiMap<T extends object, V extends object> {
 function createLegacyWeakVMMultiMap<K extends object, V extends object>(): WeakMultiMap<K, V> {
     // Legacy implementation. We'll do our best using a WeakMap, but this will still leak the values
     const map = new WeakMap<K, Set<V>>();
+
+    function getValues(key: K): Set<V> {
+        let values = map.get(key);
+        if (isUndefined(values)) {
+            values = new Set();
+            map.set(key, values);
+        }
+        return values;
+    }
+
     return {
-        get(key: K): Set<V> {
-            let values = map.get(key);
-            if (isUndefined(values)) {
-                values = new Set();
-                map.set(key, values);
-            }
-            return values;
+        get(key: K): ReadonlySet<V> {
+            return getValues(key);
         },
         add(key: K, vm: V) {
-            const set = this.get(key);
+            const set = getValues(key);
             set.add(vm);
         },
     };
@@ -58,16 +63,16 @@ function createModernWeakVMMultiMap<K extends object, V extends object>(): WeakM
     });
 
     function getWeakRefs(key: K): WeakRef<V>[] {
-        let values = map.get(key);
-        if (isUndefined(values)) {
-            values = [];
-            map.set(key, values);
+        let weakRefs = map.get(key);
+        if (isUndefined(weakRefs)) {
+            weakRefs = [];
+            map.set(key, weakRefs);
         }
-        return values;
+        return weakRefs;
     }
 
     return {
-        get(key: K): Set<V> {
+        get(key: K): ReadonlySet<V> {
             const weakRefs = getWeakRefs(key);
             const result = new Set<V>();
             for (const weakRef of weakRefs) {
@@ -89,7 +94,7 @@ function createModernWeakVMMultiMap<K extends object, V extends object>(): WeakM
 }
 
 export function createWeakMultiMap<K extends object, V extends object>(): WeakMultiMap<K, V> {
-    if (supportsWeakRefs) {
+    if (!supportsWeakRefs) {
         return createLegacyWeakVMMultiMap<K, V>();
     }
     return createModernWeakVMMultiMap<K, V>();

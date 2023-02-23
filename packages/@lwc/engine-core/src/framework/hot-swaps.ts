@@ -34,10 +34,6 @@ function rehydrateHotTemplate(tpl: Template): boolean {
                 scheduleRehydration(vm);
             }
         });
-        // resetting the Set to release the memory of those vm references
-        // since they are not longer related to this template, instead
-        // they will get re-associated once these instances are rehydrated.
-        list.clear();
     }
     return true;
 }
@@ -50,10 +46,6 @@ function rehydrateHotStyle(style: StylesheetFactory): boolean {
             // vm's template content in the next micro-task:
             forceRehydration(vm);
         });
-        // resetting the Set to release the memory of those vm references
-        // since they are not longer related to this style, instead
-        // they will get re-associated once these instances are rehydrated.
-        list.clear();
     }
     return true;
 }
@@ -78,10 +70,6 @@ function rehydrateHotComponent(Ctor: LightningElementConstructor): boolean {
                 canRefreshAllInstances = false;
             }
         });
-        // resetting the Set to release the memory of those vm references
-        // since they are not longer related to this constructor, instead
-        // they will get re-associated once these instances are rehydrated.
-        list.clear();
     }
     return canRefreshAllInstances;
 }
@@ -151,38 +139,6 @@ export function setActiveVM(vm: VM) {
                 // this will allow us to keep track of the stylesheet that are
                 // being used by a hot component
                 activeStyles.add(stylesheet, vm);
-            });
-        }
-    }
-}
-
-export function removeActiveVM(vm: VM) {
-    assertNotProd(); // this method should never leak to prod
-
-    // tracking inactive component
-    const Ctor = vm.def.ctor;
-    let list = activeComponents.get(Ctor);
-    if (!isUndefined(list)) {
-        // deleting the vm from the set to avoid leaking memory
-        list.delete(vm);
-    }
-    // removing inactive template
-    const tpl = vm.cmpTemplate;
-    if (tpl) {
-        list = activeTemplates.get(tpl);
-        if (!isUndefined(list)) {
-            // deleting the vm from the set to avoid leaking memory
-            list.delete(vm);
-        }
-        // removing active styles associated to template
-        const styles = tpl.stylesheets;
-        if (!isUndefined(styles)) {
-            flattenStylesheets(styles).forEach((style) => {
-                list = activeStyles.get(style);
-                if (!isUndefined(list)) {
-                    // deleting the vm from the set to avoid leaking memory
-                    list.delete(vm);
-                }
             });
         }
     }
