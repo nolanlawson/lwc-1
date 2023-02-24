@@ -15,6 +15,7 @@ const supportsWeakRefs =
 export interface WeakMultiMap<T extends object, V extends object> {
     get(key: T): ReadonlySet<V>;
     add(key: T, vm: V): void;
+    clear(key: T): void;
 }
 
 // In browsers that doesn't support WeakRefs, we just leak. We don't really expect anyone to be using non-modern
@@ -39,6 +40,9 @@ function createLegacyWeakVMMultiMap<K extends object, V extends object>(): WeakM
         add(key: K, vm: V) {
             const set = getValues(key);
             set.add(vm);
+        },
+        clear(key: K) {
+            map.delete(key);
         },
     };
 }
@@ -89,6 +93,9 @@ function createModernWeakVMMultiMap<K extends object, V extends object>(): WeakM
             // We transform the output into a Set anyway
             weakRefs.push(new WeakRef<V>(value));
             registry.register(value, key);
+        },
+        clear(key: K) {
+            map.delete(key);
         },
     };
 }

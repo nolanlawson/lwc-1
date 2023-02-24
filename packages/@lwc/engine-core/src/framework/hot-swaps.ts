@@ -34,6 +34,9 @@ function rehydrateHotTemplate(tpl: Template): boolean {
                 scheduleRehydration(vm);
             }
         });
+        // Resetting the Set since these VMs are no longer related to this template, instead
+        // they will get re-associated once these instances are rehydrated.
+        activeTemplates.clear(tpl);
     }
     return true;
 }
@@ -46,6 +49,9 @@ function rehydrateHotStyle(style: StylesheetFactory): boolean {
             // vm's template content in the next micro-task:
             forceRehydration(vm);
         });
+        // Resetting the Set since these VMs are no longer related to this style, instead
+        // they will get re-associated once these instances are rehydrated.
+        activeStyles.clear(style);
     }
     return true;
 }
@@ -70,6 +76,9 @@ function rehydrateHotComponent(Ctor: LightningElementConstructor): boolean {
                 canRefreshAllInstances = false;
             }
         });
+        // resetting the Set since these VMs are no longer related to this constructor, instead
+        // they will get re-associated once these instances are rehydrated.
+        activeComponents.clear(Ctor);
     }
     return canRefreshAllInstances;
 }
