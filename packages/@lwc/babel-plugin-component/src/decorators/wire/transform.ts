@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const { LWC_COMPONENT_PROPERTIES } = require('../../constants');
+import { LWC_COMPONENT_PROPERTIES } from '../../constants';
 
-const { isWireDecorator } = require('./shared');
+import { isWireDecorator } from './shared';
 
 const WIRE_PARAM_PREFIX = '$';
 const WIRE_CONFIG_ARG_NAME = '$cmp';
@@ -211,7 +211,7 @@ const scopedReferenceLookup = (scope) => (name) => {
     };
 };
 
-module.exports = function transform(t, decoratorMetas) {
+export default function transform(t, decoratorMetas) {
     const objectProperties = [];
     const wiredValues = decoratorMetas.filter(isWireDecorator).map(({ path }) => {
         const [id, config] = path.get('expression.arguments');

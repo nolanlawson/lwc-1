@@ -10,7 +10,7 @@ function defaultImport(t, specifiers) {
     return defaultImport && defaultImport.local.name;
 }
 
-module.exports = function ({ types: t }) {
+export default function ({ types: t }) {
     return function (path) {
         const body = path.get('body');
         const importStatements = body.filter((s) => s.isImportDeclaration());

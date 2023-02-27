@@ -4,26 +4,28 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const { basename, extname } = require('path');
+import { basename, extname } from 'path';
+import * as types from '@babel/types'
+import moduleImports from '@babel/helper-module-imports';
+import {NodePath} from "@babel/traverse";
+import { Visitor} from "@babel/core";
+import { LWC_PACKAGE_ALIAS, REGISTER_COMPONENT_ID, TEMPLATE_KEY } from './constants';
+import {BabelAPI, LwcBabelPluginPass} from "./types";
 
-const moduleImports = require('@babel/helper-module-imports');
-
-const { LWC_PACKAGE_ALIAS, REGISTER_COMPONENT_ID, TEMPLATE_KEY } = require('./constants');
-
-function getBaseName(classPath) {
+function getBaseName(classPath: string) {
     const ext = extname(classPath);
     return basename(classPath, ext);
 }
 
-function importDefaultTemplate(path, state) {
+function importDefaultTemplate(path: NodePath<types.ClassDeclaration | types.FunctionDeclaration | types.TSDeclareFunction | types.Expression>, state: LwcBabelPluginPass) {
     const { filename } = state.file.opts;
-    const componentName = getBaseName(filename);
+    const componentName = getBaseName(filename!);
     return moduleImports.addDefault(path, `./${componentName}.html`, {
         nameHint: TEMPLATE_KEY,
     });
 }
 
-function needsComponentRegistration(path) {
+function needsComponentRegistration(path: NodePath<types.ClassDeclaration | types.FunctionDeclaration | types.TSDeclareFunction | types.Expression>) {
     return (
         (path.isIdentifier() && path.node.name !== 'undefined' && path.node.name !== 'null') ||
         path.isCallExpression() ||
@@ -32,8 +34,8 @@ function needsComponentRegistration(path) {
     );
 }
 
-module.exports = function ({ types: t }) {
-    function createRegisterComponent(declarationPath, state) {
+export default function ({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
+    function createRegisterComponent(declarationPath: NodePath<types.ClassDeclaration | types.FunctionDeclaration | types.TSDeclareFunction | types.Expression>, state: LwcBabelPluginPass) {
         const registerComponentId = moduleImports.addNamed(
             declarationPath,
             REGISTER_COMPONENT_ID,
@@ -44,18 +46,18 @@ module.exports = function ({ types: t }) {
         let node = declarationPath.node;
 
         if (declarationPath.isClassDeclaration()) {
-            const hasIdentifier = t.isIdentifier(node.id);
+            const hasIdentifier = t.isIdentifier((node as types.ClassDeclaration).id);
             if (hasIdentifier) {
-                statementPath.insertBefore(node);
-                node = node.id;
+                statementPath!.insertBefore(node);
+                node = (node as types.ClassDeclaration).id;
             } else {
                 // if it does not have an id, we can treat it as a ClassExpression
-                t.toExpression(node);
+                t.toExpression((node as types.ClassDeclaration));
             }
         }
 
         return t.callExpression(registerComponentId, [
-            node,
+            node as unknown as types.Expression,
             t.objectExpression([t.objectProperty(t.identifier(TEMPLATE_KEY), templateIdentifier)]),
         ]);
     }

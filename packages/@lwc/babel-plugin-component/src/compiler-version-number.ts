@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const { LWC_VERSION_COMMENT } = require('@lwc/shared');
+import { LWC_VERSION_COMMENT } from '@lwc/shared';
 
-module.exports = function compilerVersionNumber({ types: t }) {
+export default function compilerVersionNumber({ types: t }) {
     return {
         ClassBody(path) {
             if (path.parent.superClass === null) {

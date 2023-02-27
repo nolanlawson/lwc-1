@@ -4,12 +4,9 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const {
-    DECORATOR_TYPES,
-    LWC_COMPONENT_PROPERTIES: { PUBLIC_METHODS, PUBLIC_PROPS },
-} = require('../../constants');
+import { DECORATOR_TYPES, LWC_COMPONENT_PROPERTIES } from '../../constants';
 
-const { isApiDecorator } = require('./shared');
+import { isApiDecorator } from './shared';
 
 const PUBLIC_PROP_BIT_MASK = {
     PROPERTY: 0,
@@ -69,7 +66,7 @@ function computePublicPropsConfig(publicPropertyMetas, classBodyItems) {
     }, {});
 }
 
-module.exports = function transform(t, decoratorMetas, classBodyItems) {
+export default function transform(t, decoratorMetas, classBodyItems) {
     const objectProperties = [];
     const apiDecoratorMetas = decoratorMetas.filter(isApiDecorator);
     const publicPropertyMetas = apiDecoratorMetas.filter(

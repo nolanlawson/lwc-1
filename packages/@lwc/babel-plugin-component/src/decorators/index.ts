@@ -4,20 +4,17 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const moduleImports = require('@babel/helper-module-imports');
-const { DecoratorErrors } = require('@lwc/errors');
+import moduleImports from '@babel/helper-module-imports';
 
-const { DECORATOR_TYPES, LWC_PACKAGE_ALIAS, REGISTER_DECORATORS_ID } = require('../constants');
-const {
-    generateError,
-    isClassMethod,
-    isSetterClassMethod,
-    isGetterClassMethod,
-} = require('../utils');
-
-const api = require('./api');
-const wire = require('./wire');
-const track = require('./track');
+import { DecoratorErrors } from '@lwc/errors';
+import { DECORATOR_TYPES, LWC_PACKAGE_ALIAS, REGISTER_DECORATORS_ID } from '../constants';
+import { generateError, isClassMethod, isSetterClassMethod, isGetterClassMethod } from '../utils';
+import api from './api';
+import wire from './wire';
+import track from './track';
+import {BabelAPI, LwcBabelPluginPass} from "../types";
+import {Node, Visitor} from "@babel/core";
+import {NodePath} from "@babel/traverse";
 
 const DECORATOR_TRANSFORMS = [api, wire, track];
 const AVAILABLE_DECORATORS = DECORATOR_TRANSFORMS.map((transform) => transform.name).join(', ');
@@ -142,10 +139,10 @@ function generateInvalidDecoratorError(path) {
     }
 }
 
-function collectDecoratorPaths(bodyItems) {
-    return bodyItems.reduce((acc, bodyItem) => {
+function collectDecoratorPaths(bodyItems: NodePath<Node>[]) {
+    return bodyItems.reduce((acc: NodePath<Node>[], bodyItem) => {
         const decorators = bodyItem.get('decorators');
-        if (decorators && decorators.length) {
+        if (Array.isArray(decorators)) {
             acc.push(...decorators);
         }
         return acc;
@@ -193,7 +190,7 @@ function getMetadataObjectPropertyList(t, decoratorMetas, classBodyItems) {
     return list;
 }
 
-function decorators({ types: t }) {
+function decorators({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
     function createRegisterDecoratorsCallExpression(path, classExpression, props) {
         const id = moduleImports.addNamed(path, REGISTER_DECORATORS_ID, LWC_PACKAGE_ALIAS);
         return t.callExpression(id, [classExpression, t.objectExpression(props)]);
@@ -211,7 +208,7 @@ function decorators({ types: t }) {
             }
             visitedClasses.add(node);
 
-            const classBodyItems = path.get('body.body');
+            const classBodyItems: NodePath<Node>[] = path.get('body.body') as NodePath<Node>[];
             if (classBodyItems.length === 0) {
                 return;
             }
@@ -254,7 +251,7 @@ function decorators({ types: t }) {
                 //      registerDecorators(NamedClass);
                 // Note: This will be further transformed
                 const statementPath = path.getStatementParent();
-                statementPath.insertAfter(
+                statementPath!.insertAfter(
                     t.expressionStatement(
                         createRegisterDecoratorsCallExpression(path, node.id, metaPropertyList)
                     )
@@ -264,7 +261,7 @@ function decorators({ types: t }) {
     };
 }
 
-module.exports = {
+export {
     decorators,
     removeImportedDecoratorSpecifiers,
     validateImportedLwcDecoratorUsage,

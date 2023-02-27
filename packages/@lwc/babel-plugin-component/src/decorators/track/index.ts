@@ -4,12 +4,10 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const { DecoratorErrors } = require('@lwc/errors');
-const {
-    LWC_COMPONENT_PROPERTIES,
-    LWC_PACKAGE_EXPORTS: { TRACK_DECORATOR },
-} = require('../../constants');
-const { generateError } = require('../../utils');
+import { DecoratorErrors } from '@lwc/errors';
+
+import { LWC_COMPONENT_PROPERTIES, LWC_PACKAGE_EXPORTS } from '../../constants';
+import { generateError } from '../../utils';
 
 const TRACK_PROPERTY_VALUE = 1;
 
@@ -42,7 +40,7 @@ function transform(t, decoratorMetas) {
     return objectProperties;
 }
 
-module.exports = {
+export default {
     name: TRACK_DECORATOR,
     transform,
     validate,

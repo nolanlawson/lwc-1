@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const fs = require('fs');
-const path = require('path');
-const babel = require('@babel/core');
-const { LWC_VERSION } = require('@lwc/shared');
-const { testFixtureDir } = require('@lwc/jest-utils-lwc-internals');
-const plugin = require('../index');
+import fs from 'fs';
+
+import path from 'path';
+import babel from '@babel/core';
+import { LWC_VERSION } from '@lwc/shared';
+import { testFixtureDir } from '@lwc/jest-utils-lwc-internals';
+import plugin from '../index';
 
 const BASE_CONFIG = {
     babelrc: false,

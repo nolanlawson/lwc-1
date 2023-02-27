@@ -7,7 +7,7 @@
 
 // Add ?scoped=true to any imports ending with .scoped.css. This signals that the stylesheet
 // should be treated as "scoped".
-module.exports = function ({ types: t }, path) {
+export default function ({ types: t }, path) {
     const programPath = path.isProgram() ? path : path.findParent((node) => node.isProgram());
 
     return programPath.get('body').forEach((node) => {

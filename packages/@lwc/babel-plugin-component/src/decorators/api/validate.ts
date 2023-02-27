@@ -4,17 +4,18 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const { DecoratorErrors } = require('@lwc/errors');
+import { DecoratorErrors } from '@lwc/errors';
 
-const { generateError } = require('../../utils');
-const {
+import { generateError } from '../../utils';
+
+import {
     AMBIGUOUS_PROP_SET,
     DISALLOWED_PROP_SET,
-    LWC_PACKAGE_EXPORTS: { TRACK_DECORATOR },
+    LWC_PACKAGE_EXPORTS,
     DECORATOR_TYPES,
-} = require('../../constants');
+} from '../../constants';
 
-const { isApiDecorator } = require('./shared');
+import { isApiDecorator } from './shared';
 
 function validateConflict(path, decorators) {
     const isPublicFieldTracked = decorators.some(
@@ -138,7 +139,7 @@ function validateUniqueness(decorators) {
     }
 }
 
-module.exports = function validate(decorators) {
+export default function validate(decorators) {
     const apiDecorators = decorators.filter(isApiDecorator);
     if (apiDecorators.length === 0) {
         return;

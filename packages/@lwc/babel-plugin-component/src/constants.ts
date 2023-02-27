@@ -52,7 +52,7 @@ const REGISTER_COMPONENT_ID = 'registerComponent';
 const REGISTER_DECORATORS_ID = 'registerDecorators';
 const TEMPLATE_KEY = 'tmpl';
 
-module.exports = {
+export {
     AMBIGUOUS_PROP_SET,
     DECORATOR_TYPES,
     DISALLOWED_PROP_SET,
