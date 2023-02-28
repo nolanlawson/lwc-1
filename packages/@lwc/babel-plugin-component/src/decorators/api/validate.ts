@@ -5,8 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { DecoratorErrors } from '@lwc/errors';
-import {NodePath} from "@babel/traverse";
-import {types} from "@babel/core";
+import { NodePath } from '@babel/traverse';
+import { types } from '@babel/core';
 import { generateError } from '../../utils';
 import {
     AMBIGUOUS_PROP_SET,
@@ -14,12 +14,10 @@ import {
     LWC_PACKAGE_EXPORTS,
     DECORATOR_TYPES,
 } from '../../constants';
-import {DecoratorMeta} from "../index";
+import { DecoratorMeta } from '../index';
 import { isApiDecorator } from './shared';
 
-const {
-    TRACK_DECORATOR
-} = LWC_PACKAGE_EXPORTS
+const { TRACK_DECORATOR } = LWC_PACKAGE_EXPORTS;
 
 function validateConflict(path: NodePath<types.Node>, decorators: DecoratorMeta[]) {
     const isPublicFieldTracked = decorators.some(
@@ -36,12 +34,12 @@ function validateConflict(path: NodePath<types.Node>, decorators: DecoratorMeta[
     }
 }
 
-function isBooleanPropDefaultTrue(property:  NodePath<types.Node>) {
+function isBooleanPropDefaultTrue(property: NodePath<types.Node>) {
     const propertyValue = (property.node as any).value;
     return propertyValue && propertyValue.type === 'BooleanLiteral' && propertyValue.value;
 }
 
-function validatePropertyValue(property:  NodePath<types.Node>) {
+function validatePropertyValue(property: NodePath<types.Node>) {
     if (isBooleanPropDefaultTrue(property)) {
         throw generateError(property, {
             errorInfo: DecoratorErrors.INVALID_BOOLEAN_PUBLIC_PROPERTY,
@@ -90,7 +88,7 @@ function validatePropertyName(property: NodePath<types.Node>) {
 
 function validateSingleApiDecoratorOnSetterGetterPair(decorators: DecoratorMeta[]) {
     // keep track of visited class methods
-    const visitedMethods = new Set();
+    const visitedMethods = new Set<String>();
 
     decorators.forEach((decorator) => {
         const { path, decoratedNodeType } = decorator;
