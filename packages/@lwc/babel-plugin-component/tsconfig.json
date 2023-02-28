@@ -3,8 +3,7 @@
 
     "compilerOptions": {
         "outDir": ".",
-        "lib": ["es2018"],
-        "declarationDir": "dist/types"
+        "lib": ["es2018"]
     },
 
     "include": ["src/"]

@@ -37,5 +37,10 @@ module.exports = {
         }
     },
 
-    external: [...Object.keys(dependencies || {}), ...Object.keys(peerDependencies || {})],
+    external: [
+        ...Object.keys(dependencies || {}),
+        ...Object.keys(peerDependencies || {}),
+        'node:fs',
+        'node:path',
+    ],
 };

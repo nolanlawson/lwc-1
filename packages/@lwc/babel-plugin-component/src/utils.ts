@@ -5,13 +5,15 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import lineColumn from 'line-column';
-import {types} from "@babel/core";
-import {NodePath} from "@babel/traverse";
-import {generateErrorMessage, LWCErrorInfo} from '@lwc/errors';
+import { types } from '@babel/core';
+import { NodePath } from '@babel/traverse';
+import { generateErrorMessage, LWCErrorInfo } from '@lwc/errors';
 import { LWC_PACKAGE_ALIAS } from './constants';
-import {DecoratorErrors} from "@lwc/errors/src/compiler/error-info/lwc-class";
 
-function isClassMethod(classMethod, properties = {}) {
+function isClassMethod(
+    classMethod: NodePath<types.Node>,
+    properties: { kind?: string; name?: string; static?: boolean } = {}
+): classMethod is NodePath<types.ClassMethod> {
     const { kind = 'method', name } = properties;
     return (
         classMethod.isClassMethod({ kind }) &&
@@ -20,7 +22,10 @@ function isClassMethod(classMethod, properties = {}) {
     );
 }
 
-function isGetterClassMethod(classMethod, properties = {}) {
+function isGetterClassMethod(
+    classMethod: NodePath<types.Node>,
+    properties: { kind?: string; name?: string; static?: boolean } = {}
+) {
     return isClassMethod(classMethod, {
         kind: 'get',
         name: properties.name,
@@ -28,7 +33,10 @@ function isGetterClassMethod(classMethod, properties = {}) {
     });
 }
 
-function isSetterClassMethod(classMethod, properties = {}) {
+function isSetterClassMethod(
+    classMethod: NodePath<types.Node>,
+    properties: { kind?: string; name?: string; static?: boolean } = {}
+) {
     return isClassMethod(classMethod, {
         kind: 'set',
         name: properties.name,
@@ -36,14 +44,10 @@ function isSetterClassMethod(classMethod, properties = {}) {
     });
 }
 
-function staticClassProperty(types, name, expression) {
-    const classProperty = types.classProperty(types.identifier(name), expression);
-    classProperty.static = true;
-    return classProperty;
-}
-
 function getEngineImportsStatements(path: NodePath) {
-    const programPath = path.isProgram() ? path : path.findParent((node) => node.isProgram()) as NodePath<types.Program>;
+    const programPath = path.isProgram()
+        ? path
+        : (path.findParent((node) => node.isProgram()) as NodePath<types.Program>);
 
     return programPath.get('body').filter((node) => {
         const source = node.get('source') as NodePath<types.Node>;
@@ -61,20 +65,23 @@ function getEngineImportSpecifiers(path: NodePath) {
             .filter((specifier) => specifier.type === 'ImportSpecifier')
             // Get the list of specifiers with their name
             .map((specifier) => {
+                // @ts-ignore
                 const imported = specifier.get('imported').node.name;
                 return { name: imported, path: specifier };
             })
     );
 }
 
-function normalizeFilename(source) {
+function normalizeFilename(source: NodePath<types.Node>) {
     return (
+        // @ts-ignore
         (source.hub && source.hub.file && source.hub.file.opts && source.hub.file.opts.filename) ||
         null
     );
 }
 
-function normalizeLocation(source) {
+function normalizeLocation(source: NodePath<types.Node>) {
+    // @ts-ignore
     const location = (source.node && (source.node.loc || source.node._loc)) || null;
     if (!location) {
         return null;
@@ -99,11 +106,14 @@ function normalizeLocation(source) {
 }
 
 export type DecoratorErrorOptions = {
-    errorInfo: LWCErrorInfo
-    messageArgs?: any[]
-}
+    errorInfo: LWCErrorInfo;
+    messageArgs?: any[];
+};
 
-function generateError(source: NodePath<types.Node>, { errorInfo, messageArgs }: DecoratorErrorOptions) {
+function generateError(
+    source: NodePath<types.Node>,
+    { errorInfo, messageArgs }: DecoratorErrorOptions
+) {
     const message = generateErrorMessage(errorInfo, messageArgs);
     const error = source.buildCodeFrameError(message);
 
@@ -119,5 +129,4 @@ export {
     isSetterClassMethod,
     generateError,
     getEngineImportSpecifiers,
-    staticClassProperty,
 };

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import fs from 'fs';
+import fs from 'node:fs';
 
-import path from 'path';
+import path from 'node:path';
 import babel from '@babel/core';
 import { LWC_VERSION } from '@lwc/shared';
 import { testFixtureDir } from '@lwc/jest-utils-lwc-internals';

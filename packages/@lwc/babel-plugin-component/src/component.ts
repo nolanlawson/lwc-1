@@ -4,20 +4,28 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { basename, extname } from 'path';
-import * as types from '@babel/types'
+import { basename, extname } from 'node:path';
+import * as types from '@babel/types';
 import moduleImports from '@babel/helper-module-imports';
-import {NodePath} from "@babel/traverse";
-import { Visitor} from "@babel/core";
+import { NodePath } from '@babel/traverse';
+import { Visitor } from '@babel/core';
 import { LWC_PACKAGE_ALIAS, REGISTER_COMPONENT_ID, TEMPLATE_KEY } from './constants';
-import {BabelAPI, LwcBabelPluginPass} from "./types";
+import { BabelAPI, LwcBabelPluginPass } from './types';
 
 function getBaseName(classPath: string) {
     const ext = extname(classPath);
     return basename(classPath, ext);
 }
 
-function importDefaultTemplate(path: NodePath<types.ClassDeclaration | types.FunctionDeclaration | types.TSDeclareFunction | types.Expression>, state: LwcBabelPluginPass) {
+function importDefaultTemplate(
+    path: NodePath<
+        | types.ClassDeclaration
+        | types.FunctionDeclaration
+        | types.TSDeclareFunction
+        | types.Expression
+    >,
+    state: LwcBabelPluginPass
+) {
     const { filename } = state.file.opts;
     const componentName = getBaseName(filename!);
     return moduleImports.addDefault(path, `./${componentName}.html`, {
@@ -25,7 +33,14 @@ function importDefaultTemplate(path: NodePath<types.ClassDeclaration | types.Fun
     });
 }
 
-function needsComponentRegistration(path: NodePath<types.ClassDeclaration | types.FunctionDeclaration | types.TSDeclareFunction | types.Expression>) {
+function needsComponentRegistration(
+    path: NodePath<
+        | types.ClassDeclaration
+        | types.FunctionDeclaration
+        | types.TSDeclareFunction
+        | types.Expression
+    >
+) {
     return (
         (path.isIdentifier() && path.node.name !== 'undefined' && path.node.name !== 'null') ||
         path.isCallExpression() ||
@@ -35,7 +50,15 @@ function needsComponentRegistration(path: NodePath<types.ClassDeclaration | type
 }
 
 export default function ({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
-    function createRegisterComponent(declarationPath: NodePath<types.ClassDeclaration | types.FunctionDeclaration | types.TSDeclareFunction | types.Expression>, state: LwcBabelPluginPass) {
+    function createRegisterComponent(
+        declarationPath: NodePath<
+            | types.ClassDeclaration
+            | types.FunctionDeclaration
+            | types.TSDeclareFunction
+            | types.Expression
+        >,
+        state: LwcBabelPluginPass
+    ) {
         const registerComponentId = moduleImports.addNamed(
             declarationPath,
             REGISTER_COMPONENT_ID,
@@ -52,7 +75,7 @@ export default function ({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
                 node = (node as types.ClassDeclaration).id;
             } else {
                 // if it does not have an id, we can treat it as a ClassExpression
-                t.toExpression((node as types.ClassDeclaration));
+                t.toExpression(node as types.ClassDeclaration);
             }
         }
 
@@ -73,4 +96,4 @@ export default function ({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
             }
         },
     };
-};
+}

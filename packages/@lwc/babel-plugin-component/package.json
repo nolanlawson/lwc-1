@@ -13,14 +13,15 @@
     "version": "2.38.1",
     "main": "dist/index.cjs.js",
     "module": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "typings": "types/index.d.ts",
     "license": "MIT",
     "scripts": {
         "build": "rollup --config scripts/rollup.config.js",
         "dev": "rollup  --config scripts/rollup.config.js --watch --no-watch.clearScreen"
     },
     "files": [
-        "dist/"
+        "dist",
+        "types"
     ],
     "dependencies": {
         "@babel/helper-module-imports": "~7.18.6",
