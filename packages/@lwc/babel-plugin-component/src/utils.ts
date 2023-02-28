@@ -100,7 +100,7 @@ function normalizeLocation(source) {
 
 export type DecoratorErrorOptions = {
     errorInfo: LWCErrorInfo
-    messageArgs: any[]
+    messageArgs?: any[]
 }
 
 function generateError(source: NodePath<types.Node>, { errorInfo, messageArgs }: DecoratorErrorOptions) {

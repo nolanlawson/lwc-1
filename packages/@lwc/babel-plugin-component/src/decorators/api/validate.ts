@@ -36,12 +36,12 @@ function validateConflict(path: NodePath<types.Node>, decorators: DecoratorMeta[
     }
 }
 
-function isBooleanPropDefaultTrue(property) {
-    const propertyValue = property.node.value;
+function isBooleanPropDefaultTrue(property:  NodePath<types.Node>) {
+    const propertyValue = (property.node as any).value;
     return propertyValue && propertyValue.type === 'BooleanLiteral' && propertyValue.value;
 }
 
-function validatePropertyValue(property) {
+function validatePropertyValue(property:  NodePath<types.Node>) {
     if (isBooleanPropDefaultTrue(property)) {
         throw generateError(property, {
             errorInfo: DecoratorErrors.INVALID_BOOLEAN_PUBLIC_PROPERTY,
@@ -57,7 +57,7 @@ function validatePropertyName(property: NodePath<types.Node>) {
         });
     }
 
-    const propertyName = property.get('key.name').node;
+    const propertyName = (property.get('key.name') as any).node;
 
     if (propertyName === 'part') {
         throw generateError(property, {
@@ -101,8 +101,7 @@ function validateSingleApiDecoratorOnSetterGetterPair(decorators: DecoratorMeta[
             (decoratedNodeType === DECORATOR_TYPES.GETTER ||
                 decoratedNodeType === DECORATOR_TYPES.SETTER)
         ) {
-            const methodPath = path.parentPath;
-            // @ts-ignore
+            const methodPath = path.parentPath!;
             const methodName = methodPath.get('key.name').node;
 
             if (visitedMethods.has(methodName)) {
@@ -158,13 +157,13 @@ export default function validate(decorators: DecoratorMeta[]) {
         validateConflict(path, decorators);
 
         if (decoratedNodeType !== DECORATOR_TYPES.METHOD) {
-            const property = path.parentPath;
+            const property = path.parentPath!;
 
-            validatePropertyName(property!);
+            validatePropertyName(property);
             validatePropertyValue(property);
         }
     });
 
     validateSingleApiDecoratorOnSetterGetterPair(decorators);
     validateUniqueness(decorators);
-};
+}
