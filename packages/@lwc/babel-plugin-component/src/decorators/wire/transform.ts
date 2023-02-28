@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {types} from "@babel/core";
-import {NodePath} from "@babel/traverse";
+import {NodePath, Scope} from "@babel/traverse";
 import { LWC_COMPONENT_PROPERTIES } from '../../constants';
 import {DecoratorMeta} from "../index";
 import { isWireDecorator } from './shared';
@@ -27,7 +27,7 @@ function getWiredStatic(wireConfig) {
         .map((path) => path.node);
 }
 
-function getWiredParams(t, wireConfig) {
+function getWiredParams(t: typeof types, wireConfig) {
     return wireConfig
         .get('properties')
         .filter((property) => isObservedProperty(property))
@@ -40,10 +40,10 @@ function getWiredParams(t, wireConfig) {
         });
 }
 
-function getGeneratedConfig(t, wiredValue) {
+function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
     let counter = 0;
     const configBlockBody = [];
-    const configProps = [];
+    const configProps: boolean[] = [];
     const generateParameterConfigValue = (memberExprPaths) => {
         // Note: When memberExprPaths ($foo.bar) has an invalid identifier (eg: foo..bar, foo.bar[3])
         //       it should (ideally) resolve in a compilation error during validation phase.
@@ -144,7 +144,7 @@ function getGeneratedConfig(t, wiredValue) {
     return t.objectProperty(t.identifier('config'), fnExpression);
 }
 
-function buildWireConfigValue(t, wiredValues) {
+function buildWireConfigValue(t: typeof types, wiredValues: WiredValue[]) {
     return t.objectExpression(
         wiredValues.map((wiredValue) => {
             const wireConfig = [];
@@ -183,7 +183,7 @@ const SUPPORTED_VALUE_TO_TYPE_MAP = {
     BooleanLiteral: 'boolean',
 };
 
-const scopedReferenceLookup = (scope) => (name) => {
+const scopedReferenceLookup = (scope: Scope) => (name: string) => {
     const binding = scope.getBinding(name);
 
     let type;
@@ -193,15 +193,18 @@ const scopedReferenceLookup = (scope) => (name) => {
         if (binding.kind === 'module') {
             // Resolves module import to the name of the module imported
             // e.g. import { foo } from 'bar' gives value 'bar' for `name == 'foo'
-            const parentPathNode = binding.path.parentPath.node;
+            const parentPathNode = binding.path.parentPath!.node as types.ImportDeclaration;
             if (parentPathNode && parentPathNode.source) {
                 type = 'module';
                 value = parentPathNode.source.value;
             }
         } else if (binding.kind === 'const') {
             // Resolves `const foo = 'text';` references to value 'text', where `name == 'foo'`
+            // @ts-ignore
             const init = binding.path.node.init;
+            // @ts-ignore
             if (init && SUPPORTED_VALUE_TO_TYPE_MAP[init.type]) {
+                // @ts-ignore
                 type = SUPPORTED_VALUE_TO_TYPE_MAP[init.type];
                 value = init.value;
             }
@@ -213,17 +216,29 @@ const scopedReferenceLookup = (scope) => (name) => {
     };
 };
 
+type WiredValue = {
+    propertyName: string,
+    isClassMethod: boolean,
+    static?: boolean,
+    params?: any,
+    adapter?: {
+        name: string,
+        expression: types.Expression,
+        reference: any
+    }
+}
+
 export default function transform(t: typeof types, decoratorMetas: DecoratorMeta[]) {
     const objectProperties = [];
     const wiredValues = decoratorMetas.filter(isWireDecorator).map(({ path }) => {
-        const [id, config] = path.get('expression.arguments');
+        const [id, config] = path.get('expression.arguments') as [NodePath, NodePath];
 
-        const propertyName = path.parentPath.get('key.name').node;
+        const propertyName = (path.parentPath.get('key.name') as any).node as string;
         const isClassMethod = path.parentPath.isClassMethod({
             kind: 'method',
         });
 
-        const wiredValue = {
+        const wiredValue: WiredValue = {
             propertyName,
             isClassMethod,
         };
@@ -238,7 +253,7 @@ export default function transform(t: typeof types, decoratorMetas: DecoratorMeta
         const isIdentifier = id.isIdentifier();
 
         if (isIdentifier || isMemberExpression) {
-            const referenceName = isMemberExpression ? id.node.object.name : id.node.name;
+            const referenceName = isMemberExpression ? (id.node.object as any).name : id.node.name;
             const reference = referenceLookup(referenceName);
             wiredValue.adapter = {
                 name: referenceName,

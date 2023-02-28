@@ -99,8 +99,8 @@ function validateSingleApiDecoratorOnSetterGetterPair(decorators: DecoratorMeta[
             (decoratedNodeType === DECORATOR_TYPES.GETTER ||
                 decoratedNodeType === DECORATOR_TYPES.SETTER)
         ) {
-            const methodPath = path.parentPath!;
-            const methodName = methodPath.get('key.name').node;
+            const methodPath = path.parentPath as NodePath<types.ClassMethod>;
+            const methodName = (methodPath.get('key.name') as any).node as string;
 
             if (visitedMethods.has(methodName)) {
                 throw generateError(methodPath, {
