@@ -7,7 +7,7 @@
 
 /* eslint-env node */
 
-const path = require('path');
+const path = require('node:path');
 const typescript = require('../../../../scripts/rollup/typescript');
 const writeDistAndTypes = require('../../../../scripts/rollup/writeDistAndTypes');
 const { version, dependencies, peerDependencies } = require('../package.json');
@@ -40,7 +40,6 @@ module.exports = {
     external: [
         ...Object.keys(dependencies || {}),
         ...Object.keys(peerDependencies || {}),
-        'node:fs',
         'node:path',
     ],
 };
