@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import component from './component'
+import component from './component';
 import {
     decorators,
     removeImportedDecoratorSpecifiers,
@@ -16,9 +16,8 @@ import dynamicImports from './dynamic-imports';
 import scopeCssImports from './scope-css-imports';
 import compilerVersionNumber from './compiler-version-number';
 import { getEngineImportSpecifiers } from './utils';
-import {BabelAPI} from "./types";
-import type {PluginObj} from '@babel/core';
-
+import { BabelAPI } from './types';
+import type { PluginObj } from '@babel/core';
 
 /**
  * The transform is done in 2 passes:
@@ -70,4 +69,4 @@ export default function LwcClassTransform(api: BabelAPI): PluginObj {
             ExportDefaultDeclaration: transformCreateRegisterComponent,
         },
     };
-};
+}

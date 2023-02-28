@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import {types, Visitor} from "@babel/core";
+import { types, Visitor } from '@babel/core';
 import { LWC_VERSION_COMMENT } from '@lwc/shared';
-import {BabelAPI, LwcBabelPluginPass} from "./types";
+import { BabelAPI, LwcBabelPluginPass } from './types';
 
 export default function compilerVersionNumber({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
     return {
@@ -32,4 +32,4 @@ export default function compilerVersionNumber({ types: t }: BabelAPI): Visitor<L
             }
         },
     };
-};
+}
