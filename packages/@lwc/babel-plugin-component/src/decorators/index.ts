@@ -21,7 +21,7 @@ const AVAILABLE_DECORATORS = DECORATOR_TRANSFORMS.map((transform) => transform.n
 export type DecoratorMeta = {
     name: 'api' | 'track' | 'wire',
     propertyName: any,
-    path:  NodePath<types.Node>,
+    path:  NodePath<types.Decorator>,
     decoratedNodeType: string,
     type?: 'property' | 'getter' | 'setter' | 'method',
 }
