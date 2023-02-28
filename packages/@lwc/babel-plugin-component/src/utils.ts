@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { generateErrorMessage } from '@lwc/errors';
-
 import lineColumn from 'line-column';
+import {types} from "@babel/core";
+import {NodePath} from "@babel/traverse";
+import {generateErrorMessage, LWCErrorInfo} from '@lwc/errors';
 import { LWC_PACKAGE_ALIAS } from './constants';
+import {DecoratorErrors} from "@lwc/errors/src/compiler/error-info/lwc-class";
 
 function isClassMethod(classMethod, properties = {}) {
     const { kind = 'method', name } = properties;
@@ -40,16 +42,16 @@ function staticClassProperty(types, name, expression) {
     return classProperty;
 }
 
-function getEngineImportsStatements(path) {
-    const programPath = path.isProgram() ? path : path.findParent((node) => node.isProgram());
+function getEngineImportsStatements(path: NodePath) {
+    const programPath = path.isProgram() ? path : path.findParent((node) => node.isProgram()) as NodePath<types.Program>;
 
     return programPath.get('body').filter((node) => {
-        const source = node.get('source');
+        const source = node.get('source') as NodePath<types.Node>;
         return node.isImportDeclaration() && source.isStringLiteral({ value: LWC_PACKAGE_ALIAS });
     });
 }
 
-function getEngineImportSpecifiers(path) {
+function getEngineImportSpecifiers(path: NodePath) {
     const imports = getEngineImportsStatements(path);
     return (
         imports
@@ -96,17 +98,22 @@ function normalizeLocation(source) {
     };
 }
 
-function generateError(source, { errorInfo, messageArgs } = {}) {
+export type DecoratorErrorOptions = {
+    errorInfo: LWCErrorInfo
+    messageArgs: any[]
+}
+
+function generateError(source: NodePath<types.Node>, { errorInfo, messageArgs }: DecoratorErrorOptions) {
     const message = generateErrorMessage(errorInfo, messageArgs);
     const error = source.buildCodeFrameError(message);
 
-    error.filename = normalizeFilename(source);
-    error.loc = normalizeLocation(source);
-    error.lwcCode = errorInfo && errorInfo.code;
+    (error as any).filename = normalizeFilename(source);
+    (error as any).loc = normalizeLocation(source);
+    (error as any).lwcCode = errorInfo && errorInfo.code;
     return error;
 }
 
-export default {
+export {
     isClassMethod,
     isGetterClassMethod,
     isSetterClassMethod,

@@ -28,7 +28,7 @@ import type {PluginObj} from '@babel/core';
 export default function LwcClassTransform(api: BabelAPI): PluginObj {
     const { ExportDefaultDeclaration: transformCreateRegisterComponent } = component(api);
     const { Class: transformDecorators } = decorators(api);
-    const { Import: transformDynamicImports } = dynamicImports(api);
+    const { Import: transformDynamicImports } = dynamicImports();
     const { ClassBody: addCompilerVersionNumber } = compilerVersionNumber(api);
 
     return {
@@ -61,21 +61,13 @@ export default function LwcClassTransform(api: BabelAPI): PluginObj {
                 },
             },
 
-            Import(path, state) {
-                transformDynamicImports(path, state);
-            },
+            Import: transformDynamicImports,
 
-            Class(path) {
-                transformDecorators(path);
-            },
+            Class: transformDecorators,
 
-            ClassBody(path) {
-                addCompilerVersionNumber(path);
-            },
+            ClassBody: addCompilerVersionNumber,
 
-            ExportDefaultDeclaration(path, state) {
-                transformCreateRegisterComponent(path, state);
-            },
+            ExportDefaultDeclaration: transformCreateRegisterComponent,
         },
     };
 };

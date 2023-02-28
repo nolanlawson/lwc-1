@@ -4,9 +4,13 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
+import {types} from "@babel/core";
+import {NodePath} from "@babel/traverse";
 import { DECORATOR_TYPES, LWC_COMPONENT_PROPERTIES } from '../../constants';
-
+import {DecoratorMeta} from "../index";
 import { isApiDecorator } from './shared';
+
+const { PUBLIC_PROPS, PUBLIC_METHODS } = LWC_COMPONENT_PROPERTIES
 
 const PUBLIC_PROP_BIT_MASK = {
     PROPERTY: 0,
@@ -14,7 +18,7 @@ const PUBLIC_PROP_BIT_MASK = {
     SETTER: 2,
 };
 
-function getPropertyBitmask(type) {
+function getPropertyBitmask(type: string) {
     switch (type) {
         case DECORATOR_TYPES.GETTER:
             return PUBLIC_PROP_BIT_MASK.GETTER;
@@ -27,10 +31,11 @@ function getPropertyBitmask(type) {
     }
 }
 
-function getSiblingGetSetPairType(propertyName, type, classBodyItems) {
+function getSiblingGetSetPairType(propertyName: string, type: string, classBodyItems: NodePath<types.Node>[]) {
     const siblingKind = type === DECORATOR_TYPES.GETTER ? 'set' : 'get';
     const siblingNode = classBodyItems.find((classBodyItem) => {
         const isClassMethod = classBodyItem.isClassMethod({ kind: siblingKind });
+        // @ts-ignore
         const isSamePropertyName = classBodyItem.node.key.name === propertyName;
         return isClassMethod && isSamePropertyName;
     });
@@ -39,11 +44,13 @@ function getSiblingGetSetPairType(propertyName, type, classBodyItems) {
     }
 }
 
-function computePublicPropsConfig(publicPropertyMetas, classBodyItems) {
+function computePublicPropsConfig(publicPropertyMetas: DecoratorMeta[], classBodyItems: NodePath<types.Node>[]) {
     return publicPropertyMetas.reduce((acc, { propertyName, decoratedNodeType }) => {
         if (!(propertyName in acc)) {
+            // @ts-ignore
             acc[propertyName] = {};
         }
+        // @ts-ignore
         acc[propertyName].config |= getPropertyBitmask(decoratedNodeType);
 
         if (
@@ -58,6 +65,7 @@ function computePublicPropsConfig(publicPropertyMetas, classBodyItems) {
                 classBodyItems
             );
             if (pairType) {
+                // @ts-ignore
                 acc[propertyName].config |= getPropertyBitmask(pairType);
             }
         }
@@ -66,7 +74,7 @@ function computePublicPropsConfig(publicPropertyMetas, classBodyItems) {
     }, {});
 }
 
-export default function transform(t, decoratorMetas, classBodyItems) {
+export default function transform(t: typeof types, decoratorMetas: DecoratorMeta[], classBodyItems: NodePath<types.Node>[]) {
     const objectProperties = [];
     const apiDecoratorMetas = decoratorMetas.filter(isApiDecorator);
     const publicPropertyMetas = apiDecoratorMetas.filter(

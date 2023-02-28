@@ -5,11 +5,14 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { LWC_PACKAGE_EXPORTS } from '../../constants';
+import {DecoratorMeta} from "../index";
 
-function isApiDecorator(decorator) {
+const { API_DECORATOR } = LWC_PACKAGE_EXPORTS
+
+function isApiDecorator(decorator: DecoratorMeta) {
     return decorator.name === API_DECORATOR;
 }
 
-export default {
+export {
     isApiDecorator,
 };

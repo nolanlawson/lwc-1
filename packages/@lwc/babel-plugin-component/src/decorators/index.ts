@@ -4,22 +4,29 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
+import {Node, types, Visitor} from "@babel/core";
+import {NodePath} from "@babel/traverse";
 import moduleImports from '@babel/helper-module-imports';
-
 import { DecoratorErrors } from '@lwc/errors';
 import { DECORATOR_TYPES, LWC_PACKAGE_ALIAS, REGISTER_DECORATORS_ID } from '../constants';
 import { generateError, isClassMethod, isSetterClassMethod, isGetterClassMethod } from '../utils';
+import {BabelAPI, LwcBabelPluginPass} from "../types";
 import api from './api';
 import wire from './wire';
 import track from './track';
-import {BabelAPI, LwcBabelPluginPass} from "../types";
-import {Node, Visitor} from "@babel/core";
-import {NodePath} from "@babel/traverse";
 
 const DECORATOR_TRANSFORMS = [api, wire, track];
 const AVAILABLE_DECORATORS = DECORATOR_TRANSFORMS.map((transform) => transform.name).join(', ');
 
-function isLwcDecoratorName(name) {
+export type DecoratorMeta = {
+    name: 'api' | 'track' | 'wire',
+    propertyName: any,
+    path:  NodePath<types.Node>,
+    decoratedNodeType: string,
+    type?: 'property' | 'getter' | 'setter' | 'method',
+}
+
+function isLwcDecoratorName(name: string) {
     return DECORATOR_TRANSFORMS.some((transform) => transform.name === name);
 }
 
@@ -149,19 +156,20 @@ function collectDecoratorPaths(bodyItems: NodePath<Node>[]) {
     }, []);
 }
 
-function getDecoratorMetadata(decoratorPath) {
-    const expressionPath = decoratorPath.get('expression');
+function getDecoratorMetadata(decoratorPath: NodePath<types.Node>): DecoratorMeta {
+    const expressionPath = decoratorPath.get('expression') as NodePath<types.Node>;
 
-    let name;
+    let name: 'api' | 'track' | 'wire';
     if (expressionPath.isIdentifier()) {
-        name = expressionPath.node.name;
+        name = expressionPath.node.name as ('api' | 'track' | 'wire');
     } else if (expressionPath.isCallExpression()) {
-        name = expressionPath.node.callee.name;
+        name = (expressionPath.node.callee as types.V8IntrinsicIdentifier).name as ('api' | 'track' | 'wire');
     } else {
         throw generateInvalidDecoratorError(decoratorPath);
     }
 
-    const propertyName = decoratorPath.parent.key.name;
+    // @ts-ignore
+    const propertyName = decoratorPath.parent.key.name
     const decoratedNodeType = getDecoratedNodeType(decoratorPath);
 
     return {
@@ -172,7 +180,7 @@ function getDecoratorMetadata(decoratorPath) {
     };
 }
 
-function getMetadataObjectPropertyList(t, decoratorMetas, classBodyItems) {
+function getMetadataObjectPropertyList(t: typeof types, decoratorMetas: DecoratorMeta[], classBodyItems: NodePath<types.Node>[]) {
     const list = [
         ...api.transform(t, decoratorMetas, classBodyItems),
         ...track.transform(t, decoratorMetas),
@@ -191,7 +199,7 @@ function getMetadataObjectPropertyList(t, decoratorMetas, classBodyItems) {
 }
 
 function decorators({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
-    function createRegisterDecoratorsCallExpression(path, classExpression, props) {
+    function createRegisterDecoratorsCallExpression(path:  NodePath<types.ClassDeclaration> | NodePath<types.ClassExpression>, classExpression: types.ClassExpression, props: any[]) {
         const id = moduleImports.addNamed(path, REGISTER_DECORATORS_ID, LWC_PACKAGE_ALIAS);
         return t.callExpression(id, [classExpression, t.objectExpression(props)]);
     }

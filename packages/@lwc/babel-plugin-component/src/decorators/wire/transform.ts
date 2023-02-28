@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
+import {types} from "@babel/core";
+import {NodePath} from "@babel/traverse";
 import { LWC_COMPONENT_PROPERTIES } from '../../constants';
-
+import {DecoratorMeta} from "../index";
 import { isWireDecorator } from './shared';
 
 const WIRE_PARAM_PREFIX = '$';
@@ -211,7 +213,7 @@ const scopedReferenceLookup = (scope) => (name) => {
     };
 };
 
-export default function transform(t, decoratorMetas) {
+export default function transform(t: typeof types, decoratorMetas: DecoratorMeta[]) {
     const objectProperties = [];
     const wiredValues = decoratorMetas.filter(isWireDecorator).map(({ path }) => {
         const [id, config] = path.get('expression.arguments');

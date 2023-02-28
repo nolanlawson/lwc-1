@@ -5,22 +5,27 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { DecoratorErrors } from '@lwc/errors';
-
+import {NodePath} from "@babel/traverse";
+import {types} from "@babel/core";
 import { generateError } from '../../utils';
-
 import {
     AMBIGUOUS_PROP_SET,
     DISALLOWED_PROP_SET,
     LWC_PACKAGE_EXPORTS,
     DECORATOR_TYPES,
 } from '../../constants';
-
+import {DecoratorMeta} from "../index";
 import { isApiDecorator } from './shared';
 
-function validateConflict(path, decorators) {
+const {
+    TRACK_DECORATOR
+} = LWC_PACKAGE_EXPORTS
+
+function validateConflict(path: NodePath<types.Node>, decorators: DecoratorMeta[]) {
     const isPublicFieldTracked = decorators.some(
         (decorator) =>
             decorator.name === TRACK_DECORATOR &&
+            // @ts-ignore
             decorator.path.parentPath.node === path.parentPath.node
     );
 
@@ -44,7 +49,8 @@ function validatePropertyValue(property) {
     }
 }
 
-function validatePropertyName(property) {
+function validatePropertyName(property: NodePath<types.Node>) {
+    // @ts-ignore
     if (property.node.computed) {
         throw generateError(property, {
             errorInfo: DecoratorErrors.PROPERTY_CANNOT_BE_COMPUTED,
@@ -82,7 +88,7 @@ function validatePropertyName(property) {
     }
 }
 
-function validateSingleApiDecoratorOnSetterGetterPair(decorators) {
+function validateSingleApiDecoratorOnSetterGetterPair(decorators: DecoratorMeta[]) {
     // keep track of visited class methods
     const visitedMethods = new Set();
 
@@ -96,6 +102,7 @@ function validateSingleApiDecoratorOnSetterGetterPair(decorators) {
                 decoratedNodeType === DECORATOR_TYPES.SETTER)
         ) {
             const methodPath = path.parentPath;
+            // @ts-ignore
             const methodName = methodPath.get('key.name').node;
 
             if (visitedMethods.has(methodName)) {
@@ -110,14 +117,16 @@ function validateSingleApiDecoratorOnSetterGetterPair(decorators) {
     });
 }
 
-function validateUniqueness(decorators) {
+function validateUniqueness(decorators: DecoratorMeta[]) {
     const apiDecorators = decorators.filter(isApiDecorator);
     for (let i = 0; i < apiDecorators.length; i++) {
         const { path: currentPath, type: currentType } = apiDecorators[i];
+        // @ts-ignore
         const currentPropertyName = currentPath.parentPath.get('key.name').node;
 
         for (let j = 0; j < apiDecorators.length; j++) {
             const { path: comparePath, type: compareType } = apiDecorators[j];
+            // @ts-ignore
             const comparePropertyName = comparePath.parentPath.get('key.name').node;
 
             // We will throw if the considered properties have the same name, and when their
@@ -139,7 +148,7 @@ function validateUniqueness(decorators) {
     }
 }
 
-export default function validate(decorators) {
+export default function validate(decorators: DecoratorMeta[]) {
     const apiDecorators = decorators.filter(isApiDecorator);
     if (apiDecorators.length === 0) {
         return;
@@ -151,7 +160,7 @@ export default function validate(decorators) {
         if (decoratedNodeType !== DECORATOR_TYPES.METHOD) {
             const property = path.parentPath;
 
-            validatePropertyName(property);
+            validatePropertyName(property!);
             validatePropertyValue(property);
         }
     });
