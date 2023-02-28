@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 
 import path from 'node:path';
-import babel from '@babel/core';
+import { transformSync } from '@babel/core';
 import { LWC_VERSION } from '@lwc/shared';
 import { testFixtureDir } from '@lwc/jest-utils-lwc-internals';
 import plugin from '../index';
@@ -42,7 +42,7 @@ function transform(source: string, opts = {}) {
         plugins: [[plugin, opts]],
     };
 
-    let { code } = babel.transformSync(source, testConfig)!;
+    let { code } = transformSync(source, testConfig)!;
 
     // Replace LWC's version with X.X.X so the snapshots don't frequently change
     code = code!.replace(new RegExp(LWC_VERSION.replace(/\./g, '\\.'), 'g'), 'X.X.X');
