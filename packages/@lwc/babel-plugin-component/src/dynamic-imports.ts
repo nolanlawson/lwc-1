@@ -6,7 +6,7 @@
  */
 import { NodePath } from '@babel/traverse';
 import { types, Visitor } from '@babel/core';
-import moduleImports from '@babel/helper-module-imports';
+import { addNamed } from '@babel/helper-module-imports';
 import { LWCClassErrors } from '@lwc/errors';
 import { generateError } from './utils';
 import { LwcBabelPluginPass } from './types';
@@ -35,7 +35,7 @@ export default function (): Visitor<LwcBabelPluginPass> {
         state: LwcBabelPluginPass
     ): types.Identifier {
         if (!state.loaderRef) {
-            state.loaderRef = moduleImports.addNamed(path, 'load', loaderName);
+            state.loaderRef = addNamed(path, 'load', loaderName);
         }
         return state.loaderRef;
     }

@@ -6,7 +6,7 @@
  */
 import { basename, extname } from 'node:path';
 import * as types from '@babel/types';
-import moduleImports from '@babel/helper-module-imports';
+import { addDefault, addNamed } from '@babel/helper-module-imports';
 import { NodePath } from '@babel/traverse';
 import { Visitor } from '@babel/core';
 import { LWC_PACKAGE_ALIAS, REGISTER_COMPONENT_ID, TEMPLATE_KEY } from './constants';
@@ -28,7 +28,7 @@ function importDefaultTemplate(
 ) {
     const { filename } = state.file.opts;
     const componentName = getBaseName(filename!);
-    return moduleImports.addDefault(path, `./${componentName}.html`, {
+    return addDefault(path, `./${componentName}.html`, {
         nameHint: TEMPLATE_KEY,
     });
 }
@@ -59,7 +59,7 @@ export default function ({ types: t }: BabelAPI): Visitor<LwcBabelPluginPass> {
         >,
         state: LwcBabelPluginPass
     ) {
-        const registerComponentId = moduleImports.addNamed(
+        const registerComponentId = addNamed(
             declarationPath,
             REGISTER_COMPONENT_ID,
             LWC_PACKAGE_ALIAS
