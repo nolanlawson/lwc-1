@@ -4,36 +4,44 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import {types} from "@babel/core";
-import {NodePath, Scope} from "@babel/traverse";
+import { types } from '@babel/core';
+import { NodePath, Scope } from '@babel/traverse';
 import { LWC_COMPONENT_PROPERTIES } from '../../constants';
-import {DecoratorMeta} from "../index";
+import { DecoratorMeta } from '../index';
 import { isWireDecorator } from './shared';
 
 const WIRE_PARAM_PREFIX = '$';
 const WIRE_CONFIG_ARG_NAME = '$cmp';
 
-function isObservedProperty(configProperty) {
-    const propertyValue = configProperty.get('value');
+function isObservedProperty(
+    configProperty: NodePath<types.ObjectMethod | types.ObjectProperty | types.SpreadElement>
+) {
+    const propertyValue = configProperty.get('value') as NodePath;
     return (
         propertyValue.isStringLiteral() && propertyValue.node.value.startsWith(WIRE_PARAM_PREFIX)
     );
 }
 
-function getWiredStatic(wireConfig) {
+function getWiredStatic(
+    wireConfig: NodePath<types.ObjectExpression>
+): (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[] {
     return wireConfig
         .get('properties')
         .filter((property) => !isObservedProperty(property))
         .map((path) => path.node);
 }
 
-function getWiredParams(t: typeof types, wireConfig) {
+function getWiredParams(
+    t: typeof types,
+    wireConfig: NodePath<types.ObjectExpression>
+): (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[] {
     return wireConfig
         .get('properties')
         .filter((property) => isObservedProperty(property))
         .map((path) => {
             // Need to clone deep the observed property to remove the param prefix
             const clonedProperty = t.cloneDeep(path.node);
+            // @ts-ignore
             clonedProperty.value.value = clonedProperty.value.value.slice(1);
 
             return clonedProperty;
@@ -43,8 +51,8 @@ function getWiredParams(t: typeof types, wireConfig) {
 function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
     let counter = 0;
     const configBlockBody = [];
-    const configProps: boolean[] = [];
-    const generateParameterConfigValue = (memberExprPaths) => {
+    const configProps: (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[] = [];
+    const generateParameterConfigValue = (memberExprPaths: string[]) => {
         // Note: When memberExprPaths ($foo.bar) has an invalid identifier (eg: foo..bar, foo.bar[3])
         //       it should (ideally) resolve in a compilation error during validation phase.
         //       This is not possible due that platform components may have a param definition which is invalid
@@ -55,7 +63,9 @@ function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
             (maybeIdentifier) =>
                 !(t.isValidES3Identifier(maybeIdentifier) && maybeIdentifier.length > 0)
         );
-        const memberExprPropertyGen = !isInvalidMemberExpr ? t.identifier : t.StringLiteral;
+        const memberExprPropertyGen = !isInvalidMemberExpr
+            ? t.identifier
+            : (t as any).StringLiteral;
 
         if (memberExprPaths.length === 1) {
             return {
@@ -79,7 +89,11 @@ function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
         ]);
 
         // Results in: v != null && ... (v = v.i) != null && ... (v = v.(n-1)) != null
-        let conditionTest = t.binaryExpression('!=', t.identifier(varName), t.nullLiteral());
+        let conditionTest: types.Expression = t.binaryExpression(
+            '!=',
+            t.identifier(varName),
+            t.nullLiteral()
+        );
 
         for (let i = 1, n = memberExprPaths.length; i < n - 1; i++) {
             const nextPropValue = t.assignmentExpression(
@@ -122,9 +136,10 @@ function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
 
     if (wiredValue.params) {
         wiredValue.params.forEach((param) => {
-            const memberExprPaths = param.value.value.split('.');
+            const memberExprPaths = ((param as any).value.value as string).split('.');
             const paramConfigValue = generateParameterConfigValue(memberExprPaths);
 
+            // @ts-ignore
             configProps.push(t.objectProperty(param.key, paramConfigValue.configValueExpression));
 
             if (paramConfigValue.varDeclaration) {
@@ -133,6 +148,7 @@ function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
         });
     }
 
+    // @ts-ignore
     configBlockBody.push(t.returnStatement(t.objectExpression(configProps)));
 
     const fnExpression = t.functionExpression(
@@ -156,6 +172,7 @@ function buildWireConfigValue(t: typeof types, wiredValues: WiredValue[]) {
 
             if (wiredValue.params) {
                 const dynamicParamNames = wiredValue.params.map((p) => {
+                    // @ts-ignore
                     return t.stringLiteral(t.isIdentifier(p.key) ? p.key.name : p.key.value);
                 });
                 wireConfig.push(
@@ -217,21 +234,24 @@ const scopedReferenceLookup = (scope: Scope) => (name: string) => {
 };
 
 type WiredValue = {
-    propertyName: string,
-    isClassMethod: boolean,
-    static?: boolean,
-    params?: any,
+    propertyName: string;
+    isClassMethod: boolean;
+    static?: (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[];
+    params?: (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[];
     adapter?: {
-        name: string,
-        expression: types.Expression,
-        reference: any
-    }
-}
+        name: string;
+        expression: types.Expression;
+        reference: any;
+    };
+};
 
 export default function transform(t: typeof types, decoratorMetas: DecoratorMeta[]) {
     const objectProperties = [];
     const wiredValues = decoratorMetas.filter(isWireDecorator).map(({ path }) => {
-        const [id, config] = path.get('expression.arguments') as [NodePath, NodePath];
+        const [id, config] = path.get('expression.arguments') as [
+            NodePath,
+            NodePath<types.ObjectExpression> | undefined
+        ];
 
         const propertyName = (path.parentPath.get('key.name') as any).node as string;
         const isClassMethod = path.parentPath.isClassMethod({
@@ -275,4 +295,4 @@ export default function transform(t: typeof types, decoratorMetas: DecoratorMeta
     }
 
     return objectProperties;
-};
+}
