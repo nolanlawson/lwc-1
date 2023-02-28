@@ -7,8 +7,9 @@
 import lineColumn from 'line-column';
 import { types } from '@babel/core';
 import { NodePath } from '@babel/traverse';
-import { generateErrorMessage, LWCErrorInfo } from '@lwc/errors';
+import { generateErrorMessage } from '@lwc/errors';
 import { LWC_PACKAGE_ALIAS } from './constants';
+import { DecoratorErrorOptions, ImportSpecifier } from './decorators/types';
 
 function isClassMethod(
     classMethod: NodePath<types.Node>,
@@ -44,7 +45,7 @@ function isSetterClassMethod(
     });
 }
 
-function getEngineImportsStatements(path: NodePath) {
+function getEngineImportsStatements(path: NodePath): NodePath<types.ImportDeclaration>[] {
     const programPath = path.isProgram()
         ? path
         : (path.findParent((node) => node.isProgram()) as NodePath<types.Program>);
@@ -52,10 +53,10 @@ function getEngineImportsStatements(path: NodePath) {
     return programPath.get('body').filter((node) => {
         const source = node.get('source') as NodePath<types.Node>;
         return node.isImportDeclaration() && source.isStringLiteral({ value: LWC_PACKAGE_ALIAS });
-    });
+    }) as NodePath<types.ImportDeclaration>[];
 }
 
-function getEngineImportSpecifiers(path: NodePath) {
+function getEngineImportSpecifiers(path: NodePath): ImportSpecifier[] {
     const imports = getEngineImportsStatements(path);
     return (
         imports
@@ -65,8 +66,8 @@ function getEngineImportSpecifiers(path: NodePath) {
             .filter((specifier) => specifier.type === 'ImportSpecifier')
             // Get the list of specifiers with their name
             .map((specifier) => {
-                // @ts-ignore
-                const imported = specifier.get('imported').node.name;
+                const imported = (specifier.get('imported') as NodePath<types.Identifier>).node
+                    .name;
                 return { name: imported, path: specifier };
             })
     );
@@ -104,11 +105,6 @@ function normalizeLocation(source: NodePath<types.Node>) {
         length,
     };
 }
-
-export type DecoratorErrorOptions = {
-    errorInfo: LWCErrorInfo;
-    messageArgs?: any[];
-};
 
 function generateError(
     source: NodePath<types.Node>,

@@ -8,41 +8,39 @@ import { types } from '@babel/core';
 import { NodePath, Scope } from '@babel/traverse';
 import { LWC_COMPONENT_PROPERTIES } from '../../constants';
 import { DecoratorMeta } from '../index';
+import { BindingOptions } from '../types';
 import { isWireDecorator } from './shared';
 
 const WIRE_PARAM_PREFIX = '$';
 const WIRE_CONFIG_ARG_NAME = '$cmp';
 
-function isObservedProperty(
-    configProperty: NodePath<types.ObjectMethod | types.ObjectProperty | types.SpreadElement>
-) {
+function isObservedProperty(configProperty: NodePath<types.ObjectProperty>) {
     const propertyValue = configProperty.get('value') as NodePath;
     return (
         propertyValue.isStringLiteral() && propertyValue.node.value.startsWith(WIRE_PARAM_PREFIX)
     );
 }
 
-function getWiredStatic(
-    wireConfig: NodePath<types.ObjectExpression>
-): (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[] {
+function getWiredStatic(wireConfig: NodePath<types.ObjectExpression>): types.ObjectProperty[] {
     return wireConfig
         .get('properties')
-        .filter((property) => !isObservedProperty(property))
-        .map((path) => path.node);
+        .filter((property) => !isObservedProperty(property as NodePath<types.ObjectProperty>))
+        .map((path) => path.node) as types.ObjectProperty[];
 }
 
 function getWiredParams(
     t: typeof types,
     wireConfig: NodePath<types.ObjectExpression>
-): (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[] {
+): types.ObjectProperty[] {
     return wireConfig
         .get('properties')
-        .filter((property) => isObservedProperty(property))
+        .filter((property) => isObservedProperty(property as NodePath<types.ObjectProperty>))
         .map((path) => {
             // Need to clone deep the observed property to remove the param prefix
-            const clonedProperty = t.cloneDeep(path.node);
-            // @ts-ignore
-            clonedProperty.value.value = clonedProperty.value.value.slice(1);
+            const clonedProperty = t.cloneDeep(path.node) as types.ObjectProperty;
+            (clonedProperty.value as types.StringLiteral).value = (
+                clonedProperty.value as types.StringLiteral
+            ).value.slice(1);
 
             return clonedProperty;
         });
@@ -139,8 +137,12 @@ function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
             const memberExprPaths = ((param as any).value.value as string).split('.');
             const paramConfigValue = generateParameterConfigValue(memberExprPaths);
 
-            // @ts-ignore
-            configProps.push(t.objectProperty(param.key, paramConfigValue.configValueExpression));
+            configProps.push(
+                t.objectProperty(
+                    (param as types.ObjectProperty).key,
+                    paramConfigValue.configValueExpression
+                )
+            );
 
             if (paramConfigValue.varDeclaration) {
                 configBlockBody.push(paramConfigValue.varDeclaration);
@@ -148,7 +150,6 @@ function getGeneratedConfig(t: typeof types, wiredValue: WiredValue) {
         });
     }
 
-    // @ts-ignore
     configBlockBody.push(t.returnStatement(t.objectExpression(configProps)));
 
     const fnExpression = t.functionExpression(
@@ -172,8 +173,9 @@ function buildWireConfigValue(t: typeof types, wiredValues: WiredValue[]) {
 
             if (wiredValue.params) {
                 const dynamicParamNames = wiredValue.params.map((p) => {
-                    // @ts-ignore
-                    return t.stringLiteral(t.isIdentifier(p.key) ? p.key.name : p.key.value);
+                    return t.stringLiteral(
+                        t.isIdentifier(p.key) ? p.key.name : (p.key as types.StringLiteral).value
+                    );
                 });
                 wireConfig.push(
                     t.objectProperty(t.identifier('dynamic'), t.arrayExpression(dynamicParamNames))
@@ -217,13 +219,17 @@ const scopedReferenceLookup = (scope: Scope) => (name: string) => {
             }
         } else if (binding.kind === 'const') {
             // Resolves `const foo = 'text';` references to value 'text', where `name == 'foo'`
-            // @ts-ignore
-            const init = binding.path.node.init;
-            // @ts-ignore
-            if (init && SUPPORTED_VALUE_TO_TYPE_MAP[init.type]) {
-                // @ts-ignore
-                type = SUPPORTED_VALUE_TO_TYPE_MAP[init.type];
-                value = init.value;
+            const init = (binding.path.node as BindingOptions).init;
+            if (
+                init &&
+                SUPPORTED_VALUE_TO_TYPE_MAP[init.type as keyof typeof SUPPORTED_VALUE_TO_TYPE_MAP]
+            ) {
+                type =
+                    SUPPORTED_VALUE_TO_TYPE_MAP[
+                        init.type as keyof typeof SUPPORTED_VALUE_TO_TYPE_MAP
+                    ];
+                value = (init as types.StringLiteral | types.NumericLiteral | types.BooleanLiteral)
+                    .value;
             }
         }
     }
@@ -236,8 +242,8 @@ const scopedReferenceLookup = (scope: Scope) => (name: string) => {
 type WiredValue = {
     propertyName: string;
     isClassMethod: boolean;
-    static?: (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[];
-    params?: (types.ObjectMethod | types.ObjectProperty | types.SpreadElement)[];
+    static?: types.ObjectProperty[];
+    params?: types.ObjectProperty[];
     adapter?: {
         name: string;
         expression: types.Expression;

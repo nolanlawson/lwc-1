@@ -14,13 +14,14 @@ import { BabelAPI, LwcBabelPluginPass } from '../types';
 import api from './api';
 import wire from './wire';
 import track from './track';
+import { ImportSpecifier } from './types';
 
 const DECORATOR_TRANSFORMS = [api, wire, track];
 const AVAILABLE_DECORATORS = DECORATOR_TRANSFORMS.map((transform) => transform.name).join(', ');
 
 export type DecoratorMeta = {
     name: 'api' | 'track' | 'wire';
-    propertyName: any;
+    propertyName: string;
     path: NodePath<types.Decorator>;
     decoratedNodeType: string;
     type?: 'property' | 'getter' | 'setter' | 'method';
@@ -53,32 +54,27 @@ function getDecoratedNodeType(decoratorPath: NodePath<types.Decorator>) {
     }
 }
 
-function validateImportedLwcDecoratorUsage(
-    engineImportSpecifiers: { name: any; path: NodePath<Node> }[]
-) {
+function validateImportedLwcDecoratorUsage(engineImportSpecifiers: ImportSpecifier[]) {
     engineImportSpecifiers
         .filter(({ name }) => isLwcDecoratorName(name))
-        // @ts-ignore
         .reduce((acc, { name, path }) => {
             // Get a list of all the  local references
-            const local = path.get('imported');
-            // @ts-ignore
+            const local = path.get('imported') as NodePath<types.StringLiteral>;
             const references = getReferences(local).map((reference) => ({
                 name,
                 reference,
             }));
 
-            return [...acc, ...references];
-        }, [])
-        // @ts-ignore
+            return [...acc, ...references] as { name: string; reference: NodePath<types.Node> }[];
+        }, [] as { name: string; reference: NodePath<types.Node> }[])
         .forEach(({ name, reference }) => {
             // Get the decorator from the identifier
             // If the the decorator is:
             //   - an identifier @track : the decorator is the parent of the identifier
             //   - a call expression @wire("foo") : the decorator is the grand-parent of the identifier
-            const decorator = reference.parentPath.isDecorator()
-                ? reference.parentPath
-                : reference.parentPath.parentPath;
+            const decorator = reference.parentPath!.isDecorator()
+                ? reference.parentPath!
+                : reference.parentPath!.parentPath!;
 
             if (!decorator.isDecorator()) {
                 throw generateError(decorator, {
@@ -99,8 +95,10 @@ function validateImportedLwcDecoratorUsage(
 
 function isImportedFromLwcSource(decoratorBinding: Binding) {
     const bindingPath = decoratorBinding.path;
-    // @ts-ignore
-    return bindingPath.isImportSpecifier() && bindingPath.parent.source.value === 'lwc';
+    return (
+        bindingPath.isImportSpecifier() &&
+        (bindingPath.parent as types.ImportDeclaration).source.value === 'lwc'
+    );
 }
 
 /** Validate the usage of decorator by calling each validation function */
@@ -179,8 +177,7 @@ function getDecoratorMetadata(decoratorPath: NodePath<types.Decorator>): Decorat
         throw generateInvalidDecoratorError(decoratorPath);
     }
 
-    // @ts-ignore
-    const propertyName = decoratorPath.parent.key.name;
+    const propertyName = ((decoratorPath.parent as types.ClassMethod).key as types.Identifier).name;
     const decoratedNodeType = getDecoratedNodeType(decoratorPath);
 
     return {
@@ -204,10 +201,8 @@ function getMetadataObjectPropertyList(
 
     const fieldNames = classBodyItems
         .filter((field) => field.isClassProperty({ computed: false, static: false }))
-        // @ts-ignore
-        .filter((field) => !field.node.decorators)
-        // @ts-ignore
-        .map((field) => field.node.key.name);
+        .filter((field) => !(field.node as types.ClassProperty).decorators)
+        .map((field) => ((field.node as types.ClassProperty).key as types.Identifier).name);
     if (fieldNames.length) {
         list.push(t.objectProperty(t.identifier('fields'), t.valueToNode(fieldNames)));
     }

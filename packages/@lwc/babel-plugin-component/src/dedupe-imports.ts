@@ -5,11 +5,18 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 
-import {types} from "@babel/core";
-import {NodePath} from "@babel/traverse";
-import {BabelAPI} from "./types";
+import { types } from '@babel/core';
+import { NodePath } from '@babel/traverse';
+import { BabelAPI } from './types';
 
-function defaultImport(t: typeof types, specifiers: (types.ImportDefaultSpecifier | types.ImportNamespaceSpecifier | types.ImportSpecifier)[]) {
+function defaultImport(
+    t: typeof types,
+    specifiers: (
+        | types.ImportDefaultSpecifier
+        | types.ImportNamespaceSpecifier
+        | types.ImportSpecifier
+    )[]
+) {
     const defaultImport = specifiers.find((s) => t.isImportDefaultSpecifier(s));
     return defaultImport && defaultImport.local.name;
 }
@@ -17,15 +24,16 @@ function defaultImport(t: typeof types, specifiers: (types.ImportDefaultSpecifie
 export default function ({ types: t }: BabelAPI): (path: NodePath<types.Program>) => void {
     return function (path) {
         const body = path.get('body');
-        const importStatements = body.filter((s) => s.isImportDeclaration()) as NodePath<types.ImportDeclaration>[];
+        const importStatements = body.filter((s) =>
+            s.isImportDeclaration()
+        ) as NodePath<types.ImportDeclaration>[];
         const visited = new Map<string, NodePath<types.ImportDeclaration>>();
 
         importStatements.forEach((importPath) => {
             const sourceLiteral = importPath.node.source;
 
             // If the import is of the type import * as X, just ignore it since we can't dedupe
-            // @ts-ignore
-            if (importPath.node.specifiers.some(t.isImportNamespaceSpecifier)) {
+            if (importPath.node.specifiers.some((_) => t.isImportNamespaceSpecifier(_))) {
                 return;
             }
 
@@ -58,4 +66,4 @@ export default function ({ types: t }: BabelAPI): (path: NodePath<types.Program>
             }
         });
     };
-};
+}

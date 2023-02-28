@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import {types} from "@babel/core";
-import {NodePath} from "@babel/traverse";
+import { types } from '@babel/core';
+import { NodePath } from '@babel/traverse';
 import { DECORATOR_TYPES, LWC_COMPONENT_PROPERTIES } from '../../constants';
-import {DecoratorMeta} from "../index";
+import { DecoratorMeta } from '../index';
 import { isApiDecorator } from './shared';
 
-const { PUBLIC_PROPS, PUBLIC_METHODS } = LWC_COMPONENT_PROPERTIES
+const { PUBLIC_PROPS, PUBLIC_METHODS } = LWC_COMPONENT_PROPERTIES;
 
 const PUBLIC_PROP_BIT_MASK = {
     PROPERTY: 0,
@@ -31,12 +31,17 @@ function getPropertyBitmask(type: string) {
     }
 }
 
-function getSiblingGetSetPairType(propertyName: string, type: string, classBodyItems: NodePath<types.Node>[]) {
+function getSiblingGetSetPairType(
+    propertyName: string,
+    type: string,
+    classBodyItems: NodePath<types.Node>[]
+) {
     const siblingKind = type === DECORATOR_TYPES.GETTER ? 'set' : 'get';
     const siblingNode = classBodyItems.find((classBodyItem) => {
         const isClassMethod = classBodyItem.isClassMethod({ kind: siblingKind });
-        // @ts-ignore
-        const isSamePropertyName = classBodyItem.node.key.name === propertyName;
+        const isSamePropertyName =
+            ((classBodyItem.node as types.ClassMethod).key as types.Identifier).name ===
+            propertyName;
         return isClassMethod && isSamePropertyName;
     });
     if (siblingNode) {
@@ -44,13 +49,14 @@ function getSiblingGetSetPairType(propertyName: string, type: string, classBodyI
     }
 }
 
-function computePublicPropsConfig(publicPropertyMetas: DecoratorMeta[], classBodyItems: NodePath<types.Node>[]) {
+function computePublicPropsConfig(
+    publicPropertyMetas: DecoratorMeta[],
+    classBodyItems: NodePath<types.Node>[]
+) {
     return publicPropertyMetas.reduce((acc, { propertyName, decoratedNodeType }) => {
         if (!(propertyName in acc)) {
-            // @ts-ignore
             acc[propertyName] = {};
         }
-        // @ts-ignore
         acc[propertyName].config |= getPropertyBitmask(decoratedNodeType);
 
         if (
@@ -65,16 +71,19 @@ function computePublicPropsConfig(publicPropertyMetas: DecoratorMeta[], classBod
                 classBodyItems
             );
             if (pairType) {
-                // @ts-ignore
                 acc[propertyName].config |= getPropertyBitmask(pairType);
             }
         }
 
         return acc;
-    }, {});
+    }, {} as { [key: string]: { [key: string]: number } });
 }
 
-export default function transform(t: typeof types, decoratorMetas: DecoratorMeta[], classBodyItems: NodePath<types.Node>[]) {
+export default function transform(
+    t: typeof types,
+    decoratorMetas: DecoratorMeta[],
+    classBodyItems: NodePath<types.Node>[]
+) {
     const objectProperties = [];
     const apiDecoratorMetas = decoratorMetas.filter(isApiDecorator);
     const publicPropertyMetas = apiDecoratorMetas.filter(
@@ -97,4 +106,4 @@ export default function transform(t: typeof types, decoratorMetas: DecoratorMeta
         );
     }
     return objectProperties;
-};
+}

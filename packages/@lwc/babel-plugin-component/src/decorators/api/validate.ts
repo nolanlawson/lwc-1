@@ -23,8 +23,7 @@ function validateConflict(path: NodePath<types.Node>, decorators: DecoratorMeta[
     const isPublicFieldTracked = decorators.some(
         (decorator) =>
             decorator.name === TRACK_DECORATOR &&
-            // @ts-ignore
-            decorator.path.parentPath.node === path.parentPath.node
+            decorator.path.parentPath.node === path.parentPath!.node
     );
 
     if (isPublicFieldTracked) {
@@ -39,7 +38,7 @@ function isBooleanPropDefaultTrue(property: NodePath<types.Node>) {
     return propertyValue && propertyValue.type === 'BooleanLiteral' && propertyValue.value;
 }
 
-function validatePropertyValue(property: NodePath<types.Node>) {
+function validatePropertyValue(property: NodePath<types.ClassMethod>) {
     if (isBooleanPropDefaultTrue(property)) {
         throw generateError(property, {
             errorInfo: DecoratorErrors.INVALID_BOOLEAN_PUBLIC_PROPERTY,
@@ -47,8 +46,7 @@ function validatePropertyValue(property: NodePath<types.Node>) {
     }
 }
 
-function validatePropertyName(property: NodePath<types.Node>) {
-    // @ts-ignore
+function validatePropertyName(property: NodePath<types.ClassMethod>) {
     if (property.node.computed) {
         throw generateError(property, {
             errorInfo: DecoratorErrors.PROPERTY_CANNOT_BE_COMPUTED,
@@ -118,13 +116,12 @@ function validateUniqueness(decorators: DecoratorMeta[]) {
     const apiDecorators = decorators.filter(isApiDecorator);
     for (let i = 0; i < apiDecorators.length; i++) {
         const { path: currentPath, type: currentType } = apiDecorators[i];
-        // @ts-ignore
-        const currentPropertyName = currentPath.parentPath.get('key.name').node;
+        const currentPropertyName = (currentPath.parentPath.get('key.name') as any).node as string;
 
         for (let j = 0; j < apiDecorators.length; j++) {
             const { path: comparePath, type: compareType } = apiDecorators[j];
-            // @ts-ignore
-            const comparePropertyName = comparePath.parentPath.get('key.name').node;
+            const comparePropertyName = (comparePath.parentPath.get('key.name') as any)
+                .node as string;
 
             // We will throw if the considered properties have the same name, and when their
             // are not part of a pair of getter/setter.
@@ -155,7 +152,7 @@ export default function validate(decorators: DecoratorMeta[]) {
         validateConflict(path, decorators);
 
         if (decoratedNodeType !== DECORATOR_TYPES.METHOD) {
-            const property = path.parentPath!;
+            const property = path.parentPath as NodePath<types.ClassMethod>;
 
             validatePropertyName(property);
             validatePropertyValue(property);

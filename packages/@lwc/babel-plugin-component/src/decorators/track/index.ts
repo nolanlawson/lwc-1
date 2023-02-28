@@ -4,14 +4,14 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import {types} from "@babel/core";
+import { types } from '@babel/core';
 import { DecoratorErrors } from '@lwc/errors';
 import { LWC_COMPONENT_PROPERTIES, LWC_PACKAGE_EXPORTS } from '../../constants';
 import { generateError } from '../../utils';
 
-const { TRACK_DECORATOR } = LWC_PACKAGE_EXPORTS
+const { TRACK_DECORATOR } = LWC_PACKAGE_EXPORTS;
 
-import {DecoratorMeta} from "../index";
+import { DecoratorMeta } from '../index';
 
 const TRACK_PROPERTY_VALUE = 1;
 
@@ -34,10 +34,9 @@ function transform(t: typeof types, decoratorMetas: DecoratorMeta[]) {
     const trackDecoratorMetas = decoratorMetas.filter(isTrackDecorator);
     if (trackDecoratorMetas.length) {
         const config = trackDecoratorMetas.reduce((acc, meta) => {
-            // @ts-ignore
             acc[meta.propertyName] = TRACK_PROPERTY_VALUE;
             return acc;
-        }, {});
+        }, {} as { [key: string]: number });
         objectProperties.push(
             t.objectProperty(t.identifier(LWC_COMPONENT_PROPERTIES.TRACK), t.valueToNode(config))
         );
