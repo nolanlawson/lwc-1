@@ -155,7 +155,8 @@ function evaluateStylesheetsContent(
             const useActualHostSelector =
                 vm.renderMode === RenderMode.Light
                     ? !isScopedCss
-                    : vm.shadowMode === ShadowMode.Native;
+                    : !lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW &&
+                      vm.shadowMode === ShadowMode.Native;
             // Use the native :dir() pseudoclass only in native shadow DOM. Otherwise, in synthetic shadow,
             // we use an attribute selector on the host to simulate :dir().
             let useNativeDirPseudoclass;

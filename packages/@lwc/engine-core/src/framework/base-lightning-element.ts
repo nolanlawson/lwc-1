@@ -260,6 +260,17 @@ export const LightningElement: LightningElementConstructor = function (
     return this;
 };
 
+function setUpSyntheticSyntheticShadow(shadowRoot: ShadowRoot) {
+    (shadowRoot as any).synthetic = true; // signal to the component author that this is synthetic shadow
+
+    // attach global styles
+    const styles = document.head.querySelectorAll('link[rel="stylesheet"],style');
+    for (let i = 0; i < styles.length; i++) {
+        const style = styles[i];
+        shadowRoot.appendChild(style.cloneNode(true));
+    }
+}
+
 function doAttachShadow(vm: VM): ShadowRoot {
     const {
         elm,
@@ -270,10 +281,16 @@ function doAttachShadow(vm: VM): ShadowRoot {
     } = vm;
 
     const shadowRoot = attachShadow(elm, {
-        [KEY__SYNTHETIC_MODE]: shadowMode === ShadowMode.Synthetic,
+        [KEY__SYNTHETIC_MODE]:
+            !lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW &&
+            shadowMode === ShadowMode.Synthetic,
         delegatesFocus: Boolean(ctor.delegatesFocus),
         mode,
     } as any);
+
+    if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
+        setUpSyntheticSyntheticShadow(shadowRoot);
+    }
 
     vm.shadowRoot = shadowRoot;
     associateVM(shadowRoot, vm);

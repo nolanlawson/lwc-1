@@ -73,6 +73,11 @@ export interface FeatureFlagMap {
      * and HTMLBridgeElement base classes, not on every Element.
      */
     DISABLE_ARIA_REFLECTION_POLYFILL: FeatureFlagValue;
+
+    /**
+     * Enable "synthetic synthetic shadow" mode
+     */
+    ENABLE_SYNTHETIC_SYNTHETIC_SHADOW: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;
