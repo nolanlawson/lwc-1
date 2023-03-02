@@ -500,7 +500,7 @@ function gid(id: string | undefined | null): string | null | undefined {
         return null;
     }
     const { idx, shadowMode } = vmBeingRendered;
-    if (shadowMode === ShadowMode.Synthetic) {
+    if (shadowMode === ShadowMode.Synthetic || lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
         return StringReplace.call(id, /\S+/g, (id) => `${id}-${idx}`);
     }
     return id;
@@ -526,7 +526,11 @@ function fid(url: string | undefined | null): string | null | undefined {
     }
     const { idx, shadowMode } = vmBeingRendered;
     // Apply transformation only for fragment-only-urls, and only in shadow DOM
-    if (shadowMode === ShadowMode.Synthetic && /^#/.test(url)) {
+    if (
+        (shadowMode === ShadowMode.Synthetic ||
+            lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) &&
+        /^#/.test(url)
+    ) {
         return `${url}-${idx}`;
     }
     return url;
