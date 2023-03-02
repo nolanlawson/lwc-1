@@ -155,13 +155,15 @@ function evaluateStylesheetsContent(
             const useActualHostSelector =
                 vm.renderMode === RenderMode.Light
                     ? !isScopedCss
-                    : !lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW &&
+                    : lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW ||
                       vm.shadowMode === ShadowMode.Native;
             // Use the native :dir() pseudoclass only in native shadow DOM. Otherwise, in synthetic shadow,
             // we use an attribute selector on the host to simulate :dir().
             let useNativeDirPseudoclass;
             if (vm.renderMode === RenderMode.Shadow) {
-                useNativeDirPseudoclass = vm.shadowMode === ShadowMode.Native;
+                useNativeDirPseudoclass =
+                    lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW ||
+                    vm.shadowMode === ShadowMode.Native;
             } else {
                 // Light DOM components should only render `[dir]` if they're inside of a synthetic shadow root.
                 // At the top level (root is null) or inside of a native shadow root, they should use `:dir()`.
@@ -169,7 +171,10 @@ function evaluateStylesheetsContent(
                     // Only calculate the root once as necessary
                     root = getNearestShadowComponent(vm);
                 }
-                useNativeDirPseudoclass = isNull(root) || root.shadowMode === ShadowMode.Native;
+                useNativeDirPseudoclass =
+                    isNull(root) ||
+                    lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW ||
+                    root.shadowMode === ShadowMode.Native;
             }
             ArrayPush.call(
                 content,

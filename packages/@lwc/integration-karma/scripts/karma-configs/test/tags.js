@@ -10,6 +10,7 @@
 const {
     COMPAT,
     SYNTHETIC_SHADOW_ENABLED,
+    ENABLE_SYNTHETIC_SYNTHETIC_SHADOW,
     FORCE_NATIVE_SHADOW_MODE_FOR_TEST,
     ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
     DISABLE_ARIA_REFLECTION_POLYFILL,
@@ -20,6 +21,7 @@ const {
 // These are used to decide the directory that coverage is written to
 const TAGS = [
     `${SYNTHETIC_SHADOW_ENABLED ? 'synthetic' : 'native'}-shadow`,
+    ENABLE_SYNTHETIC_SYNTHETIC_SHADOW && 'synthetic-synthetic',
     FORCE_NATIVE_SHADOW_MODE_FOR_TEST && 'force-native-shadow-mode',
     COMPAT && 'compat',
     ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE && 'native-lifecycle',
