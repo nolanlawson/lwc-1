@@ -69,6 +69,7 @@ import { patchStyleAttribute } from './modules/computed-style-attr';
 import { applyEventListeners } from './modules/events';
 import { applyStaticClassAttribute } from './modules/static-class-attr';
 import { applyStaticStyleAttribute } from './modules/static-style-attr';
+import { markElementAsPortal, setShadowToken } from './synthetic-synthetic-shadow';
 
 export function patchChildren(
     c1: VNodes,
@@ -248,7 +249,7 @@ function mountElement(
 
     linkNodeToShadow(elm, owner, renderer);
     applyStyleScoping(elm, owner, renderer);
-    applyDomManual(elm, vnode);
+    applyDomManual(elm, vnode, renderer);
     applyElementRestrictions(elm, vnode);
 
     patchElementPropsAndAttrs(null, vnode, renderer);
@@ -282,7 +283,9 @@ function mountStatic(
 
     if (isSyntheticShadowDefined) {
         if (shadowMode === ShadowMode.Synthetic || renderMode === RenderMode.Light) {
-            (elm as any)[KEY__SHADOW_STATIC] = true;
+            if (!lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
+                (elm as any)[KEY__SHADOW_STATIC] = true;
+            }
         }
     }
 
@@ -592,17 +595,28 @@ function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {
     // Set property element for synthetic shadow DOM style scoping.
     const { stylesheetToken: syntheticToken } = owner.context;
     if (owner.shadowMode === ShadowMode.Synthetic && !isUndefined(syntheticToken)) {
-        (elm as any).$shadowToken$ = syntheticToken;
+        if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
+            setShadowToken(elm, syntheticToken, renderer);
+        } else {
+            // delegate to @lwc/synthetic-shadow
+            (elm as any).$shadowToken$ = syntheticToken;
+        }
     }
 }
 
-function applyDomManual(elm: Element, vnode: VBaseElement) {
+function applyDomManual(elm: Element, vnode: VBaseElement, renderer: RendererAPI) {
     const {
         owner,
         data: { context },
     } = vnode;
     if (owner.shadowMode === ShadowMode.Synthetic && context?.lwc?.dom === LwcDomMode.Manual) {
-        (elm as any).$domManual$ = true;
+        if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
+            // do what @lwc/synthetic-shadow did to apply the token
+            markElementAsPortal(elm, vnode.owner.elm.shadowRoot, renderer);
+        } else {
+            // delegate to @lwc/synthetic-shadow
+            (elm as any).$domManual$ = true;
+        }
     }
 }
 

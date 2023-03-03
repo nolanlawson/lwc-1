@@ -288,7 +288,7 @@ function doAttachShadow(vm: VM): ShadowRoot {
         mode,
     } as any);
 
-    if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
+    if (process.env.IS_BROWSER && lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
         setUpSyntheticSyntheticShadow(shadowRoot);
     }
 

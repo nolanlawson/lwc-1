@@ -245,7 +245,11 @@ export function getStylesheetTokenHost(vnode: VCustomElement): string | null {
 
 function getNearestNativeShadowComponent(vm: VM): VM | null {
     const owner = getNearestShadowComponent(vm);
-    if (!isNull(owner) && owner.shadowMode === ShadowMode.Synthetic) {
+    if (
+        !isNull(owner) &&
+        owner.shadowMode === ShadowMode.Synthetic &&
+        !lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW
+    ) {
         // Synthetic-within-native is impossible. So if the nearest shadow component is
         // synthetic, we know we won't find a native component if we go any further.
         return null;
@@ -259,7 +263,11 @@ export function createStylesheet(vm: VM, stylesheets: string[]): VNode[] | null 
         shadowMode,
         renderer: { insertStylesheet },
     } = vm;
-    if (renderMode === RenderMode.Shadow && shadowMode === ShadowMode.Synthetic) {
+    if (
+        renderMode === RenderMode.Shadow &&
+        shadowMode === ShadowMode.Synthetic &&
+        !lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW
+    ) {
         for (let i = 0; i < stylesheets.length; i++) {
             insertStylesheet(stylesheets[i]);
         }

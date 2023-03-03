@@ -431,7 +431,7 @@ function computeShadowMode(vm: VM, renderer: RendererAPI) {
     const { isSyntheticShadowDefined, isNativeShadowDefined } = renderer;
 
     let shadowMode;
-    if (isSyntheticShadowDefined) {
+    if (isSyntheticShadowDefined || lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
         if (def.renderMode === RenderMode.Light) {
             // ShadowMode.Native implies "not synthetic shadow" which is consistent with how
             // everything defaults to native when the synthetic shadow polyfill is unavailable.
