@@ -436,7 +436,7 @@ function computeShadowMode(vm: VM, renderer: RendererAPI) {
             // ShadowMode.Native implies "not synthetic shadow" which is consistent with how
             // everything defaults to native when the synthetic shadow polyfill is unavailable.
             shadowMode = ShadowMode.Native;
-        } else if (isNativeShadowDefined) {
+        } else if (isNativeShadowDefined || lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
             // Not combined with above condition because @lwc/features only supports identifiers in
             // the if-condition.
             if (lwcRuntimeFlags.ENABLE_MIXED_SHADOW_MODE) {
