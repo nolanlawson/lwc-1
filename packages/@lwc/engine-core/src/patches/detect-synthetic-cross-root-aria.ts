@@ -46,8 +46,8 @@ if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
         const processedShadowRoots = [];
         let current: Document | ShadowRoot | undefined;
         while (!isUndefined((current = inputShadowRoots.pop()))) {
-            // @ts-ignore
             inputShadowRoots.push(
+                // @ts-ignore
                 ...[...current.querySelectorAll('*')].map((_) => _.shadowRoot).filter(Boolean)
             );
             processedShadowRoots.push(current);
@@ -62,10 +62,12 @@ if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
     };
     // @ts-ignore
     querySelectorAll = (sel: string) => {
-        // @ts-ignore
-        return getAllShadowRoots()
-            .map((_) => [..._.querySelectorAll(sel)])
-            .flat();
+        return (
+            getAllShadowRoots()
+                // @ts-ignore
+                .map((_) => [..._.querySelectorAll(sel)])
+                .flat()
+        );
     };
 }
 
