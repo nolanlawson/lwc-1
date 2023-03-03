@@ -7,6 +7,7 @@ import { RendererAPI } from './renderer';
 
 const observedElements = new WeakSet<Node>();
 const nodesToShadowTokens = new WeakMap<Node, string>();
+const syntheticSyntheticShadowRoots: WeakRef<ShadowRoot>[] = [];
 
 // eslint-disable-next-line @lwc/lwc-internal/no-global-node
 const compareDocumentPosition = Node.prototype.compareDocumentPosition;
@@ -123,4 +124,17 @@ export function setUpSyntheticSyntheticShadow(shadowRoot: ShadowRoot) {
         const style = styles[i];
         shadowRoot.appendChild(style.cloneNode(true));
     }
+
+    syntheticSyntheticShadowRoots.push(new WeakRef(shadowRoot));
+}
+
+export function getAllSyntheticSyntheticShadowRoots() {
+    const result = [];
+    for (const weakRef of syntheticSyntheticShadowRoots) {
+        const root = weakRef.deref();
+        if (!isUndefined(root)) {
+            result.push(root);
+        }
+    }
+    return result;
 }

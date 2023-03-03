@@ -25,6 +25,7 @@ import {
 import { onReportingEnabled, report, ReportingEventId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
 import { logWarnOnce } from '../shared/logger';
+import { getAllSyntheticSyntheticShadowRoots } from '../framework/synthetic-synthetic-shadow';
 
 //
 // The goal of this code is to detect invalid cross-root ARIA references in synthetic shadow DOM.
@@ -41,33 +42,17 @@ let querySelectorAll = globalThis[
 ] as typeof document.querySelectorAll;
 
 if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
-    const getAllShadowRoots = () => {
-        const inputShadowRoots = [document];
-        const processedShadowRoots = [];
-        let current: Document | ShadowRoot | undefined;
-        while (!isUndefined((current = inputShadowRoots.pop()))) {
-            inputShadowRoots.push(
-                // @ts-ignore
-                ...[...current.querySelectorAll('*')].map((_) => _.shadowRoot).filter(Boolean)
-            );
-            processedShadowRoots.push(current);
-        }
-        return processedShadowRoots;
-    };
     getElementById = (id: string) => {
-        const elements = getAllShadowRoots()
+        const elements = getAllSyntheticSyntheticShadowRoots()
             .map((_) => _.getElementById(id))
             .filter(Boolean);
         return elements.length > 0 ? elements[0] : null;
     };
     // @ts-ignore
     querySelectorAll = (sel: string) => {
-        return (
-            getAllShadowRoots()
-                // @ts-ignore
-                .map((_) => [..._.querySelectorAll(sel)])
-                .flat()
-        );
+        return getAllSyntheticSyntheticShadowRoots()
+            .map((_) => Array.from(_.querySelectorAll(sel)))
+            .flat();
     };
 }
 

@@ -12,7 +12,7 @@ function getEngineCode() {
     const engineDomSrc = document.querySelector('script[src*="engine-dom"]').src;
 
     const syntheticShadowSrc =
-        !process.env.NATIVE_SHADOW &&
+        !process.env.DISABLE_SYNTHETIC &&
         getCode(document.querySelector('script[src*="synthetic-shadow"]').src);
 
     const scripts = [
