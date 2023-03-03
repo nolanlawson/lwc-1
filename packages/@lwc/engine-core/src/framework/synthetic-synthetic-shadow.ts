@@ -113,3 +113,14 @@ export function setShadowToken(elm: Node, token: string | undefined, renderer: R
 function getShadowToken(elm: Node) {
     return nodesToShadowTokens.get(elm);
 }
+
+export function setUpSyntheticSyntheticShadow(shadowRoot: ShadowRoot) {
+    (shadowRoot as any).synthetic = true; // signal to the component author that this is synthetic shadow
+
+    // attach global styles
+    const styles = document.head.querySelectorAll('link[rel="stylesheet"],style');
+    for (let i = 0; i < styles.length; i++) {
+        const style = styles[i];
+        shadowRoot.appendChild(style.cloneNode(true));
+    }
+}

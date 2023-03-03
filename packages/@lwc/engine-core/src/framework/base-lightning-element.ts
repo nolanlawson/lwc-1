@@ -57,6 +57,7 @@ import { HTMLElementConstructor } from './base-bridge-element';
 import { updateComponentValue } from './update-component-value';
 import { markLockerLiveObject } from './membrane';
 import { TemplateStylesheetFactories } from './stylesheet';
+import { setUpSyntheticSyntheticShadow } from './synthetic-synthetic-shadow';
 
 /**
  * This operation is called with a descriptor of an standard html property
@@ -259,17 +260,6 @@ export const LightningElement: LightningElementConstructor = function (
 
     return this;
 };
-
-function setUpSyntheticSyntheticShadow(shadowRoot: ShadowRoot) {
-    (shadowRoot as any).synthetic = true; // signal to the component author that this is synthetic shadow
-
-    // attach global styles
-    const styles = document.head.querySelectorAll('link[rel="stylesheet"],style');
-    for (let i = 0; i < styles.length; i++) {
-        const style = styles[i];
-        shadowRoot.appendChild(style.cloneNode(true));
-    }
-}
 
 function doAttachShadow(vm: VM): ShadowRoot {
     const {
