@@ -656,7 +656,11 @@ export function allocateChildren(vnode: VCustomElement, vm: VM) {
     vnode.children = allocatedChildren;
     vm.aChildren = allocatedChildren;
 
-    if (shadowMode === ShadowMode.Synthetic || renderMode === RenderMode.Light) {
+    if (
+        (!lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW &&
+            shadowMode === ShadowMode.Synthetic) ||
+        renderMode === RenderMode.Light
+    ) {
         // slow path
         allocateInSlot(vm, allocatedChildren, vnode.owner);
         // save the allocated children in case this vnode is reused.

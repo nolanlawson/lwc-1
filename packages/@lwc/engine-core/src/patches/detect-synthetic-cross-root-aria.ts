@@ -34,11 +34,40 @@ import { logWarnOnce } from '../shared/logger';
 //
 
 // Use the unpatched native getElementById/querySelectorAll rather than the synthetic one
-const getElementById = globalThis[KEY__NATIVE_GET_ELEMENT_BY_ID] as typeof document.getElementById;
+let getElementById = globalThis[KEY__NATIVE_GET_ELEMENT_BY_ID] as typeof document.getElementById;
 
-const querySelectorAll = globalThis[
+let querySelectorAll = globalThis[
     KEY__NATIVE_QUERY_SELECTOR_ALL
 ] as typeof document.querySelectorAll;
+
+if (lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
+    const getAllShadowRoots = () => {
+        const inputShadowRoots = [document];
+        const processedShadowRoots = [];
+        let current: Document | ShadowRoot | undefined;
+        while (!isUndefined((current = inputShadowRoots.pop()))) {
+            // @ts-ignore
+            inputShadowRoots.push(
+                ...[...current.querySelectorAll('*')].map((_) => _.shadowRoot).filter(Boolean)
+            );
+            processedShadowRoots.push(current);
+        }
+        return processedShadowRoots;
+    };
+    getElementById = (id: string) => {
+        const elements = getAllShadowRoots()
+            .map((_) => _.getElementById(id))
+            .filter(Boolean);
+        return elements.length > 0 ? elements[0] : null;
+    };
+    // @ts-ignore
+    querySelectorAll = (sel: string) => {
+        // @ts-ignore
+        return getAllShadowRoots()
+            .map((_) => [..._.querySelectorAll(sel)])
+            .flat();
+    };
+}
 
 // This is a "handoff" from synthetic-shadow to engine-core – we want to clean up after ourselves
 // so nobody else can misuse these global APIs.
@@ -177,7 +206,10 @@ function supportsCssEscape() {
 function isSyntheticShadowLoaded() {
     // We should probably be calling `renderer.isSyntheticShadowDefined`, but 1) we don't have access to the renderer,
     // and 2) this code needs to run in @lwc/engine-core, so it can access `logWarn()` and `report()`.
-    return hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN);
+    return (
+        lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW ||
+        hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN)
+    );
 }
 
 // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
