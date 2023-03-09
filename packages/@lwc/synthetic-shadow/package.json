@@ -37,7 +37,8 @@
     },
     "devDependencies": {
         "@lwc/features": "2.39.0",
-        "@lwc/shared": "2.39.0"
+        "@lwc/shared": "2.39.0",
+        "@rollup/plugin-virtual": "^3.0.1"
     },
     "nx": {
         "targets": {

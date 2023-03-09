@@ -5,6 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 const path = require('path');
+const { rollup } = require('rollup');
+const virtual = require('@rollup/plugin-virtual');
 const MagicString = require('magic-string');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const typescript = require('../../../../../scripts/rollup/typescript');
@@ -30,13 +32,34 @@ const footer = `/** version: ${version} */`;
 //     }
 function enableBasedOnRuntimeFlag() {
     return {
-        renderChunk(code) {
-            const magic = new MagicString(code);
+        async renderChunk(chunkCode) {
+            const magic = new MagicString(chunkCode);
 
-            // The IIFE will contain the string `var renderer = `, which we don't actually need. We just need the
-            // part after, which is the actual IIFE (e.g. `(function () { /* code */ })()`)
+            // @lwc/features must be injected here, so that the `lwcRuntimeFlags` global is available
+            // This is why we run Rollup inside Rollup
+            const bundle = await rollup({
+                input: '__virtual_entry__',
+
+                plugins: [
+                    virtual({
+                        __virtual_entry__: `import '@lwc/features'`,
+                    }),
+                    nodeResolve({
+                        only: [/^@lwc\//],
+                    }),
+                    typescript(),
+                ],
+            });
+            const { output } = await bundle.generate({
+                format: 'iife',
+                esModule: false, // no need for `Object.defineProperty(exports, '__esModule', { value: true })`
+            });
+            const { code: lwcFeaturesCode } = output[0];
+
             magic.indent('  ');
-            magic.prepend(`${banner}\nif (!lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {\n`);
+            magic.prepend(
+                `${banner}\n${lwcFeaturesCode}\nif (!lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {\n`
+            );
             magic.append(`}\n${footer}\n`);
 
             return {
