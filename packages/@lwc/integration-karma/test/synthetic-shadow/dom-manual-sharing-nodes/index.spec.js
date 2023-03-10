@@ -29,13 +29,11 @@ describe('dom manual sharing nodes', () => {
             });
     });
 
-    it('has correct styles when sharing nodes from unstyled to styled component', async () => {
+    it('has correct styles when sharing nodes from unstyled to styled component', () => {
         const unstyled = createElement('x-unstyled', { is: Unstyled });
         const styled = createElement('x-styled', { is: Styled });
         document.body.appendChild(unstyled);
         document.body.appendChild(styled);
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
 
         return new Promise((resolve) => requestAnimationFrame(() => resolve()))
             .then(() => {
