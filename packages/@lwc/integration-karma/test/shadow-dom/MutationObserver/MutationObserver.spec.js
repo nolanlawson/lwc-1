@@ -427,7 +427,9 @@ describe('MutationObserver is synthetic shadow dom aware.', () => {
             });
         });
     });
-    if (!process.env.NATIVE_SHADOW) {
+    // $$lwcNodeObservers$$ is not available in synthetic synthetic shadow, and we don't attempt to
+    // polyfill it because it's not really user-facing
+    if (!process.env.NATIVE_SHADOW && !window.lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
         describe('References to mutation observers are not leaked', () => {
             let container;
             beforeEach(() => {
