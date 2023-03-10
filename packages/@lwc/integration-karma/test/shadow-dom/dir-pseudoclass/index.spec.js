@@ -20,7 +20,10 @@ describe(':dir() pseudoclass', () => {
         return supports;
     }
 
-    if (!process.env.NATIVE_SHADOW || supportsDirPseudoclass()) {
+    if (
+        (!process.env.NATIVE_SHADOW && !window.lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) ||
+        supportsDirPseudoclass()
+    ) {
         // In native shadow we delegate to the browser, so it has to support :dir()
 
         it('can apply styles based on :dir()', () => {

@@ -29,7 +29,7 @@ describe('host pseudo', () => {
     }
 
     // TODO [#3225]: we should  not support selector lists in :host()
-    if (!process.env.NATIVE_SHADOW) {
+    if (!process.env.NATIVE_SHADOW && !window.lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
         testComponent(Invalid, 'invalid syntax');
     }
 

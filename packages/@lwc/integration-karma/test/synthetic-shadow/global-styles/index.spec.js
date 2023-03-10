@@ -3,7 +3,7 @@ import Component from 'x/component';
 
 // TODO [#2922]: remove this test when we can support document.adoptedStyleSheets.
 // Currently we can't, due to backwards compat.
-if (!process.env.NATIVE_SHADOW) {
+if (!process.env.NATIVE_SHADOW && !window.lwcRuntimeFlags.ENABLE_SYNTHETIC_SYNTHETIC_SHADOW) {
     describe('global styles', () => {
         it('injects global styles in document.head in synthetic shadow', () => {
             const numStyleSheetsBefore = document.styleSheets.length;
