@@ -458,7 +458,7 @@ export default class CodeGen {
         }
 
         const scope = this;
-        walk(expression, {
+        walk(expression as t.Node, {
             leave(node, parent) {
                 if (
                     parent !== null &&
