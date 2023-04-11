@@ -46,11 +46,7 @@ export interface RollupLwcOptions {
 
 const PLUGIN_NAME = 'rollup-plugin-lwc-compiler';
 
-const DEFAULT_MODULES = [
-    { npm: '@lwc/engine-dom' },
-    { npm: '@lwc/synthetic-shadow' },
-    { npm: '@lwc/wire-service' },
-];
+const DEFAULT_MODULES = [{ npm: '@lwc/engine-dom' }];
 
 const IMPLICIT_DEFAULT_HTML_PATH = '@lwc/resources/empty_html.js';
 const EMPTY_IMPLICIT_HTML_CONTENT = 'export default void 0';
