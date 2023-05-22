@@ -27,7 +27,7 @@ import { logError } from '../shared/logger';
 
 import { invokeEventListener } from './invoker';
 import { getVMBeingRendered, setVMBeingRendered } from './template';
-import { EmptyArray, setRefVNode } from './utils';
+import { EmptyArray, enforceMonomorphism, setRefVNode } from './utils';
 import { isComponentConstructor } from './def';
 import { ShadowMode, SlotSet, VM, RenderMode } from './vm';
 import { LightningElementConstructor } from './base-lightning-element';
@@ -57,44 +57,76 @@ function addVNodeToChildLWC(vnode: VCustomElement) {
 
 // [s]coped [s]lot [f]actory
 function ssf(slotName: unknown, factory: (value: any, key: any) => VFragment): VScopedSlotFragment {
-    return {
-        type: VNodeType.ScopedSlotFragment,
-        factory,
-        owner: getVMBeingRendered()!,
+    return enforceMonomorphism({
+        aChildren: undefined,
+        children: undefined,
+        ctor: undefined,
+        data: undefined,
         elm: undefined,
-        sel: undefined,
+        factory,
+        fragment: undefined,
         key: undefined,
+        leading: undefined,
+        mode: undefined,
+        owner: getVMBeingRendered()!,
+        sel: undefined,
         slotName,
-    };
+        stable: undefined,
+        text: undefined,
+        trailing: undefined,
+        type: VNodeType.ScopedSlotFragment,
+        vm: undefined,
+    });
 }
 
 // [st]atic node
 function st(fragment: Element, key: Key): VStatic {
-    return {
-        type: VNodeType.Static,
-        sel: undefined,
-        key,
+    return enforceMonomorphism({
+        aChildren: undefined,
+        children: undefined,
+        ctor: undefined,
+        data: undefined,
         elm: undefined,
+        factory: undefined,
         fragment,
+        key,
+        leading: undefined,
+        mode: undefined,
         owner: getVMBeingRendered()!,
-    };
+        sel: undefined,
+        slotName: undefined,
+        stable: undefined,
+        text: undefined,
+        trailing: undefined,
+        type: VNodeType.Static,
+        vm: undefined,
+    });
 }
 
 // [fr]agment node
 function fr(key: Key, children: VNodes, stable: 0 | 1): VFragment {
     const leading = t('');
     const trailing = t('');
-    return {
-        type: VNodeType.Fragment,
-        sel: undefined,
-        key,
-        elm: undefined,
+    return enforceMonomorphism({
+        aChildren: undefined,
         children: [leading, ...children, trailing],
-        stable,
-        owner: getVMBeingRendered()!,
+        ctor: undefined,
+        data: undefined,
+        elm: undefined,
+        factory: undefined,
+        fragment: undefined,
+        key,
         leading,
+        mode: undefined,
+        owner: getVMBeingRendered()!,
+        sel: undefined,
+        slotName: undefined,
+        stable,
+        text: undefined,
         trailing,
-    };
+        type: VNodeType.Fragment,
+        vm: undefined,
+    });
 }
 
 // [h]tml node
@@ -138,15 +170,26 @@ function h(sel: string, data: VElementData, children: VNodes = EmptyArray): VEle
 
     const { key, ref } = data;
 
-    const vnode: VElement = {
-        type: VNodeType.Element,
-        sel,
-        data,
+    const vnode: VElement = enforceMonomorphism({
+        aChildren: undefined,
         children,
+        ctor: undefined,
+        data,
         elm: undefined,
+        factory: undefined,
+        fragment: undefined,
         key,
+        leading: undefined,
+        mode: undefined,
         owner: vmBeingRendered,
-    };
+        sel,
+        slotName: undefined,
+        stable: undefined,
+        text: undefined,
+        trailing: undefined,
+        type: VNodeType.Element,
+        vm: undefined,
+    });
 
     if (!isUndefined(ref)) {
         setRefVNode(vmBeingRendered, ref, vnode);
@@ -295,21 +338,26 @@ function c(
         }
     }
     const { key, ref } = data;
-    let elm, aChildren, vm;
-    const vnode: VCustomElement = {
-        type: VNodeType.CustomElement,
-        sel,
-        data,
+    const vnode: VCustomElement = enforceMonomorphism({
+        aChildren: undefined,
         children,
-        elm,
-        key,
-
         ctor: Ctor,
-        owner: vmBeingRendered,
+        data,
+        elm: undefined,
+        factory: undefined,
+        fragment: undefined,
+        key,
+        leading: undefined,
         mode: 'open', // TODO [#1294]: this should be defined in Ctor
-        aChildren,
-        vm,
-    };
+        owner: vmBeingRendered,
+        sel,
+        slotName: undefined,
+        stable: undefined,
+        text: undefined,
+        trailing: undefined,
+        type: VNodeType.CustomElement,
+        vm: undefined,
+    });
     addVNodeToChildLWC(vnode);
 
     if (!isUndefined(ref)) {
@@ -432,28 +480,50 @@ function f(items: Readonly<Array<Readonly<Array<VNodes>> | VNodes>>): VNodes {
 
 // [t]ext node
 function t(text: string): VText {
-    let sel, key, elm;
-    return {
-        type: VNodeType.Text,
-        sel,
-        text,
-        elm,
-        key,
+    return enforceMonomorphism({
+        aChildren: undefined,
+        children: undefined,
+        ctor: undefined,
+        data: undefined,
+        elm: undefined,
+        factory: undefined,
+        fragment: undefined,
+        key: undefined,
+        leading: undefined,
+        mode: undefined,
         owner: getVMBeingRendered()!,
-    };
+        sel: undefined,
+        slotName: undefined,
+        stable: undefined,
+        text,
+        trailing: undefined,
+        type: VNodeType.Text,
+        vm: undefined,
+    });
 }
 
 // [co]mment node
 function co(text: string): VComment {
-    let sel, elm;
-    return {
-        type: VNodeType.Comment,
-        sel,
-        text,
-        elm,
+    return enforceMonomorphism({
+        aChildren: undefined,
+        children: undefined,
+        ctor: undefined,
+        data: undefined,
+        elm: undefined,
+        factory: undefined,
+        fragment: undefined,
         key: 'c',
+        leading: undefined,
+        mode: undefined,
         owner: getVMBeingRendered()!,
-    };
+        sel: undefined,
+        slotName: undefined,
+        stable: undefined,
+        text,
+        trailing: undefined,
+        type: VNodeType.Comment,
+        vm: undefined,
+    });
 }
 
 // [d]ynamic text

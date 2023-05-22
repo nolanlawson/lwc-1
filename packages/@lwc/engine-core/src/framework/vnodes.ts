@@ -36,11 +36,24 @@ export interface BaseVParent {
 }
 
 export interface BaseVNode {
-    type: VNodeType;
+    aChildren: VNodes | undefined;
+    children: VNodes | undefined;
+    ctor: any;
+    data: VElementData | undefined;
     elm: Node | undefined;
-    sel: string | undefined;
+    factory: ((value: any, key: any) => VFragment) | undefined;
+    fragment: Element | undefined;
     key: Key | undefined;
+    leading: VText | undefined;
+    mode: 'closed' | 'open' | undefined;
     owner: VM;
+    sel: string | undefined;
+    slotName: unknown | undefined;
+    stable: 0 | 1 | undefined;
+    text: string | undefined;
+    trailing: VText | undefined;
+    type: VNodeType;
+    vm: VM | undefined;
 }
 
 export interface VScopedSlotFragment extends BaseVNode {

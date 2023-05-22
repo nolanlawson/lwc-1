@@ -4,10 +4,19 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { ArrayPush, create, isArray, isFunction, isUndefined, keys, seal } from '@lwc/shared';
+import {
+    ArrayPush,
+    assert,
+    create,
+    isArray,
+    isFunction,
+    isUndefined,
+    keys,
+    seal,
+} from '@lwc/shared';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
 import { RefVNodes, VM } from './vm';
-import { VBaseElement } from './vnodes';
+import { VBaseElement, VNode } from './vnodes';
 
 type Callback = () => void;
 
@@ -125,4 +134,18 @@ export function assertNotProd() {
         // this method should never leak to prod
         throw new ReferenceError();
     }
+}
+
+const knownKeyLists: Map<string, string[]> = new Map();
+
+export function enforceMonomorphism<T extends VNode>(vnode: T): T {
+    if (process.env.NODE_ENV !== 'production') {
+        const keySet = Object.keys(vnode);
+        knownKeyLists.set(JSON.stringify(keySet), keySet);
+        assert.isTrue(
+            knownKeyLists.size <= 1,
+            `Expected all vnodes to be monomorphic. Found keys: ${JSON.stringify(keySet)}`
+        );
+    }
+    return vnode;
 }
