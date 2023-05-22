@@ -31,10 +31,6 @@ export type VNode =
 
 export type VNodes = Readonly<Array<VNode | null>>;
 
-export interface BaseVParent {
-    children: VNodes;
-}
-
 export interface BaseVNode {
     aChildren: VNodes | undefined;
     children: VNodes | undefined;
@@ -69,7 +65,8 @@ export interface VStatic extends BaseVNode {
     fragment: Element;
 }
 
-export interface VFragment extends BaseVNode, BaseVParent {
+export interface VFragment extends BaseVNode {
+    children: VNodes;
     // In a fragment elm represents the last node of the fragment,
     // which is the end delimiter text node ([start, ...children, end]). Used in the updateStaticChildren routine.
     // elm: Node | undefined; (inherited from BaseVNode)
@@ -96,7 +93,8 @@ export interface VComment extends BaseVNode {
     key: 'c';
 }
 
-export interface VBaseElement extends BaseVNode, BaseVParent {
+export interface VBaseElement extends BaseVNode {
+    children: VNodes;
     sel: string;
     data: VElementData;
     elm: Element | undefined;
