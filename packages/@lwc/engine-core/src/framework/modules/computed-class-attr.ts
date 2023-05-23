@@ -4,19 +4,10 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import {
-    create,
-    freeze,
-    isNull,
-    isString,
-    isUndefined,
-    StringCharCodeAt,
-    StringSlice,
-} from '@lwc/shared';
+import { create, freeze, isString, isUndefined, StringCharCodeAt, StringSlice } from '@lwc/shared';
 import { RendererAPI } from '../renderer';
 
 import { EmptyObject, SPACE_CHAR } from '../utils';
-import { VBaseElement } from '../vnodes';
 
 const classNameToClassMap = create(null);
 
@@ -57,24 +48,19 @@ function getMapFromClassName(className: string | undefined): Record<string, bool
 }
 
 export function patchClassAttribute(
-    oldVnode: VBaseElement | null,
-    vnode: VBaseElement,
+    elm: Element,
+    className: string | undefined,
+    oldClassName: string | undefined,
     renderer: RendererAPI
 ) {
-    const {
-        elm,
-        data: { className: newClass },
-    } = vnode;
-
-    const oldClass = isNull(oldVnode) ? undefined : oldVnode.data.className;
-    if (oldClass === newClass) {
+    if (oldClassName === className) {
         return;
     }
 
     const { getClassList } = renderer;
     const classList = getClassList(elm!);
-    const newClassMap = getMapFromClassName(newClass);
-    const oldClassMap = getMapFromClassName(oldClass);
+    const newClassMap = getMapFromClassName(className);
+    const oldClassMap = getMapFromClassName(oldClassName);
 
     let name: string;
     for (name in oldClassMap) {

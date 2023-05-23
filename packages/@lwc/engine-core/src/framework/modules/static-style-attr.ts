@@ -6,17 +6,15 @@
  */
 import { isUndefined } from '@lwc/shared';
 import { RendererAPI } from '../renderer';
-import { VBaseElement } from '../vnodes';
 
 // The HTML style property becomes the vnode.data.styleDecls object when defined as a string in the template.
 // The compiler takes care of transforming the inline style into an object. It's faster to set the
 // different style properties individually instead of via a string.
-export function applyStaticStyleAttribute(vnode: VBaseElement, renderer: RendererAPI) {
-    const {
-        elm,
-        data: { styleDecls },
-    } = vnode;
-
+export function applyStaticStyleAttribute(
+    elm: Element,
+    styleDecls: Readonly<Array<[string, string, boolean]>> | undefined,
+    renderer: RendererAPI
+) {
     if (isUndefined(styleDecls)) {
         return;
     }

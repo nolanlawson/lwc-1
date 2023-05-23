@@ -17,21 +17,20 @@ function isLiveBindingProp(sel: string, key: string): boolean {
 }
 
 export function patchProps(
+    elm: Element,
+    sel: string | undefined,
+    props: Readonly<Record<string, any>> | undefined,
+    spread: Readonly<Record<string, any>> | undefined,
+    oldProps: Readonly<Record<string, any>> | undefined,
+    oldSpread: Readonly<Record<string, any>> | undefined,
     oldVnode: VBaseElement | null,
-    vnode: VBaseElement,
     renderer: RendererAPI
 ) {
-    let { props } = vnode.data;
-    const { spread } = vnode.data;
-
     if (isUndefined(props) && isUndefined(spread)) {
         return;
     }
 
-    let oldProps;
     if (!isNull(oldVnode)) {
-        oldProps = oldVnode.data.props;
-        const oldSpread = oldVnode.data.spread;
         if (oldProps === props && oldSpread === spread) {
             return;
         }
@@ -50,7 +49,6 @@ export function patchProps(
     }
 
     const isFirstPatch = isNull(oldVnode);
-    const { elm, sel } = vnode;
     const { getProperty, setProperty } = renderer;
 
     for (const key in props) {
@@ -60,8 +58,8 @@ export function patchProps(
         // different than the one previously set.
         if (
             isFirstPatch ||
-            cur !== (isLiveBindingProp(sel, key) ? getProperty(elm!, key) : oldProps[key]) ||
-            !(key in oldProps) // this is required because the above case will pass when `cur` is `undefined` and key is missing in `oldProps`
+            cur !== (isLiveBindingProp(sel!, key) ? getProperty(elm!, key) : oldProps![key]) ||
+            !(key in oldProps!) // this is required because the above case will pass when `cur` is `undefined` and key is missing in `oldProps`
         ) {
             // Additional verification if properties are supported by the element
             // Validation relies on html properties and public properties being defined on the element,

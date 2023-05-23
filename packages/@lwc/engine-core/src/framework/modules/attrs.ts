@@ -7,31 +7,26 @@
 import { isNull, isUndefined, StringCharCodeAt, XML_NAMESPACE, XLINK_NAMESPACE } from '@lwc/shared';
 import { RendererAPI } from '../renderer';
 
-import { EmptyObject } from '../utils';
-import { VBaseElement } from '../vnodes';
-
 const ColonCharCode = 58;
 
 export function patchAttributes(
-    oldVnode: VBaseElement | null,
-    vnode: VBaseElement,
+    elm: Element,
+    attrs: Readonly<Record<string, string | number | boolean | null | undefined>> | undefined,
+    oldAttrs: Readonly<Record<string, string | number | boolean | null | undefined>> | undefined,
     renderer: RendererAPI
 ) {
-    const { attrs } = vnode.data;
     if (isUndefined(attrs)) {
         return;
     }
 
-    const oldAttrs = isNull(oldVnode) ? EmptyObject : oldVnode.data.attrs;
     if (oldAttrs === attrs) {
         return;
     }
 
-    const { elm } = vnode;
     const { setAttribute, removeAttribute } = renderer;
     for (const key in attrs) {
         const cur = attrs[key];
-        const old = oldAttrs[key];
+        const old = isUndefined(oldAttrs) ? undefined : oldAttrs[key];
 
         if (old !== cur) {
             if (StringCharCodeAt.call(key, 3) === ColonCharCode) {

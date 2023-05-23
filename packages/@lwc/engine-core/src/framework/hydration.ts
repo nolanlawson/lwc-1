@@ -401,8 +401,21 @@ function handleMismatch(node: Node, vnode: VNode, renderer: RendererAPI): Node |
 }
 
 function patchElementPropsAndAttrs(vnode: VBaseElement, renderer: RendererAPI) {
-    applyEventListeners(vnode, renderer);
-    patchProps(null, vnode, renderer);
+    if (vnode.data?.on) {
+        applyEventListeners(vnode.elm!, vnode.data.on, renderer);
+    }
+    if (vnode.data?.props || vnode.data?.spread) {
+        patchProps(
+            vnode.elm!,
+            vnode.sel!,
+            vnode.data.props,
+            vnode.data.spread,
+            undefined,
+            undefined,
+            null,
+            renderer
+        );
+    }
 }
 
 function hasCorrectNodeType<T extends Node>(

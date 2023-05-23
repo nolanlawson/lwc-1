@@ -24,7 +24,7 @@ import {
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
 import { LifecycleCallback, RendererAPI } from './renderer';
-import { EmptyArray } from './utils';
+import { EmptyArray, EmptyObject } from './utils';
 import { markComponentAsDirty } from './component';
 import { getScopeTokenClass } from './stylesheet';
 import { lockDomMutation, patchElementWithRestrictions, unlockDomMutation } from './restrictions';
@@ -593,48 +593,40 @@ function patchElementPropsAndAttrs(
     vnode: VBaseElement,
     renderer: RendererAPI
 ) {
-    let oldStyle;
-    let oldClassName;
     const {
+        elm,
+        sel,
         data: { on, classMap, className, style, styleDecls, props, spread, attrs },
     } = vnode;
+    const oldData = isNull(oldVnode) ? EmptyObject : oldVnode.data;
+    const {
+        className: oldClassName,
+        style: oldStyle,
+        props: oldProps,
+        spread: oldSpread,
+        attrs: oldAttrs,
+    } = oldData;
 
     if (isNull(oldVnode)) {
         // event listeners can never be dynamically updated - they are only applied initially
-        if (!isUndefined(on)) {
-            applyEventListeners(vnode, renderer);
-        }
-        if (!isUndefined(classMap)) {
-            applyStaticClassAttribute(vnode, renderer);
-        }
-        if (!isUndefined(styleDecls)) {
-            applyStaticStyleAttribute(vnode, renderer);
-        }
-    } else {
-        const { data: oldData } = oldVnode;
-        oldStyle = oldData.style;
-        oldClassName = oldData.className;
+        applyEventListeners(elm!, on, renderer);
+        applyStaticClassAttribute(elm!, classMap, renderer);
+        applyStaticStyleAttribute(elm!, styleDecls, renderer);
     }
 
     // Attrs need to be applied to element before props IE11 will wipe out value on radio inputs if
     // value is set before type=radio.
-    if (!isUndefined(className) || !isUndefined(oldClassName)) {
-        patchClassAttribute(oldVnode, vnode, renderer);
-    }
-    if (!isUndefined(style) || !isUndefined(oldStyle)) {
-        patchStyleAttribute(oldVnode, vnode, renderer);
-    }
+    patchClassAttribute(elm!, className, oldClassName, renderer);
+    patchStyleAttribute(elm!, style, oldStyle, renderer);
 
-    if (!isUndefined(attrs)) {
-        if (vnode.data.external) {
-            patchAttrUnlessProp(oldVnode, vnode, renderer);
-        } else {
-            patchAttributes(oldVnode, vnode, renderer);
-        }
+    if (vnode.data.external) {
+        patchAttrUnlessProp(elm!, attrs, oldAttrs, renderer);
+    } else {
+        patchAttributes(elm!, attrs, oldAttrs, renderer);
     }
 
     if (!isUndefined(props) || !isUndefined(spread)) {
-        patchProps(oldVnode, vnode, renderer);
+        patchProps(elm!, sel, props, spread, oldProps, oldSpread, oldVnode, renderer);
     }
 }
 

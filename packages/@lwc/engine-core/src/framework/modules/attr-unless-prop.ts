@@ -14,31 +14,24 @@ import {
 } from '@lwc/shared';
 
 import { RendererAPI } from '../renderer';
-import { EmptyObject } from '../utils';
-import { VBaseElement } from '../vnodes';
 
 const ColonCharCode = 58;
 
 export function patchAttrUnlessProp(
-    oldVnode: VBaseElement | null,
-    vnode: VBaseElement,
+    elm: Element,
+    attrs: Readonly<Record<string, string | number | boolean | null | undefined>> | undefined,
+    oldAttrs: Readonly<Record<string, string | number | boolean | null | undefined>> | undefined,
     renderer: RendererAPI
 ) {
-    const {
-        data: { attrs },
-        elm,
-    } = vnode;
-
     if (isUndefined(attrs)) {
         return;
     }
 
     const { removeAttribute, setAttribute, setProperty } = renderer;
-    const oldAttrs = isNull(oldVnode) ? EmptyObject : oldVnode.data.attrs;
 
     for (const name in attrs) {
         const cur = attrs[name];
-        const old = oldAttrs[name];
+        const old = isUndefined(oldAttrs) ? undefined : oldAttrs[name];
 
         if (old !== cur) {
             const propName = htmlAttributeToProperty(name);
