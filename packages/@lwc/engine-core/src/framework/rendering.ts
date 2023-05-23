@@ -614,11 +614,12 @@ function patchElementPropsAndAttrs(
             applyStaticStyleAttribute(vnode, renderer);
         }
     } else {
-        oldStyle = oldVnode.data.style;
-        oldClassName = oldVnode.data.className;
-        oldAttrs = oldVnode.data.attrs;
-        oldProps = oldVnode.data.props;
-        oldSpread = oldVnode.data.spread;
+        const { data: oldData } = oldVnode;
+        oldStyle = oldData.style;
+        oldClassName = oldData.className;
+        oldAttrs = oldData.attrs;
+        oldProps = oldData.props;
+        oldSpread = oldData.spread;
     }
 
     // Attrs need to be applied to element before props IE11 will wipe out value on radio inputs if
