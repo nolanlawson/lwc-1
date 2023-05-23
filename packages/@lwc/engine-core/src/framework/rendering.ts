@@ -595,9 +595,6 @@ function patchElementPropsAndAttrs(
 ) {
     let oldStyle;
     let oldClassName;
-    let oldAttrs;
-    let oldProps;
-    let oldSpread;
     const {
         data: { on, classMap, className, style, styleDecls, props, spread, attrs },
     } = vnode;
@@ -617,9 +614,6 @@ function patchElementPropsAndAttrs(
         const { data: oldData } = oldVnode;
         oldStyle = oldData.style;
         oldClassName = oldData.className;
-        oldAttrs = oldData.attrs;
-        oldProps = oldData.props;
-        oldSpread = oldData.spread;
     }
 
     // Attrs need to be applied to element before props IE11 will wipe out value on radio inputs if
@@ -631,7 +625,7 @@ function patchElementPropsAndAttrs(
         patchStyleAttribute(oldVnode, vnode, renderer);
     }
 
-    if (!isUndefined(attrs) || !isUndefined(oldAttrs)) {
+    if (!isUndefined(attrs)) {
         if (vnode.data.external) {
             patchAttrUnlessProp(oldVnode, vnode, renderer);
         } else {
@@ -639,12 +633,7 @@ function patchElementPropsAndAttrs(
         }
     }
 
-    if (
-        !isUndefined(props) ||
-        !isUndefined(spread) ||
-        !isUndefined(oldProps) ||
-        !isUndefined(oldSpread)
-    ) {
+    if (!isUndefined(props) || !isUndefined(spread)) {
         patchProps(oldVnode, vnode, renderer);
     }
 }
