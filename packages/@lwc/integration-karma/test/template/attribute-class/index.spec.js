@@ -77,4 +77,45 @@ describe('dynamic class attribute', () => {
             expect(target.className).toBe('bar baz');
         });
     });
+
+    describe('advanced tests', () => {
+        function testRenderClassAttribute(type, value, expectedValue) {
+            it(`renders the class attribute for ${type}`, () => {
+                const elm = createElement('x-dynamic', { is: Dynamic });
+                elm.dynamicClass = value;
+                document.body.appendChild(elm);
+
+                expect(elm.shadowRoot.querySelector('div').getAttribute('class')).toBe(
+                    expectedValue
+                );
+            });
+        }
+
+        testRenderClassAttribute('null', null, null);
+        testRenderClassAttribute('undefined', undefined, null);
+        testRenderClassAttribute('empty string', '', null);
+        testRenderClassAttribute('css class string', 'my-class', 'my-class');
+
+        function testUpdateClassAttribute(type, value, expectedValue) {
+            it(`updates the class attribute for ${type}`, () => {
+                const elm = createElement('x-dynamic', { is: Dynamic });
+                elm.dynamicClass = 'my-class';
+                document.body.appendChild(elm);
+
+                expect(elm.shadowRoot.querySelector('div').getAttribute('class')).toBe('my-class');
+
+                elm.dynamicClass = value;
+                return Promise.resolve().then(() => {
+                    expect(elm.shadowRoot.querySelector('div').getAttribute('class')).toBe(
+                        expectedValue
+                    );
+                });
+            });
+        }
+
+        testUpdateClassAttribute('null', null, '');
+        testUpdateClassAttribute('undefined', undefined, '');
+        testUpdateClassAttribute('empty string', '', '');
+        testUpdateClassAttribute('css class string', 'position: absolute;', 'position: absolute;');
+    });
 });

@@ -593,24 +593,59 @@ function patchElementPropsAndAttrs(
     vnode: VBaseElement,
     renderer: RendererAPI
 ) {
+    let oldStyle;
+    let oldClassName;
+    let oldAttrs;
+    let oldProps;
+    let oldSpread;
+    const {
+        data: { on, classMap, className, style, styleDecls, props, spread, attrs },
+    } = vnode;
+
     if (isNull(oldVnode)) {
-        applyEventListeners(vnode, renderer);
-        applyStaticClassAttribute(vnode, renderer);
-        applyStaticStyleAttribute(vnode, renderer);
+        // event listeners can never be dynamically updated - they are only applied initially
+        if (!isUndefined(on)) {
+            applyEventListeners(vnode, renderer);
+        }
+        if (!isUndefined(classMap)) {
+            applyStaticClassAttribute(vnode, renderer);
+        }
+        if (!isUndefined(styleDecls)) {
+            applyStaticStyleAttribute(vnode, renderer);
+        }
+    } else {
+        oldStyle = oldVnode.data.style;
+        oldClassName = oldVnode.data.className;
+        oldAttrs = oldVnode.data.attrs;
+        oldProps = oldVnode.data.props;
+        oldSpread = oldVnode.data.spread;
     }
 
     // Attrs need to be applied to element before props IE11 will wipe out value on radio inputs if
     // value is set before type=radio.
-    patchClassAttribute(oldVnode, vnode, renderer);
-    patchStyleAttribute(oldVnode, vnode, renderer);
-
-    if (vnode.data.external) {
-        patchAttrUnlessProp(oldVnode, vnode, renderer);
-    } else {
-        patchAttributes(oldVnode, vnode, renderer);
+    if (!isUndefined(className) || !isUndefined(oldClassName)) {
+        patchClassAttribute(oldVnode, vnode, renderer);
+    }
+    if (!isUndefined(style) || !isUndefined(oldStyle)) {
+        patchStyleAttribute(oldVnode, vnode, renderer);
     }
 
-    patchProps(oldVnode, vnode, renderer);
+    if (!isUndefined(attrs) || !isUndefined(oldAttrs)) {
+        if (vnode.data.external) {
+            patchAttrUnlessProp(oldVnode, vnode, renderer);
+        } else {
+            patchAttributes(oldVnode, vnode, renderer);
+        }
+    }
+
+    if (
+        !isUndefined(props) ||
+        !isUndefined(spread) ||
+        !isUndefined(oldProps) ||
+        !isUndefined(oldSpread)
+    ) {
+        patchProps(oldVnode, vnode, renderer);
+    }
 }
 
 function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {
