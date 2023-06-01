@@ -5,8 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {
-    ArrayPush,
     ArrayPop,
+    ArrayPush,
     ArraySome,
     assert,
     create,
@@ -118,7 +118,7 @@ function patch(n1: VNode, n2: VNode, parent: ParentNode, renderer: RendererAPI) 
             break;
 
         case VNodeType.Static:
-            n2.elm = n1.elm;
+            n2.elm = (n1 as VStatic).elm;
             break;
 
         case VNodeType.Fragment:
@@ -280,6 +280,8 @@ function mountStatic(
     const elm = (vnode.elm = cloneNode(vnode.fragment, true));
 
     linkNodeToShadow(elm, owner, renderer);
+    applyStyleScoping(elm, owner, renderer);
+    applyDomManual(elm, vnode);
     applyElementRestrictions(elm, vnode);
 
     // Marks this node as Static to propagate the shadow resolver. must happen after elm is assigned to the proper shadow
@@ -626,11 +628,9 @@ function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {
     }
 }
 
-function applyDomManual(elm: Element, vnode: VBaseElement) {
-    const {
-        owner,
-        data: { context },
-    } = vnode;
+function applyDomManual(elm: Element, vnode: VBaseElement | VStatic) {
+    const { owner } = vnode;
+    const context = vnode.data?.context;
     if (owner.shadowMode === ShadowMode.Synthetic && context?.lwc?.dom === LwcDomMode.Manual) {
         (elm as any).$domManual$ = true;
     }
@@ -640,7 +640,8 @@ function applyElementRestrictions(elm: Element, vnode: VElement | VStatic) {
     if (process.env.NODE_ENV !== 'production') {
         const isSynthetic = vnode.owner.shadowMode === ShadowMode.Synthetic;
         const isPortal =
-            vnode.type === VNodeType.Element && vnode.data.context?.lwc?.dom === LwcDomMode.Manual;
+            (vnode.type === VNodeType.Element || vnode.type === VNodeType.Static) &&
+            vnode.data?.context?.lwc?.dom === LwcDomMode.Manual;
         const isLight = vnode.owner.renderMode === RenderMode.Light;
         patchElementWithRestrictions(elm, {
             isPortal,

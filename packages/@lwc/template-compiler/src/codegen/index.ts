@@ -83,7 +83,7 @@ function transform(codeGen: CodeGen): t.Expression {
 
         if (codeGen.staticNodes.has(element) && isElement(element)) {
             // do not process children of static nodes.
-            return codeGen.genHoistedElement(element, slotParentName);
+            return codeGen.genStaticElement(element, slotParentName);
         }
 
         const children = transformChildren(element);
@@ -591,23 +591,16 @@ function transform(codeGen: CodeGen): t.Expression {
 
         // Properties: lwc:ref directive
         if (ref) {
-            data.push(t.property(t.identifier('ref'), ref.value));
-            codeGen.hasRefs = true;
+            data.push(codeGen.genRef(ref));
         }
 
         if (propsObj.properties.length) {
             data.push(t.property(t.identifier('props'), propsObj));
         }
 
-        // Context
+        // Context (DOM manual) – note that innerHTML implies DOM manual
         if (dom || innerHTML) {
-            const contextObj = t.objectExpression([
-                t.property(
-                    t.identifier('lwc'),
-                    t.objectExpression([t.property(t.identifier('dom'), t.literal('manual'))])
-                ),
-            ]);
-            data.push(t.property(t.identifier('context'), contextObj));
+            data.push(codeGen.genDomManual());
         }
 
         // Spread
@@ -639,8 +632,7 @@ function transform(codeGen: CodeGen): t.Expression {
 
         // Event handler
         if (listeners.length) {
-            const listenerObjAST = codeGen.genEventListeners(listeners);
-            data.push(t.property(t.identifier('on'), listenerObjAST));
+            data.push(codeGen.genEventListeners(listeners));
         }
 
         // SVG handling
