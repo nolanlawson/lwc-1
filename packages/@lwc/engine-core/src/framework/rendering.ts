@@ -252,8 +252,9 @@ function mountElement(
     const elm = (vnode.elm = createElement(sel, namespace));
 
     linkNodeToShadow(elm, owner, renderer);
-    applyStyleScoping(elm, owner, renderer);
-    applyDomManual(elm, vnode);
+    applyScopedStyle(elm, owner, renderer);
+    applySyntheticShadowScopedStyle(elm, owner);
+    applyDomManual(elm, vnode, owner);
     applyElementRestrictions(elm, vnode);
 
     patchElementPropsAndAttrs(null, vnode, renderer);
@@ -280,8 +281,8 @@ function mountStatic(
     const elm = (vnode.elm = cloneNode(vnode.fragment, true));
 
     linkNodeToShadow(elm, owner, renderer);
-    applyStyleScoping(elm, owner, renderer);
-    applyDomManual(elm, vnode);
+    applyStaticSyntheticShadowScopedStyle(elm, vnode, owner);
+    applyDomManual(elm, vnode, owner);
     applyElementRestrictions(elm, vnode);
 
     // Marks this node as Static to propagate the shadow resolver. must happen after elm is assigned to the proper shadow
@@ -347,7 +348,8 @@ function mountCustomElement(
     vnode.vm = vm;
 
     linkNodeToShadow(elm, owner, renderer);
-    applyStyleScoping(elm, owner, renderer);
+    applyScopedStyle(elm, owner, renderer);
+    applySyntheticShadowScopedStyle(elm, owner);
 
     if (vm) {
         allocateChildren(vnode, vm);
@@ -611,7 +613,7 @@ function patchElementPropsAndAttrs(
     patchProps(oldVnode, vnode, renderer);
 }
 
-function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {
+function applyScopedStyle(elm: Element, owner: VM, renderer: RendererAPI) {
     // Set the class name for `*.scoped.css` style scoping.
     const scopeToken = getScopeTokenClass(owner);
     if (!isNull(scopeToken)) {
@@ -620,7 +622,14 @@ function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {
         // probably we should have a renderer api for just the add operation
         getClassList(elm).add(scopeToken);
     }
+}
 
+function isDomManualInSyntheticShadow(vnode: VBaseElement | VStatic, owner: VM) {
+    const context = vnode.data?.context;
+    return owner.shadowMode === ShadowMode.Synthetic && context?.lwc?.dom === LwcDomMode.Manual;
+}
+
+function applySyntheticShadowScopedStyle(elm: Element, owner: VM) {
     // Set property element for synthetic shadow DOM style scoping.
     const { stylesheetToken: syntheticToken } = owner.context;
     if (owner.shadowMode === ShadowMode.Synthetic && !isUndefined(syntheticToken)) {
@@ -628,10 +637,18 @@ function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {
     }
 }
 
-function applyDomManual(elm: Element, vnode: VBaseElement | VStatic) {
-    const { owner } = vnode;
-    const context = vnode.data?.context;
-    if (owner.shadowMode === ShadowMode.Synthetic && context?.lwc?.dom === LwcDomMode.Manual) {
+function applyStaticSyntheticShadowScopedStyle(elm: Element, vnode: VStatic, owner: VM) {
+    if (isDomManualInSyntheticShadow(vnode, owner)) {
+        // Special case: static vnodes only need synthetic shadow style scoping on lwc:dom="manual" nodes, to mark the
+        // node as a "portal" so that all descendant nodes get the scope token.
+        // (Normally, static vnodes get the scope token applied automatically via `buildParseFragmentFn`.)
+        // We _could_ apply this to all static nodes, but as a perf optimization, we only apply it to manual nodes.
+        applySyntheticShadowScopedStyle(elm, owner);
+    }
+}
+
+function applyDomManual(elm: Element, vnode: VBaseElement | VStatic, owner: VM) {
+    if (isDomManualInSyntheticShadow(vnode, owner)) {
         (elm as any).$domManual$ = true;
     }
 }
