@@ -5,7 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { create, isUndefined, ArrayPush } from '@lwc/shared';
-import { LinkedList, RemoveCallback } from './linked-list';
+import { LinkedList } from './linked-list';
 
 const TargetToReactiveRecordMap: WeakMap<object, ReactiveRecord> = new WeakMap();
 
@@ -56,15 +56,14 @@ export function valueObserved(target: object, key: PropertyKey) {
     if (isUndefined(reactiveObservers)) {
         reactiveObservers = reactiveRecord[key as any] = new LinkedList<ReactiveObserver>();
     }
-    const remove = reactiveObservers.add(reactiveObserver);
-    reactiveObserver.onReset(remove);
+    reactiveObserver.link(reactiveObservers);
 }
 
 export type CallbackFunction = (rp: ReactiveObserver) => void;
 export type JobFunction = () => void;
 
 export class ReactiveObserver {
-    private onResets: RemoveCallback[] = [];
+    private listeners: LinkedList<ReactiveObserver>[] = [];
     private callback: CallbackFunction;
 
     constructor(callback: CallbackFunction) {
@@ -92,14 +91,14 @@ export class ReactiveObserver {
      * notifications about previously recorded access.
      */
     reset() {
-        const { onResets } = this;
-        const len = onResets.length;
+        const { listeners } = this;
+        const len = listeners.length;
         if (len > 0) {
             for (let i = 0; i < len; i++) {
-                const onReset = onResets[i];
-                onReset();
+                const reactiveObservers = listeners[i];
+                reactiveObservers.remove(this);
             }
-            onResets.length = 0;
+            listeners.length = 0;
         }
     }
 
@@ -108,8 +107,9 @@ export class ReactiveObserver {
         this.callback.call(undefined, this);
     }
 
-    onReset(onReset: RemoveCallback) {
+    link(reactiveObservers: LinkedList<ReactiveObserver>) {
+        reactiveObservers.add(this);
         // we keep track of observing records where the observing record was added to so we can do some clean up later on
-        ArrayPush.call(this.onResets, onReset);
+        ArrayPush.call(this.listeners, reactiveObservers);
     }
 }

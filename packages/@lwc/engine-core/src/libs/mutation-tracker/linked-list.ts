@@ -23,42 +23,47 @@ function createNode<T>(item: T, previousItem?: Node<T>): Node<T> {
     };
 }
 
-export type RemoveCallback = () => void;
-
 export class LinkedList<T> {
     root: Node<T> | undefined;
 
-    add(item: T): RemoveCallback {
-        let previousNode: Node<T> | undefined;
+    add(item: T) {
+        let node: Node<T> | undefined = this.root;
+        if (isUndefined(node)) {
+            this.root = createNode(item);
+            return;
+        }
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            if (node!.curr === item) {
+                // already exists in linked list, duplicates not allowed
+                return;
+            }
+            const nextNode: Node<T> | undefined = node!.next;
+            if (isUndefined(nextNode)) {
+                node.next = createNode(item, node);
+                return;
+            }
+            node = nextNode;
+        }
+    }
+
+    remove(item: T) {
         let node: Node<T> | undefined = this.root;
         while (!isUndefined(node)) {
             if (node.curr === item) {
-                const thisNode = node;
-                // already exists in linked list, duplicates not allowed
-                return () => this._remove(thisNode);
+                const { prev, next } = node;
+                if (!isUndefined(prev)) {
+                    prev.next = next;
+                }
+                if (!isUndefined(next)) {
+                    next.prev = prev;
+                }
+                if (node === this.root) {
+                    this.root = next;
+                }
+                return;
             }
-            previousNode = node;
             node = node.next;
-        }
-        const newNode = createNode(item, previousNode);
-        if (isUndefined(previousNode)) {
-            this.root = newNode;
-        } else {
-            previousNode.next = newNode;
-        }
-        return () => this._remove(newNode);
-    }
-
-    _remove(node: Node<T>) {
-        const { prev, next } = node;
-        if (!isUndefined(prev)) {
-            prev.next = next;
-        }
-        if (!isUndefined(next)) {
-            next.prev = prev;
-        }
-        if (node === this.root) {
-            this.root = next;
         }
     }
 
