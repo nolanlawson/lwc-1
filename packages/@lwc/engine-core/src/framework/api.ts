@@ -58,51 +58,51 @@ function addVNodeToChildLWC(vnode: VCustomElement) {
 
 // [s]coped [s]lot [f]actory
 function ssf(slotName: unknown, factory: (value: any, key: any) => VFragment): VScopedSlotFragment {
-    return enforceMonomorphism({
-        aChildren: undefined,
-        children: undefined,
-        ctor: undefined,
-        data: undefined,
-        elm: undefined,
-        factory,
-        fragment: undefined,
-        key: undefined,
-        leading: undefined,
-        mode: undefined,
-        owner: getVMBeingRendered()!,
-        sel: undefined,
-        slotName,
-        stable: undefined,
-        text: undefined,
-        trailing: undefined,
-        type: VNodeType.ScopedSlotFragment,
-        vm: undefined,
-    });
+    return enforceMonomorphism(
+        /* aChildren */ undefined,
+        /* children */ undefined,
+        /* ctor */ undefined,
+        /* data */ undefined,
+        /* elm */ undefined,
+        /* factory */ factory,
+        /* fragment */ undefined,
+        /* key */ undefined,
+        /* leading */ undefined,
+        /* mode */ undefined,
+        /* owner */ getVMBeingRendered()!,
+        /* sel */ undefined,
+        /* slotName */ slotName,
+        /* stable */ undefined,
+        /* text */ undefined,
+        /* trailing */ undefined,
+        /* type */ VNodeType.ScopedSlotFragment,
+        /* vm */ undefined,
+    ) as VScopedSlotFragment;
 }
 
 // [st]atic node
 function st(fragment: Element, key: Key, data?: VStaticElementData): VStatic {
     const owner = getVMBeingRendered()!;
-    const vnode = enforceMonomorphism({
-        aChildren: undefined,
-        children: undefined,
-        ctor: undefined,
-        data,
-        elm: undefined,
-        factory: undefined,
-        fragment,
-        key,
-        leading: undefined,
-        mode: undefined,
-        owner,
-        sel: undefined,
-        slotName: undefined,
-        stable: undefined,
-        text: undefined,
-        trailing: undefined,
-        type: VNodeType.Static,
-        vm: undefined,
-    });
+    const vnode = enforceMonomorphism(
+        /* aChildren */ undefined,
+        /* children */ undefined,
+        /* ctor */ undefined,
+        /* data */ data,
+        /* elm */ undefined,
+        /* factory */ undefined,
+        /* fragment */ fragment,
+        /* key */ key,
+        /* leading */ undefined,
+        /* mode */ undefined,
+        /* owner */ owner,
+        /* sel */ undefined,
+        /* slotName */ undefined,
+        /* stable */ undefined,
+        /* text */ undefined,
+        /* trailing */ undefined,
+        /* type */ VNodeType.Static,
+        /* vm */ undefined,
+    ) as VStatic;
 
     const ref = data?.ref;
 
@@ -117,26 +117,26 @@ function st(fragment: Element, key: Key, data?: VStaticElementData): VStatic {
 function fr(key: Key, children: VNodes, stable: 0 | 1): VFragment {
     const leading = t('');
     const trailing = t('');
-    return enforceMonomorphism({
-        aChildren: undefined,
-        children: [leading, ...children, trailing],
-        ctor: undefined,
-        data: undefined,
-        elm: undefined,
-        factory: undefined,
-        fragment: undefined,
-        key,
-        leading,
-        mode: undefined,
-        owner: getVMBeingRendered()!,
-        sel: undefined,
-        slotName: undefined,
-        stable,
-        text: undefined,
-        trailing,
-        type: VNodeType.Fragment,
-        vm: undefined,
-    });
+    return enforceMonomorphism(
+        /* aChildren */ undefined,
+        /* children */ [leading, ...children, trailing],
+        /* ctor */ undefined,
+        /* data */ undefined,
+        /* elm */ undefined,
+        /* factory */ undefined,
+        /* fragment */ undefined,
+        /* key */ key,
+        /* leading */ leading,
+        /* mode */ undefined,
+        /* owner */ getVMBeingRendered()!,
+        /* sel */ undefined,
+        /* slotName */ undefined,
+        /* stable */ stable,
+        /* text */ undefined,
+        /* trailing */ trailing,
+        /* type */ VNodeType.Fragment,
+        /* vm */ undefined,
+    ) as VFragment;
 }
 
 // [h]tml node
@@ -180,26 +180,26 @@ function h(sel: string, data: VElementData, children: VNodes = EmptyArray): VEle
 
     const { key, ref } = data;
 
-    const vnode: VElement = enforceMonomorphism({
-        aChildren: undefined,
-        children,
-        ctor: undefined,
-        data,
-        elm: undefined,
-        factory: undefined,
-        fragment: undefined,
-        key,
-        leading: undefined,
-        mode: undefined,
-        owner: vmBeingRendered,
-        sel,
-        slotName: undefined,
-        stable: undefined,
-        text: undefined,
-        trailing: undefined,
-        type: VNodeType.Element,
-        vm: undefined,
-    });
+    const vnode: VElement = enforceMonomorphism(
+        /* aChildren */ undefined,
+        /* children */ children,
+        /* ctor */ undefined,
+        /* data */ data,
+        /* elm */ undefined,
+        /* factory */ undefined,
+        /* fragment */ undefined,
+        /* key */ key,
+        /* leading */ undefined,
+        /* mode */ undefined,
+        /* owner */ vmBeingRendered,
+        /* sel */ sel,
+        /* slotName */ undefined,
+        /* stable */ undefined,
+        /* text */ undefined,
+        /* trailing */ undefined,
+        /* type */ VNodeType.Element,
+        /* vm */ undefined,
+    ) as VElement;
 
     if (!isUndefined(ref)) {
         setRefVNode(vmBeingRendered, ref, vnode);
@@ -353,26 +353,26 @@ function c(
         }
     }
     const { key, ref } = data;
-    const vnode: VCustomElement = enforceMonomorphism({
-        aChildren: undefined,
-        children,
-        ctor: Ctor,
-        data,
-        elm: undefined,
-        factory: undefined,
-        fragment: undefined,
-        key,
-        leading: undefined,
-        mode: 'open', // TODO [#1294]: this should be defined in Ctor
-        owner: vmBeingRendered,
-        sel,
-        slotName: undefined,
-        stable: undefined,
-        text: undefined,
-        trailing: undefined,
-        type: VNodeType.CustomElement,
-        vm: undefined,
-    });
+    const vnode: VCustomElement = enforceMonomorphism(
+        /* aChildren */ undefined,
+        /* children */ children,
+        /* ctor */ Ctor,
+        /* data */ data,
+        /* elm */ undefined,
+        /* factory */ undefined,
+        /* fragment */ undefined,
+        /* key */ key,
+        /* leading */ undefined,
+        /* mode */ 'open', // TODO [#1294]: this should be defined in Ctor
+        /* owner */ vmBeingRendered,
+        /* sel */ sel,
+        /* slotName */ undefined,
+        /* stable */ undefined,
+        /* text */ undefined,
+        /* trailing */ undefined,
+        /* type */ VNodeType.CustomElement,
+        /* vm */ undefined,
+    ) as VCustomElement;
     addVNodeToChildLWC(vnode);
 
     if (!isUndefined(ref)) {
@@ -495,50 +495,50 @@ function f(items: Readonly<Array<Readonly<Array<VNodes>> | VNodes>>): VNodes {
 
 // [t]ext node
 function t(text: string): VText {
-    return enforceMonomorphism({
-        aChildren: undefined,
-        children: undefined,
-        ctor: undefined,
-        data: undefined,
-        elm: undefined,
-        factory: undefined,
-        fragment: undefined,
-        key: undefined,
-        leading: undefined,
-        mode: undefined,
-        owner: getVMBeingRendered()!,
-        sel: undefined,
-        slotName: undefined,
-        stable: undefined,
-        text,
-        trailing: undefined,
-        type: VNodeType.Text,
-        vm: undefined,
-    });
+    return enforceMonomorphism(
+        /* aChildren */ undefined,
+        /* children */ undefined,
+        /* ctor */ undefined,
+        /* data */ undefined,
+        /* elm */ undefined,
+        /* factory */ undefined,
+        /* fragment */ undefined,
+        /* key */ undefined,
+        /* leading */ undefined,
+        /* mode */ undefined,
+        /* owner */ getVMBeingRendered()!,
+        /* sel */ undefined,
+        /* slotName */ undefined,
+        /* stable */ undefined,
+        /* text */ text,
+        /* trailing */ undefined,
+        /* type */ VNodeType.Text,
+        /* vm */ undefined,
+    ) as VText;
 }
 
 // [co]mment node
 function co(text: string): VComment {
-    return enforceMonomorphism({
-        aChildren: undefined,
-        children: undefined,
-        ctor: undefined,
-        data: undefined,
-        elm: undefined,
-        factory: undefined,
-        fragment: undefined,
-        key: 'c',
-        leading: undefined,
-        mode: undefined,
-        owner: getVMBeingRendered()!,
-        sel: undefined,
-        slotName: undefined,
-        stable: undefined,
-        text,
-        trailing: undefined,
-        type: VNodeType.Comment,
-        vm: undefined,
-    });
+    return enforceMonomorphism(
+        /* aChildren */ undefined,
+        /* children */ undefined,
+        /* ctor */ undefined,
+        /* data */ undefined,
+        /* elm */ undefined,
+        /* factory */ undefined,
+        /* fragment */ undefined,
+        /* key */ 'c',
+        /* leading */ undefined,
+        /* mode */ undefined,
+        /* owner */ getVMBeingRendered()!,
+        /* sel */ undefined,
+        /* slotName */ undefined,
+        /* stable */ undefined,
+        /* text */ text,
+        /* trailing */ undefined,
+        /* type */ VNodeType.Comment,
+        /* vm */ undefined,
+    ) as VComment;
 }
 
 // [d]ynamic text

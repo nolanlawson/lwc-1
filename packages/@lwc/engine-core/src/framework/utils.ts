@@ -6,7 +6,6 @@
  */
 import {
     ArrayPush,
-    assert,
     create,
     isArray,
     isFunction,
@@ -16,7 +15,18 @@ import {
 } from '@lwc/shared';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
 import { RefVNodes, VM } from './vm';
-import { VBaseElement, VNode, VStatic } from './vnodes';
+import {
+    Key,
+    VBaseElement,
+    VElementData,
+    VFragment,
+    VNode,
+    VNodes,
+    VNodeType,
+    VStatic,
+    VStaticElementData,
+    VText
+} from './vnodes';
 
 type Callback = () => void;
 
@@ -136,16 +146,44 @@ export function assertNotProd() {
     }
 }
 
-const knownKeyLists: Map<string, string[]> = new Map();
-
-export function enforceMonomorphism<T extends VNode>(vnode: T): T {
-    if (process.env.NODE_ENV !== 'production') {
-        const keySet = Object.keys(vnode);
-        knownKeyLists.set(JSON.stringify(keySet), keySet);
-        assert.isTrue(
-            knownKeyLists.size <= 1,
-            `Expected all vnodes to be monomorphic. Found keys: ${JSON.stringify(keySet)}`
-        );
-    }
-    return vnode;
+export function enforceMonomorphism(
+    aChildren: VNodes | undefined,
+    children: VNodes | undefined,
+    ctor: any,
+    data: VElementData | VStaticElementData | undefined,
+    elm: Node | undefined,
+    factory: ((value: any, key: any) => VFragment) | undefined,
+    fragment: Element | undefined,
+    key: Key | undefined,
+    leading: VText | undefined,
+    mode: 'closed' | 'open' | undefined,
+    owner: VM,
+    sel: string | undefined,
+    slotName: unknown | undefined,
+    stable: 0 | 1 | undefined,
+    text: string | undefined,
+    trailing: VText | undefined,
+    type: VNodeType,
+    vm: VM | undefined,
+): VNode {
+    return {
+        aChildren,
+        children,
+        ctor,
+        data,
+        elm,
+        factory,
+        fragment,
+        key,
+        leading,
+        mode,
+        owner,
+        sel,
+        slotName,
+        stable,
+        text,
+        trailing,
+        type,
+        vm
+    } as VNode;
 }
