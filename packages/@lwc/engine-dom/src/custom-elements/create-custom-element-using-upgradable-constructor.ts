@@ -25,6 +25,13 @@ const createUpgradableConstructor = (
 
     // TODO [#2972]: this class should expose observedAttributes as necessary
     class UpgradableConstructor extends HTMLElement {
+        static formAssociated = true;
+
+        formAssociatedCallback() {}
+        formDisabledCallback() {}
+        formResetCallback() {}
+        formStateRestoreCallback() {}
+
         constructor(upgradeCallback: LifecycleCallback) {
             super();
             // If the element is not created using lwc.createElement(), e.g. `document.createElement('x-foo')`,
