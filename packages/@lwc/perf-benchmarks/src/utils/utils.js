@@ -34,9 +34,7 @@ export function nextFrame(cb) {
     setTimeout(cb, 0);
 }
 
-const theForm = document.querySelector('form');
-
-export const insertComponent = function (el, container = theForm) {
+export const insertComponent = function (el, container = document.body) {
     return new Promise((resolve) => {
         container.appendChild(el);
         nextFrame(() => {
