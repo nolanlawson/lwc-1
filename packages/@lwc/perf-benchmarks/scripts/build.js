@@ -53,6 +53,7 @@ function createHtml(benchmarkFile) {
         <title>Benchmark</title>
       </head>
       <body>
+        <form></form>
         <script type="module">
           // Always test performance in production mode.
           // Note this is needed for modules like @lwc/synthetic-shadow, since we can't run it through
