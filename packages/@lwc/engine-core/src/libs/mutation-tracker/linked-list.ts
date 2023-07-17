@@ -27,23 +27,21 @@ export class LinkedList<T> {
     root: Node<T> | undefined;
 
     add(item: T) {
+        let previousNode: Node<T> | undefined;
         let node: Node<T> | undefined = this.root;
-        if (isUndefined(node)) {
-            this.root = createNode(item);
-            return;
-        }
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-            if (node!.curr === item) {
+        while (!isUndefined(node)) {
+            if (node.curr === item) {
                 // already exists in linked list, duplicates not allowed
                 return;
             }
-            const nextNode: Node<T> | undefined = node!.next;
-            if (isUndefined(nextNode)) {
-                node.next = createNode(item, node);
-                return;
-            }
-            node = nextNode;
+            previousNode = node;
+            node = node.next;
+        }
+        const newNode = createNode(item, previousNode);
+        if (isUndefined(previousNode)) {
+            this.root = newNode;
+        } else {
+            previousNode.next = newNode;
         }
     }
 
