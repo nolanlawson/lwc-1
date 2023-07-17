@@ -7,13 +7,14 @@
 import {
     CompilerDiagnostic,
     CompilerError,
+    InstrumentationObject,
     generateCompilerDiagnostic,
     generateCompilerError,
     Location,
     LWCErrorInfo,
     normalizeToDiagnostic,
 } from '@lwc/errors';
-
+import { APIVersion } from '@lwc/shared';
 import { NormalizedConfig } from '../config';
 import { isPreserveCommentsDirective, isRenderModeDirective } from '../shared/ast';
 import {
@@ -81,6 +82,12 @@ export default class ParserCtx {
     readonly config: NormalizedConfig;
     readonly warnings: CompilerDiagnostic[] = [];
 
+    /**
+     * Instrumentation object to handle gathering metrics and internal logs for everything happening
+     * during this context.
+     */
+    readonly instrumentation?: InstrumentationObject;
+
     readonly seenIds: Set<string> = new Set();
     readonly seenSlots: Set<string> = new Set();
     /**
@@ -120,6 +127,7 @@ export default class ParserCtx {
 
     renderMode: LWCDirectiveRenderMode;
     preserveComments: boolean;
+    apiVersion: APIVersion;
 
     constructor(source: String, config: NormalizedConfig) {
         this.source = source;
@@ -133,6 +141,8 @@ export default class ParserCtx {
         this.ecmaVersion = config.experimentalComplexExpressions
             ? TMPL_EXPR_ECMASCRIPT_EDITION
             : 2020;
+        this.instrumentation = config.instrumentation;
+        this.apiVersion = config.apiVersion;
     }
 
     getSource(start: number, end: number): string {

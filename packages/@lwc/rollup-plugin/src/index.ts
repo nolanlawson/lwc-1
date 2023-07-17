@@ -12,6 +12,7 @@ import { Plugin, SourceMapInput, RollupWarning } from 'rollup';
 import pluginUtils, { FilterPattern } from '@rollup/pluginutils';
 import { transformSync, StylesheetConfig, DynamicImportConfig } from '@lwc/compiler';
 import { resolveModule, ModuleRecord, RegistryType } from '@lwc/module-resolver';
+import { APIVersion, getAPIVersionFromNumber } from '@lwc/shared';
 import type { CompilerDiagnostic } from '@lwc/errors';
 
 export interface RollupLwcOptions {
@@ -35,13 +36,17 @@ export interface RollupLwcOptions {
     experimentalDynamicDirective?: boolean;
     /** The configuration to pass to `@lwc/template-compiler`. */
     enableDynamicComponents?: boolean;
+    /** The configuration to pass to `@lwc/compiler`. */
+    enableLightningWebSecurityTransforms?: boolean;
     // TODO [#3370]: remove experimental template expression flag
     /** The configuration to pass to `@lwc/template-compiler`. */
     experimentalComplexExpressions?: boolean;
-    /** The configuration to pass to the `@lwc/template-compiler`. */
+    /** @deprecated Spread operator is now always enabled. */
     enableLwcSpread?: boolean;
     /** The configuration to pass to `@lwc/compiler` to disable synthetic shadow support */
     disableSyntheticShadowSupport?: boolean;
+    /** The API version to associate with the compiled module */
+    apiVersion?: APIVersion;
 }
 
 const PLUGIN_NAME = 'rollup-plugin-lwc-compiler';
@@ -148,10 +153,11 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
         experimentalDynamicComponent,
         experimentalDynamicDirective,
         enableDynamicComponents,
+        enableLightningWebSecurityTransforms,
         // TODO [#3370]: remove experimental template expression flag
         experimentalComplexExpressions,
-        enableLwcSpread,
         disableSyntheticShadowSupport,
+        apiVersion,
     } = pluginOptions;
 
     return {
@@ -302,6 +308,8 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
             const [namespace, name] =
                 specifier?.split('/') ?? path.dirname(filename).split(path.sep).slice(-2);
 
+            const apiVersionToUse = getAPIVersionFromNumber(apiVersion);
+
             const { code, map, warnings } = transformSync(src, filename, {
                 name,
                 namespace,
@@ -310,12 +318,13 @@ export default function lwc(pluginOptions: RollupLwcOptions = {}): Plugin {
                 experimentalDynamicComponent,
                 experimentalDynamicDirective,
                 enableDynamicComponents,
+                enableLightningWebSecurityTransforms,
                 // TODO [#3370]: remove experimental template expression flag
                 experimentalComplexExpressions,
                 preserveHtmlComments,
                 scopedStyles: scoped,
-                enableLwcSpread,
                 disableSyntheticShadowSupport,
+                apiVersion: apiVersionToUse,
             });
 
             if (warnings) {

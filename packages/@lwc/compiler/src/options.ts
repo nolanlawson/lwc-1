@@ -4,9 +4,15 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { CompilerValidationErrors, invariant } from '@lwc/errors';
-import { isUndefined, isBoolean, isObject } from '@lwc/shared';
+import { InstrumentationObject, CompilerValidationErrors, invariant } from '@lwc/errors';
+import { isUndefined, isBoolean, isObject, getAPIVersionFromNumber } from '@lwc/shared';
 import { CustomRendererConfig } from '@lwc/template-compiler';
+
+/**
+ * Flag indicating that a warning about still using the deprecated `enableLwcSpread`
+ * compiler option has already been logged to the `console`.
+ */
+let alreadyWarnedAboutLwcSpread = false;
 
 type RecursiveRequired<T> = {
     [P in keyof T]-?: RecursiveRequired<T[P]>;
@@ -19,6 +25,7 @@ const DEFAULT_OPTIONS = {
     // TODO [#3370]: remove experimental template expression flag
     experimentalComplexExpressions: false,
     disableSyntheticShadowSupport: false,
+    enableLightningWebSecurityTransforms: false,
 };
 
 const DEFAULT_DYNAMIC_IMPORT_CONFIG: Required<DynamicImportConfig> = {
@@ -84,6 +91,9 @@ export interface TransformOptions {
     customRendererConfig?: CustomRendererConfig;
     enableLwcSpread?: boolean;
     disableSyntheticShadowSupport?: boolean;
+    enableLightningWebSecurityTransforms?: boolean;
+    instrumentation?: InstrumentationObject;
+    apiVersion?: number;
 }
 
 type RequiredTransformOptions = Omit<
@@ -93,9 +103,11 @@ type RequiredTransformOptions = Omit<
     | 'scopedStyles'
     | 'customRendererConfig'
     | 'enableLwcSpread'
+    | 'enableLightningWebSecurityTransforms'
     | 'enableDynamicComponents'
     | 'experimentalDynamicDirective'
     | 'experimentalDynamicComponent'
+    | 'instrumentation'
 >;
 export interface NormalizedTransformOptions extends RecursiveRequired<RequiredTransformOptions> {
     name?: string;
@@ -103,9 +115,11 @@ export interface NormalizedTransformOptions extends RecursiveRequired<RequiredTr
     scopedStyles?: boolean;
     customRendererConfig?: CustomRendererConfig;
     enableLwcSpread?: boolean;
+    enableLightningWebSecurityTransforms?: boolean;
     enableDynamicComponents?: boolean;
     experimentalDynamicDirective?: boolean;
     experimentalDynamicComponent?: DynamicImportConfig;
+    instrumentation?: InstrumentationObject;
 }
 
 export function validateTransformOptions(options: TransformOptions): NormalizedTransformOptions {
@@ -115,6 +129,15 @@ export function validateTransformOptions(options: TransformOptions): NormalizedT
 
 function validateOptions(options: TransformOptions) {
     invariant(!isUndefined(options), CompilerValidationErrors.MISSING_OPTIONS_OBJECT, [options]);
+
+    if (!isUndefined(options.enableLwcSpread) && !alreadyWarnedAboutLwcSpread) {
+        alreadyWarnedAboutLwcSpread = true;
+
+        // eslint-disable-next-line no-console
+        console.warn(
+            `"enableLwcSpread" property is deprecated. The value doesn't impact the compilation and can safely be removed.`
+        );
+    }
 
     if (!isUndefined(options.stylesheetConfig)) {
         validateStylesheetConfig(options.stylesheetConfig);
@@ -183,11 +206,14 @@ function normalizeOptions(options: TransformOptions): NormalizedTransformOptions
         ...options.experimentalDynamicComponent,
     };
 
+    const apiVersion = getAPIVersionFromNumber(options.apiVersion);
+
     return {
         ...DEFAULT_OPTIONS,
         ...options,
         stylesheetConfig,
         outputConfig,
         experimentalDynamicComponent,
+        apiVersion,
     };
 }

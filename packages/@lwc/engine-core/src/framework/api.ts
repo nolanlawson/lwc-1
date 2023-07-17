@@ -46,6 +46,7 @@ import {
     VFragment,
     isVScopedSlotFragment,
     VScopedSlotFragment,
+    VStaticElementData,
 } from './vnodes';
 import { getComponentRegisteredName } from './component';
 
@@ -80,19 +81,20 @@ function ssf(slotName: unknown, factory: (value: any, key: any) => VFragment): V
 }
 
 // [st]atic node
-function st(fragment: Element, key: Key): VStatic {
-    return enforceMonomorphism({
+function st(fragment: Element, key: Key, data?: VStaticElementData): VStatic {
+    const owner = getVMBeingRendered()!;
+    const vnode = enforceMonomorphism({
         aChildren: undefined,
         children: undefined,
         ctor: undefined,
-        data: undefined,
+        data,
         elm: undefined,
         factory: undefined,
         fragment,
         key,
         leading: undefined,
         mode: undefined,
-        owner: getVMBeingRendered()!,
+        owner,
         sel: undefined,
         slotName: undefined,
         stable: undefined,
@@ -101,6 +103,14 @@ function st(fragment: Element, key: Key): VStatic {
         type: VNodeType.Static,
         vm: undefined,
     });
+
+    const ref = data?.ref;
+
+    if (!isUndefined(ref)) {
+        setRefVNode(owner, ref, vnode);
+    }
+
+    return vnode;
 }
 
 // [fr]agment node
@@ -265,7 +275,12 @@ function s(
                     // undefined is for root components, but root components cannot accept slotted content
                     setVMBeingRendered(slotset.owner!);
                     try {
-                        ArrayPush.call(newChildren, vnode.factory(data.slotData, data.key));
+                        // The factory function is a template snippet from the slot set owner's template,
+                        // hence switch over to the slot set owner's template reactive observer
+                        const { tro } = slotset.owner!;
+                        tro.observe(() => {
+                            ArrayPush.call(newChildren, vnode.factory(data.slotData, data.key));
+                        });
                     } finally {
                         setVMBeingRendered(vmBeingRenderedInception);
                     }

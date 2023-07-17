@@ -54,8 +54,9 @@ const { code, warnings } = compile(`<template><h1>Hello World!</h1></template>`,
 -   `enableDynamicComponents` (boolean, optional, `false` by default) - set to `true` to enable `lwc:is` directive in the template.
 -   `preserveHtmlComments` (boolean, optional, `false` by default) - set to `true` to disable the default behavior of stripping HTML comments.
 -   `enableStaticContentOptimization` (boolean, optional, `true` by default) - set to `false` to disable static content optimizations.
--   `enableLwcSpread` (boolean, optional, `false` by default) - set to `true` to enable `lwc:spread` directive in the template.
+-   `enableLwcSpread` (boolean, optional, `true` by default) - Deprecated. Ignored by template-compiler. `lwc:spread` is always enabled.
 -   `customRendererConfig` (CustomRendererConfig, optional) - specifies a configuration to use to match elements. Matched elements will get a custom renderer hook in the generated template.
+-   `instrumentation` (InstrumentationObject, optional) - instrumentation object to gather metrics and non-error logs for internal use. See the `@lwc/errors` package for details on the interface.
 
     -   Example 1: Config to match `<use>` elements under the `svg` namespace and have `href` attribute set.
 
@@ -87,6 +88,8 @@ const { code, warnings } = compile(`<template><h1>Hello World!</h1></template>`,
             }
         }
         ```
+
+-   `apiVersion` (type: `number`, optional) - API version to associate with the compiled template.
 
 **Return:**
 The method returns an object with the following fields:

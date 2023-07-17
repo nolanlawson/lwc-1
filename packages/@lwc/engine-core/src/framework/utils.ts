@@ -16,7 +16,7 @@ import {
 } from '@lwc/shared';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
 import { RefVNodes, VM } from './vm';
-import { VBaseElement, VNode } from './vnodes';
+import { VBaseElement, VNode, VStatic } from './vnodes';
 
 type Callback = () => void;
 
@@ -111,7 +111,7 @@ export function flattenStylesheets(stylesheets: TemplateStylesheetFactories): St
 }
 
 // Set a ref (lwc:ref) on a VM, from a template API
-export function setRefVNode(vm: VM, ref: string, vnode: VBaseElement) {
+export function setRefVNode(vm: VM, ref: string, vnode: VBaseElement | VStatic) {
     if (process.env.NODE_ENV !== 'production' && isUndefined(vm.refVNodes)) {
         throw new Error('refVNodes must be defined when setting a ref');
     }

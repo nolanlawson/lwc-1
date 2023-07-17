@@ -7,7 +7,7 @@
 import * as astring from 'astring';
 
 import { isBooleanAttribute, SVG_NAMESPACE, LWC_VERSION_COMMENT, isUndefined } from '@lwc/shared';
-import { generateCompilerError, TemplateErrors } from '@lwc/errors';
+import { CompilerMetrics, generateCompilerError, TemplateErrors } from '@lwc/errors';
 
 import {
     isComment,
@@ -68,7 +68,6 @@ import {
     identifierFromComponentName,
     objectToAST,
     shouldFlatten,
-    memorizeHandler,
     parseClassNames,
     parseStyleText,
     hasIdAttribute,
@@ -77,13 +76,14 @@ import {
 import { format as formatModule } from './formatters/module';
 
 function transform(codeGen: CodeGen): t.Expression {
+    const instrumentation = codeGen.state.config.instrumentation;
     function transformElement(element: BaseElement, slotParentName?: string): t.Expression {
         const databag = elementDataBag(element, slotParentName);
         let res: t.Expression;
 
         if (codeGen.staticNodes.has(element) && isElement(element)) {
             // do not process children of static nodes.
-            return codeGen.genHoistedElement(element, slotParentName);
+            return codeGen.genStaticElement(element, slotParentName);
         }
 
         const children = transformChildren(element);
@@ -591,8 +591,7 @@ function transform(codeGen: CodeGen): t.Expression {
 
         // Properties: lwc:ref directive
         if (ref) {
-            data.push(t.property(t.identifier('ref'), ref.value));
-            codeGen.hasRefs = true;
+            data.push(codeGen.genRef(ref));
         }
 
         if (propsObj.properties.length) {
@@ -610,8 +609,10 @@ function transform(codeGen: CodeGen): t.Expression {
             data.push(t.property(t.identifier('context'), contextObj));
         }
 
+        // Spread
         if (spread) {
             data.push(t.property(t.identifier('spread'), codeGen.bindExpression(spread.value)));
+            instrumentation?.incrementCounter(CompilerMetrics.LWCSpreadDirective);
         }
 
         // Key property on VNode
@@ -637,16 +638,7 @@ function transform(codeGen: CodeGen): t.Expression {
 
         // Event handler
         if (listeners.length) {
-            const listenerObj = Object.fromEntries(
-                listeners.map((listener) => [listener.name, listener])
-            );
-            const listenerObjAST = objectToAST(listenerObj, (key) => {
-                const componentHandler = codeGen.bindExpression(listenerObj[key].handler);
-                const handler = codeGen.genBind(componentHandler);
-
-                return memorizeHandler(codeGen, componentHandler, handler);
-            });
-            data.push(t.property(t.identifier('on'), listenerObjAST));
+            data.push(codeGen.genEventListeners(listeners));
         }
 
         // SVG handling

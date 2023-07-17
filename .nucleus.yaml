@@ -15,13 +15,11 @@ branches:
         - Trailhead-Platform/ui-trailhead-core-components
         - automation-platform/ui-interaction-explorer-components
         - communities/shared-experience-components
-        - communities/ui-b2b-components
         - communities/ui-feeds-components
         - communities/ui-lightning-community
         - communities/webruntime
         - lwc/lwc-platform
         - nrkruk/lwc-dev-core
-        - omnistudio/ui-omniscript-components
         - ris-gpta/core_via_components
         - salesforce/builder-framework
         - salesforce-experience-platform-emu/luvio
@@ -32,13 +30,13 @@ branches:
     pull-request:
       <<: *branch-definition
       merge-method: force-push # release branch should always be in sync with master branch (linear history)
+  spring23:
+    pull-request:
+      <<: *branch-definition
   summer23:
     pull-request:
       <<: *branch-definition
-  winter23:
-    pull-request:
-      <<: *branch-definition
-  spring23:
+  winter24:
     pull-request:
       <<: *branch-definition
 steps:
@@ -69,3 +67,7 @@ steps:
         # add NX cache
         - '.nx-cache'
     after: node-build
+  npm-publish-release:
+    params:
+      access: public
+      tag: latest # note: this should be summer22, winter23, etc. if this .nucleus.yaml file is in a non-master branch

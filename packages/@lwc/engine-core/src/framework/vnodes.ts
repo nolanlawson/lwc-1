@@ -35,7 +35,7 @@ export interface BaseVNode {
     aChildren: VNodes | undefined;
     children: VNodes | undefined;
     ctor: any;
-    data: VElementData | undefined;
+    data: VElementData | VStaticElementData | undefined;
     elm: Node | undefined;
     factory: ((value: any, key: any) => VFragment) | undefined;
     fragment: Element | undefined;
@@ -58,11 +58,15 @@ export interface VScopedSlotFragment extends BaseVNode {
     slotName: unknown;
 }
 
+export type VStaticElementData = Pick<VElementData, 'on' | 'ref'>;
+
 export interface VStatic extends BaseVNode {
-    type: VNodeType.Static;
-    sel: undefined;
-    key: Key;
-    fragment: Element;
+    readonly type: VNodeType.Static;
+    readonly sel: undefined;
+    readonly key: Key;
+    readonly fragment: Element;
+    readonly data: VStaticElementData | undefined;
+    elm: Element | undefined;
 }
 
 export interface VFragment extends BaseVNode {

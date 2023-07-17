@@ -16,6 +16,8 @@ import {
     Literal,
     LWCDirectiveRenderMode,
     Root,
+    EventListener,
+    RefDirective,
 } from '../shared/types';
 import {
     PARSE_FRAGMENT_METHOD_NAME,
@@ -25,7 +27,7 @@ import {
 import { isPreserveCommentsDirective, isRenderModeDirective } from '../shared/ast';
 import { isArrayExpression } from '../shared/estree';
 import State from '../state';
-import { getStaticNodes } from './helpers';
+import { getStaticNodes, memorizeHandler, objectToAST } from './helpers';
 import { serializeStaticElement } from './static-element-serializer';
 import { bindComplexExpression } from './expression';
 
@@ -311,6 +313,25 @@ export default class CodeGen {
         return t.conditionalExpression(bindExpr, t.literal(''), t.literal(null));
     }
 
+    genEventListeners(listeners: EventListener[]) {
+        const listenerObj = Object.fromEntries(
+            listeners.map((listener) => [listener.name, listener])
+        );
+        const listenerObjectAST = objectToAST(listenerObj, (key) => {
+            const componentHandler = this.bindExpression(listenerObj[key].handler);
+            const handler = this.genBind(componentHandler);
+
+            return memorizeHandler(this, componentHandler, handler);
+        });
+
+        return t.property(t.identifier('on'), listenerObjectAST);
+    }
+
+    genRef(ref: RefDirective) {
+        this.hasRefs = true;
+        return t.property(t.identifier('ref'), ref.value);
+    }
+
     /**
      * This routine generates an expression that avoids
      * computing the sanitized html of a raw html if it does not change
@@ -475,7 +496,7 @@ export default class CodeGen {
         return expression as t.Expression;
     }
 
-    genHoistedElement(element: Element, slotParentName?: string): t.Expression {
+    genStaticElement(element: Element, slotParentName?: string): t.Expression {
         const key =
             slotParentName !== undefined
                 ? `@${slotParentName}:${this.generateKey()}`
@@ -513,9 +534,27 @@ export default class CodeGen {
             expr,
         });
 
-        return this._renderApiCall(RENDER_APIS.staticFragment, [
-            t.callExpression(identifier, []),
-            t.literal(key),
-        ]);
+        const args: t.Expression[] = [t.callExpression(identifier, []), t.literal(key)];
+
+        // Only add the third argument (databag) if this element needs it
+        if (element.listeners.length || element.directives.length) {
+            const databagProperties: t.Property[] = [];
+
+            // has event listeners
+            if (element.listeners.length) {
+                databagProperties.push(this.genEventListeners(element.listeners));
+            }
+
+            // see STATIC_SAFE_DIRECTIVES for what's allowed here
+            for (const directive of element.directives) {
+                if (directive.name === 'Ref') {
+                    databagProperties.push(this.genRef(directive));
+                }
+            }
+
+            args.push(t.objectExpression(databagProperties));
+        }
+
+        return this._renderApiCall(RENDER_APIS.staticFragment, args);
     }
 }
