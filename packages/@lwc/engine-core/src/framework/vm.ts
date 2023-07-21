@@ -582,6 +582,9 @@ function flushRehydrationQueue() {
     if (lwcRuntimeFlags.PRERENDER_SYNTHETIC_SHADOW_CSS) {
         const stylesheetPrerenderer = getStylesheetPrerenderer();
         if (!isUndefined(stylesheetPrerenderer)) {
+            // We must flush stylesheets before doing a big rerender of multiple components. This is is our best
+            // opportunity to get maximum stylesheet concatenation while still rendering before a component has a chance
+            // to inspect its own styles (e.g. with `getComputedStyle()`).
             stylesheetPrerenderer.flush();
         }
     }
