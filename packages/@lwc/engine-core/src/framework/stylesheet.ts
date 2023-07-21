@@ -110,20 +110,29 @@ export function updateStylesheetToken(vm: VM, template: Template) {
     context.hasTokenInAttribute = newHasTokenInAttribute;
 }
 
-function evaluateStylesheetsContent(
+export function evaluateStylesheetsContent(
     stylesheets: TemplateStylesheetFactories,
     stylesheetToken: string | undefined,
-    vm: VM
+    renderMode: RenderMode,
+    shadowMode: ShadowMode,
+    isLightInSynthetic: boolean
 ): string[] {
     const content: string[] = [];
-
-    let root: VM | null | undefined;
 
     for (let i = 0; i < stylesheets.length; i++) {
         let stylesheet = stylesheets[i];
 
         if (isArray(stylesheet)) {
-            ArrayPush.apply(content, evaluateStylesheetsContent(stylesheet, stylesheetToken, vm));
+            ArrayPush.apply(
+                content,
+                evaluateStylesheetsContent(
+                    stylesheet,
+                    stylesheetToken,
+                    renderMode,
+                    shadowMode,
+                    isLightInSynthetic
+                )
+            );
         } else {
             if (process.env.NODE_ENV !== 'production') {
                 // Check for compiler version mismatch in dev mode only
@@ -138,7 +147,7 @@ function evaluateStylesheetsContent(
             if (
                 lwcRuntimeFlags.DISABLE_LIGHT_DOM_UNSCOPED_CSS &&
                 !isScopedCss &&
-                vm.renderMode === RenderMode.Light
+                renderMode === RenderMode.Light
             ) {
                 logError(
                     'Unscoped CSS is not supported in Light DOM. Please use scoped CSS (*.scoped.css) instead of unscoped CSS (*.css).'
@@ -148,28 +157,22 @@ function evaluateStylesheetsContent(
             // Apply the scope token only if the stylesheet itself is scoped, or if we're rendering synthetic shadow.
             const scopeToken =
                 isScopedCss ||
-                (vm.shadowMode === ShadowMode.Synthetic && vm.renderMode === RenderMode.Shadow)
+                (shadowMode === ShadowMode.Synthetic && renderMode === RenderMode.Shadow)
                     ? stylesheetToken
                     : undefined;
             // Use the actual `:host` selector if we're rendering global CSS for light DOM, or if we're rendering
             // native shadow DOM. Synthetic shadow DOM never uses `:host`.
             const useActualHostSelector =
-                vm.renderMode === RenderMode.Light
-                    ? !isScopedCss
-                    : vm.shadowMode === ShadowMode.Native;
+                renderMode === RenderMode.Light ? !isScopedCss : shadowMode === ShadowMode.Native;
             // Use the native :dir() pseudoclass only in native shadow DOM. Otherwise, in synthetic shadow,
             // we use an attribute selector on the host to simulate :dir().
             let useNativeDirPseudoclass;
-            if (vm.renderMode === RenderMode.Shadow) {
-                useNativeDirPseudoclass = vm.shadowMode === ShadowMode.Native;
+            if (renderMode === RenderMode.Shadow) {
+                useNativeDirPseudoclass = shadowMode === ShadowMode.Native;
             } else {
                 // Light DOM components should only render `[dir]` if they're inside of a synthetic shadow root.
                 // At the top level (root is null) or inside of a native shadow root, they should use `:dir()`.
-                if (isUndefined(root)) {
-                    // Only calculate the root once as necessary
-                    root = getNearestShadowComponent(vm);
-                }
-                useNativeDirPseudoclass = isNull(root) || root.shadowMode === ShadowMode.Native;
+                useNativeDirPseudoclass = !isLightInSynthetic;
             }
             ArrayPush.call(
                 content,
@@ -187,13 +190,40 @@ export function getStylesheetsContent(vm: VM, template: Template): string[] {
 
     let content: string[] = [];
 
+    const { renderMode, shadowMode } = vm;
+
+    let isLightInSynthetic: boolean;
+
+    if (renderMode === RenderMode.Light) {
+        // only calculate the root if we need to, which is for light DOM
+        const root = getNearestShadowComponent(vm);
+        isLightInSynthetic = !isNull(root) && root.shadowMode === ShadowMode.Synthetic;
+    } else {
+        isLightInSynthetic = false;
+    }
+
     if (hasStyles(stylesheets)) {
-        content = evaluateStylesheetsContent(stylesheets, stylesheetToken, vm);
+        content = evaluateStylesheetsContent(
+            stylesheets,
+            stylesheetToken,
+            renderMode,
+            shadowMode,
+            isLightInSynthetic
+        );
     }
 
     // VM (component) stylesheets apply after template stylesheets
     if (hasStyles(vmStylesheets)) {
-        ArrayPush.apply(content, evaluateStylesheetsContent(vmStylesheets, stylesheetToken, vm));
+        ArrayPush.apply(
+            content,
+            evaluateStylesheetsContent(
+                vmStylesheets,
+                stylesheetToken,
+                renderMode,
+                shadowMode,
+                isLightInSynthetic
+            )
+        );
     }
 
     return content;

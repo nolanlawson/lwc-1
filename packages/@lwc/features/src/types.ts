@@ -66,6 +66,11 @@ export interface FeatureFlagMap {
      * and HTMLBridgeElement base classes, not on every Element.
      */
     DISABLE_ARIA_REFLECTION_POLYFILL: FeatureFlagValue;
+    /**
+     * Flag to proactively prerender synthetic shadow CSS as concatenated stylesheets. This can be removed if
+     * this Chromium bug is resolved: https://crbug.com/1337599
+     */
+    PRERENDER_SYNTHETIC_SHADOW_CSS: FeatureFlagValue;
 }
 
 export type FeatureFlagName = keyof FeatureFlagMap;

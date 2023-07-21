@@ -5,22 +5,25 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import {
+    APIVersion,
     assert,
     isFalse,
     isFunction,
     isUndefined,
-    APIVersion,
     LOWEST_API_VERSION,
 } from '@lwc/shared';
 
 import { createReactiveObserver, ReactiveObserver } from './mutation-tracker';
 
-import { invokeComponentRenderMethod, isInvokingRender, invokeEventListener } from './invoker';
-import { VM, scheduleRehydration } from './vm';
+import { invokeComponentRenderMethod, invokeEventListener, isInvokingRender } from './invoker';
+import { RenderMode, scheduleRehydration, ShadowMode, ShadowSupportMode, VM } from './vm';
 import { LightningElementConstructor } from './base-lightning-element';
-import { Template, isUpdatingTemplate, getVMBeingRendered } from './template';
+import { getVMBeingRendered, hasStyles, isUpdatingTemplate, Template } from './template';
 import { VNodes } from './vnodes';
 import { checkVersionMismatch } from './check-version-mismatch';
+import { isSyntheticShadowLoaded } from './utils';
+import { getStylesheetPrerenderer } from './stylesheet-prerenderer';
+import { evaluateStylesheetsContent } from './stylesheet';
 
 type ComponentConstructorMetadata = {
     tmpl: Template;
@@ -29,6 +32,42 @@ type ComponentConstructorMetadata = {
 };
 const registeredComponentMap: Map<LightningElementConstructor, ComponentConstructorMetadata> =
     new Map();
+
+function prerenderStylesheetsIfPossible(Ctor: any, metadata: ComponentConstructorMetadata) {
+    if (
+        !(
+            lwcRuntimeFlags.PRERENDER_SYNTHETIC_SHADOW_CSS &&
+            Ctor.shadowSupportMode !== ShadowSupportMode.Any &&
+            Ctor.renderMode !== 'light' &&
+            isSyntheticShadowLoaded()
+        )
+    ) {
+        return;
+    }
+    const { tmpl } = metadata;
+    if (isUndefined(tmpl)) {
+        return;
+    }
+    const { stylesheets, stylesheetToken } = tmpl;
+    if (!(hasStyles(stylesheets) && !isUndefined(stylesheetToken))) {
+        return;
+    }
+    // Synthetic shadow is loaded and this is a shadow component that may render in synthetic mode, so
+    // preload and concatenate its stylesheets for perf.
+    // Note this can be removed if this Chromium bug is fixed: https://crbug.com/1337599
+    const stylesheetPrerenderer = getStylesheetPrerenderer();
+    if (isUndefined(stylesheetPrerenderer)) {
+        return;
+    }
+    const stylesheetContents = evaluateStylesheetsContent(
+        stylesheets,
+        stylesheetToken,
+        RenderMode.Shadow,
+        ShadowMode.Synthetic,
+        false
+    );
+    stylesheetPrerenderer.register(stylesheetContents);
+}
 
 /**
  * INTERNAL: This function can only be invoked by compiled code. The compiler
@@ -47,6 +86,8 @@ export function registerComponent(
         }
         // TODO [#3331]: add validation to check the value of metadata.sel is not an empty string.
         registeredComponentMap.set(Ctor, metadata);
+
+        prerenderStylesheetsIfPossible(Ctor, metadata);
     }
     // chaining this method as a way to wrap existing assignment of component constructor easily,
     // without too much transformation

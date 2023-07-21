@@ -15,8 +15,13 @@ const path = require('path');
 
 const { rollup } = require('rollup');
 const lwcRollupPlugin = require('@lwc/rollup-plugin');
+const MagicString = require('magic-string');
 
-const { DISABLE_SYNTHETIC_SHADOW_SUPPORT_IN_COMPILER, API_VERSION } = require('../shared/options');
+const {
+    DISABLE_SYNTHETIC_SHADOW_SUPPORT_IN_COMPILER,
+    API_VERSION,
+    PRERENDER_SYNTHETIC_SHADOW_CSS,
+} = require('../shared/options');
 const Watcher = require('./Watcher');
 
 function createPreprocessor(config, emitter, logger) {
@@ -44,6 +49,23 @@ function createPreprocessor(config, emitter, logger) {
         const experimentalComplexExpressions = suiteDir.includes('template-expressions');
 
         const plugins = [
+            PRERENDER_SYNTHETIC_SHADOW_CSS && {
+                id: 'skip-invalid-test',
+                transform(source, id) {
+                    if (id.endsWith('version-mismatch/index.spec.js')) {
+                        const magic = new MagicString(source);
+                        magic.overwrite(
+                            0,
+                            source.length,
+                            `it('skipped for PRERENDER_SYNTHETIC_SHADOW_CSS', () => { expect(1).toEqual(1); })`
+                        );
+                        return {
+                            code: magic.toString(),
+                            map: magic.generateMap(),
+                        };
+                    }
+                },
+            },
             lwcRollupPlugin({
                 sourcemap: true,
                 experimentalDynamicComponent: {

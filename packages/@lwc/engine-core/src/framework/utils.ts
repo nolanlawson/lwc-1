@@ -4,7 +4,17 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { ArrayPush, create, isArray, isFunction, isUndefined, keys, seal } from '@lwc/shared';
+import {
+    ArrayPush,
+    create,
+    hasOwnProperty,
+    isArray,
+    isFunction,
+    isUndefined,
+    KEY__SHADOW_TOKEN,
+    keys,
+    seal,
+} from '@lwc/shared';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
 import { RefVNodes, VM } from './vm';
 import { VBaseElement, VStatic } from './vnodes';
@@ -125,4 +135,10 @@ export function assertNotProd() {
         // this method should never leak to prod
         throw new ReferenceError();
     }
+}
+
+export function isSyntheticShadowLoaded() {
+    // We should probably be calling `renderer.isSyntheticShadowDefined`, but 1) we don't have access to the renderer,
+    // and 2) this code needs to run in @lwc/engine-core, so it can access `logWarn()` and `report()`.
+    return hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN);
 }

@@ -59,3 +59,5 @@ export { default as wire } from './decorators/wire';
 export { readonly } from './readonly';
 
 export { setFeatureFlag, setFeatureFlagForTest } from '@lwc/features';
+
+export { setStylesheetPrerenderer } from './stylesheet-prerenderer';

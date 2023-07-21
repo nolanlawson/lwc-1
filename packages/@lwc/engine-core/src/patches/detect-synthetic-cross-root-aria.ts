@@ -19,12 +19,11 @@ import {
     isFunction,
     StringSplit,
     ArrayFilter,
-    hasOwnProperty,
-    KEY__SHADOW_TOKEN,
 } from '@lwc/shared';
 import { onReportingEnabled, report, ReportingEventId } from '../framework/reporting';
 import { getAssociatedVMIfPresent, VM } from '../framework/vm';
 import { logWarnOnce } from '../shared/logger';
+import { isSyntheticShadowLoaded } from '../framework/utils';
 
 //
 // The goal of this code is to detect invalid cross-root ARIA references in synthetic shadow DOM.
@@ -174,12 +173,6 @@ function supportsCssEscape() {
 
 // If this page is not using synthetic shadow, then we don't need to install detection. Note
 // that we are assuming synthetic shadow is loaded before LWC.
-function isSyntheticShadowLoaded() {
-    // We should probably be calling `renderer.isSyntheticShadowDefined`, but 1) we don't have access to the renderer,
-    // and 2) this code needs to run in @lwc/engine-core, so it can access `logWarn()` and `report()`.
-    return hasOwnProperty.call(Element.prototype, KEY__SHADOW_TOKEN);
-}
-
 // Detecting cross-root ARIA in synthetic shadow only makes sense for the browser
 if (process.env.IS_BROWSER && supportsCssEscape() && isSyntheticShadowLoaded()) {
     // Always run detection in dev mode, so we can at least print to the console

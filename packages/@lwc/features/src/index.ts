@@ -18,6 +18,7 @@ const features: FeatureFlagMap = {
     DISABLE_LIGHT_DOM_UNSCOPED_CSS: null,
     ENABLE_FROZEN_TEMPLATE: null,
     DISABLE_ARIA_REFLECTION_POLYFILL: null,
+    PRERENDER_SYNTHETIC_SHADOW_CSS: null,
 };
 
 // eslint-disable-next-line no-restricted-properties

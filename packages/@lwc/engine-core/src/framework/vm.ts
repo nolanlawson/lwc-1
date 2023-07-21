@@ -52,6 +52,7 @@ import {
     VStatic,
 } from './vnodes';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
+import { getStylesheetPrerenderer } from './stylesheet-prerenderer';
 
 type ShadowRootMode = 'open' | 'closed';
 
@@ -577,6 +578,11 @@ let rehydrateQueue: VM[] = [];
 
 function flushRehydrationQueue() {
     logGlobalOperationStart(OperationId.GlobalRehydrate);
+
+    const stylesheetPrerenderer = getStylesheetPrerenderer();
+    if (!isUndefined(stylesheetPrerenderer)) {
+        stylesheetPrerenderer.flush();
+    }
 
     if (process.env.NODE_ENV !== 'production') {
         assert.invariant(

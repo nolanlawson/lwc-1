@@ -14,6 +14,7 @@ const {
     ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE,
     DISABLE_ARIA_REFLECTION_POLYFILL,
     DISABLE_SYNTHETIC_SHADOW_SUPPORT_IN_COMPILER,
+    PRERENDER_SYNTHETIC_SHADOW_CSS,
     NODE_ENV_FOR_TEST,
     API_VERSION,
 } = require('../../shared/options');
@@ -26,6 +27,7 @@ const TAGS = [
     ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE && 'native-lifecycle',
     DISABLE_ARIA_REFLECTION_POLYFILL && 'disable-aria-polyfill',
     DISABLE_SYNTHETIC_SHADOW_SUPPORT_IN_COMPILER && 'disable-synthetic-in-compiler',
+    PRERENDER_SYNTHETIC_SHADOW_CSS && 'prerender-css',
     `NODE_ENV-${NODE_ENV_FOR_TEST}`,
     API_VERSION && `api-version-${API_VERSION}`,
 ].filter(Boolean);

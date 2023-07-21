@@ -6,6 +6,7 @@
  */
 
 import { isUndefined, getOwnPropertyDescriptor, isArray, isFunction, isTrue } from '@lwc/shared';
+import { clearPrerenderedStylesheets, isStylesheetPrerendered } from './prerender-stylesheets';
 
 //
 // Feature detection
@@ -61,6 +62,7 @@ if (process.env.NODE_ENV === 'test-karma-lwc') {
     // @ts-ignore
     window.__lwcResetGlobalStylesheets = () => {
         stylesheetCache.clear();
+        clearPrerenderedStylesheets();
     };
 }
 
@@ -134,6 +136,11 @@ function getCacheData(content: string, useConstructableStylesheet: boolean): Cac
 }
 
 function insertGlobalStylesheet(content: string) {
+    if (isStylesheetPrerendered(content)) {
+        // Stylesheet was already prerendered (concatenated) at the global level.
+        // This can only occur for global synthetic shadow stylesheets. We can skip rendering in that case.
+        return;
+    }
     // Force a <style> element for global stylesheets. See comment below.
     const cacheData = getCacheData(content, false);
     if (cacheData.global) {
