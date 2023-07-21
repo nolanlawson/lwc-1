@@ -579,9 +579,11 @@ let rehydrateQueue: VM[] = [];
 function flushRehydrationQueue() {
     logGlobalOperationStart(OperationId.GlobalRehydrate);
 
-    const stylesheetPrerenderer = getStylesheetPrerenderer();
-    if (!isUndefined(stylesheetPrerenderer)) {
-        stylesheetPrerenderer.flush();
+    if (lwcRuntimeFlags.PRERENDER_SYNTHETIC_SHADOW_CSS) {
+        const stylesheetPrerenderer = getStylesheetPrerenderer();
+        if (!isUndefined(stylesheetPrerenderer)) {
+            stylesheetPrerenderer.flush();
+        }
     }
 
     if (process.env.NODE_ENV !== 'production') {
