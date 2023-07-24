@@ -510,6 +510,16 @@ export function getAssociatedVMIfPresent(obj: VMAssociable): VM | undefined {
 
 function rehydrate(vm: VM) {
     if (isTrue(vm.isDirty)) {
+        if (lwcRuntimeFlags.PRERENDER_SYNTHETIC_SHADOW_CSS) {
+            const stylesheetPrerenderer = getStylesheetPrerenderer();
+            if (!isUndefined(stylesheetPrerenderer)) {
+                // We must flush stylesheets before doing a big rerender of multiple components. This is our best
+                // opportunity to get maximum stylesheet concatenation while still rendering before a component has a
+                // chance to inspect its own styles (e.g. with `getComputedStyle()`).
+                stylesheetPrerenderer.flush();
+            }
+        }
+
         const children = renderComponent(vm);
         patchShadowRoot(vm, children);
     }
@@ -578,16 +588,6 @@ let rehydrateQueue: VM[] = [];
 
 function flushRehydrationQueue() {
     logGlobalOperationStart(OperationId.GlobalRehydrate);
-
-    if (lwcRuntimeFlags.PRERENDER_SYNTHETIC_SHADOW_CSS) {
-        const stylesheetPrerenderer = getStylesheetPrerenderer();
-        if (!isUndefined(stylesheetPrerenderer)) {
-            // We must flush stylesheets before doing a big rerender of multiple components. This is is our best
-            // opportunity to get maximum stylesheet concatenation while still rendering before a component has a chance
-            // to inspect its own styles (e.g. with `getComputedStyle()`).
-            stylesheetPrerenderer.flush();
-        }
-    }
 
     if (process.env.NODE_ENV !== 'production') {
         assert.invariant(
