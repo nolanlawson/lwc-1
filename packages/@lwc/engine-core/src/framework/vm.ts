@@ -52,7 +52,6 @@ import {
     VStatic,
 } from './vnodes';
 import { StylesheetFactory, TemplateStylesheetFactories } from './stylesheet';
-import { getStylesheetPrerenderer } from './stylesheet-prerenderer';
 
 type ShadowRootMode = 'open' | 'closed';
 
@@ -511,13 +510,11 @@ export function getAssociatedVMIfPresent(obj: VMAssociable): VM | undefined {
 function rehydrate(vm: VM) {
     if (isTrue(vm.isDirty)) {
         if (lwcRuntimeFlags.PRERENDER_SYNTHETIC_SHADOW_CSS) {
-            const stylesheetPrerenderer = getStylesheetPrerenderer();
-            if (!isUndefined(stylesheetPrerenderer)) {
-                // We must flush stylesheets before doing a big rerender of multiple components. This is our best
-                // opportunity to get maximum stylesheet concatenation while still rendering before a component has a
-                // chance to inspect its own styles (e.g. with `getComputedStyle()`).
-                stylesheetPrerenderer.flush();
-            }
+            // We must flush stylesheets before doing a big rerender of multiple components. This is our best
+            // opportunity to get maximum stylesheet concatenation while still rendering before a component has a
+            // chance to inspect its own styles (e.g. with `getComputedStyle()`).
+            const { flushPrerenderedStylesheets } = vm.renderer;
+            flushPrerenderedStylesheets();
         }
 
         const children = renderComponent(vm);

@@ -22,8 +22,8 @@ import { getVMBeingRendered, hasStyles, isUpdatingTemplate, Template } from './t
 import { VNodes } from './vnodes';
 import { checkVersionMismatch } from './check-version-mismatch';
 import { isSyntheticShadowLoaded } from './utils';
-import { getStylesheetPrerenderer } from './stylesheet-prerenderer';
 import { evaluateStylesheetsContent } from './stylesheet';
+import { getDefaultRenderer } from './default-renderer';
 
 type ComponentConstructorMetadata = {
     tmpl: Template;
@@ -55,10 +55,6 @@ function prerenderStylesheetsIfPossible(Ctor: any, metadata: ComponentConstructo
     // Synthetic shadow is loaded and this is a shadow component that may render in synthetic mode, so
     // preload and concatenate its stylesheets for perf.
     // Note this can be removed if this Chromium bug is fixed: https://crbug.com/1337599
-    const stylesheetPrerenderer = getStylesheetPrerenderer();
-    if (isUndefined(stylesheetPrerenderer)) {
-        return;
-    }
     const stylesheetContents = evaluateStylesheetsContent(
         stylesheets,
         stylesheetToken,
@@ -66,7 +62,15 @@ function prerenderStylesheetsIfPossible(Ctor: any, metadata: ComponentConstructo
         ShadowMode.Synthetic,
         false
     );
-    stylesheetPrerenderer.register(stylesheetContents);
+
+    // We have to use the default renderer here because at this point, we don't have access to the VM, so
+    // we don't have access to its renderer. This is also the best point in time to queue up as many stylesheets
+    // as possible, so we can't wait for the VM to be created. Luckily, queuePrerenderedStylesheets() does not
+    // need sandboxing.
+    const renderer = getDefaultRenderer();
+    if (!isUndefined(renderer)) {
+        renderer.queuePrerenderedStylesheets(stylesheetContents);
+    }
 }
 
 /**

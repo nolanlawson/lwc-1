@@ -10,6 +10,9 @@ import '@lwc/features';
 // Polyfills ---------------------------------------------------------------------------------------
 import './polyfills';
 
+// Hooks into engine-core
+import './default-renderer';
+
 // Engine-core public APIs -------------------------------------------------------------------------
 export {
     register,

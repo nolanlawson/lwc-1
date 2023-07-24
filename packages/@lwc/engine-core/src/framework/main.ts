@@ -60,4 +60,4 @@ export { readonly } from './readonly';
 
 export { setFeatureFlag, setFeatureFlagForTest } from '@lwc/features';
 
-export { setStylesheetPrerenderer } from './stylesheet-prerenderer';
+export { setDefaultRenderer } from './default-renderer';

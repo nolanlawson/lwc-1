@@ -73,4 +73,6 @@ export interface RendererAPI {
         adapterContextToken: string,
         subscriptionPayload: WireContextSubscriptionPayload
     ) => void;
+    queuePrerenderedStylesheets: (stylesheets: string[]) => void;
+    flushPrerenderedStylesheets: () => void;
 }

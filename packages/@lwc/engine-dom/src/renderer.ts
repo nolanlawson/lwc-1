@@ -13,6 +13,10 @@ import {
     KEY__SHADOW_TOKEN,
 } from '@lwc/shared';
 import { insertStylesheet } from './styles';
+import {
+    queuePrerenderedStylesheets,
+    flushPrerenderedStylesheets,
+} from './renderer/prerender-stylesheets';
 import { createCustomElement } from './custom-elements/create-custom-element';
 import { rendererFactory } from './renderer-factory';
 
@@ -30,6 +34,9 @@ export const renderer: RendererAPI = assign(
     {
         // insertStyleSheet implementation shares a global cache of stylesheet data
         insertStylesheet,
+        // stylesheet prerendering also relies on a global shared cache
+        queuePrerenderedStylesheets,
+        flushPrerenderedStylesheets,
         // relies on a shared global cache
         createCustomElement,
         isNativeShadowDefined: globalThis[KEY__IS_NATIVE_SHADOW_ROOT_DEFINED],

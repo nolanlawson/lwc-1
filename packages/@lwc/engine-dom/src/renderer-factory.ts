@@ -24,6 +24,8 @@ export type SandboxableRendererAPI = Omit<
     RendererAPI,
     | 'createCustomElement'
     | 'insertStylesheet'
+    | 'queuePrerenderedStylesheets'
+    | 'flushPrerenderedStylesheets'
     | 'isNativeShadowDefined'
     | 'isSyntheticShadowDefined'
 >;

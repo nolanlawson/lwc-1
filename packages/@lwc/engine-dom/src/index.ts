@@ -15,7 +15,7 @@ import './aria-reflection-polyfill';
 import './formatters';
 
 // Hooks into engine-core
-import './prerender-stylesheets';
+import './default-renderer';
 
 // Engine-core public APIs -------------------------------------------------------------------------
 export {

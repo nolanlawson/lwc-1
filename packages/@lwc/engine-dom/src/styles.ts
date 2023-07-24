@@ -6,7 +6,10 @@
  */
 
 import { isUndefined, getOwnPropertyDescriptor, isArray, isFunction, isTrue } from '@lwc/shared';
-import { clearPrerenderedStylesheets, isStylesheetPrerendered } from './prerender-stylesheets';
+import {
+    clearPrerenderedStylesheets,
+    isStylesheetPrerendered,
+} from './renderer/prerender-stylesheets';
 
 //
 // Feature detection

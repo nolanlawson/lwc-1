@@ -329,6 +329,10 @@ function isConnected(node: HostNode) {
 // synthetic shadow.
 const insertStylesheet = noop as (content: string, target: any) => void;
 
+// Prerendering stylesheets only really makes sense on the client. On the server we stream <style>s
+const queuePrerenderedStylesheets = noop as (stylesheets: string[]) => void;
+const flushPrerenderedStylesheets = noop as () => void;
+
 // Noop on SSR.
 const addEventListener = noop as (
     target: HostNode,
@@ -453,4 +457,6 @@ export const renderer = {
     assertInstanceOfHTMLElement,
     ownerDocument,
     registerContextConsumer,
+    queuePrerenderedStylesheets,
+    flushPrerenderedStylesheets,
 };

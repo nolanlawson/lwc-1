@@ -1,5 +1,3 @@
-import { setStylesheetPrerenderer } from '@lwc/engine-core';
-
 const prerenderedStylesheets = new Set<string>();
 
 export function isStylesheetPrerendered(stylesheet: string): boolean {
@@ -30,13 +28,6 @@ export function clearPrerenderedStylesheets() {
     prerenderedStylesheets.clear();
 }
 
-function registerStylesheets(stylesheets: string[]) {
+export function queuePrerenderedStylesheets(stylesheets: string[]) {
     queuedStylesheets.push(...stylesheets);
 }
-
-const stylesheetPrerenderer = {
-    register: registerStylesheets,
-    flush: flushPrerenderedStylesheets,
-};
-
-setStylesheetPrerenderer(stylesheetPrerenderer);
