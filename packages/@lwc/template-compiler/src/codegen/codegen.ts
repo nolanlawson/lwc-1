@@ -594,32 +594,16 @@ export default class CodeGen {
             return undefined // no databags needed
         }
 
+        // should be array, not object
         const variableNamesToDatabagsAST: t.Property[] = []
         for (const [ variableName, databags] of variableNamesToDatabags.entries()) {
             variableNamesToDatabagsAST.push(t.property(t.identifier(variableName), t.objectExpression(databags)))
         }
 
+        // turn into IIFE
         const func = t.functionDeclaration(null, [t.identifier('elm')], t.blockStatement([
             // `return { elm: { on: ... }, elm_c1: { on: ...}, elm_c2: { on: ... } }`
             t.returnStatement(t.objectExpression(variableNamesToDatabagsAST))
         ]))
-
-        if (element.listeners.length || element.directives.length) {
-            const databagProperties: t.Property[] = [];
-
-            // has event listeners
-            if (element.listeners.length) {
-                databagProperties.push(this.genEventListeners(element.listeners));
-            }
-
-            // see STATIC_SAFE_DIRECTIVES for what's allowed here
-            for (const directive of element.directives) {
-                if (directive.name === 'Ref') {
-                    databagProperties.push(this.genRef(directive));
-                }
-            }
-
-            return t.objectExpression(databagProperties);
-        }
     }
 }
