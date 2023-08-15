@@ -56,7 +56,9 @@ export function optimizeStaticExpressions(
                     !prop.computed &&
                     !prop.method &&
                     !prop.shorthand &&
-                    (t.isLiteral(prop.value) || isStaticObjectOrArray(prop.value))
+                    (t.isLiteral(prop.value) ||
+                        isStaticObjectOrArray(prop.value) ||
+                        (t.isIdentifier(prop.value) && prop.value.name === 'undefined'))
                 );
             });
         } else if (t.isArrayExpression(node)) {
