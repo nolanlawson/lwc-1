@@ -50,6 +50,10 @@ export function isUnaryExpression(node: t.BaseNode): node is t.UnaryExpression {
     return node.type === 'UnaryExpression';
 }
 
+export function isElement(node: t.BaseNode): node is t.Element {
+    return node.type === 'Element';
+}
+
 export function identifier(name: string, config?: Partial<t.Identifier>): t.Identifier {
     return {
         type: 'Identifier',

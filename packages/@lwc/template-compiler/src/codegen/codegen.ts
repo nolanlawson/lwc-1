@@ -17,14 +17,14 @@ import {
     LWCDirectiveRenderMode,
     Root,
     EventListener,
-    RefDirective,
+    RefDirective, Text, StaticElement,
 } from '../shared/types';
 import {
     PARSE_FRAGMENT_METHOD_NAME,
     PARSE_SVG_FRAGMENT_METHOD_NAME,
     TEMPLATE_PARAMS,
 } from '../shared/constants';
-import { isPreserveCommentsDirective, isRenderModeDirective } from '../shared/ast';
+import {isElement, isPreserveCommentsDirective, isRenderModeDirective} from '../shared/ast';
 import { isArrayExpression } from '../shared/estree';
 import State from '../state';
 import { getStaticNodes, memorizeHandler, objectToAST } from './helpers';
@@ -496,7 +496,7 @@ export default class CodeGen {
         return expression as t.Expression;
     }
 
-    genStaticElement(element: Element, slotParentName?: string): t.Expression {
+    genStaticElement(element: StaticElement, slotParentName?: string): t.Expression {
         const key =
             slotParentName !== undefined
                 ? `@${slotParentName}:${this.generateKey()}`
@@ -536,7 +536,74 @@ export default class CodeGen {
 
         const args: t.Expression[] = [t.callExpression(identifier, []), t.literal(key)];
 
-        // Only add the third argument (databag) if this element needs it
+        // Only add the third argument (databagFactory) if this element needs it
+        const databagIife = this.genStaticDatabagIife(element);
+        if (databagIife) {
+            args.push(databagIife)
+        }
+
+        return this._renderApiCall(RENDER_APIS.staticFragment, args);
+    }
+
+    genStaticDatabagIife(element: StaticElement): t.Expression | undefined {
+
+        interface StackItem {
+            node: (StaticElement | Text),
+            name: string
+        }
+
+        const stack: StackItem[] = [{ node: element, name: 'elm' }]
+
+        const variableNamesToDatabags = new Map<string, t.Property[]>()
+
+        const initDatabags = (variableName: string): t.Property[] => {
+            let databags = variableNamesToDatabags.get(variableName);
+            if (!databags) {
+                databags = []
+                variableNamesToDatabags.set(variableName, databags)
+            }
+            return databags
+        }
+
+        // Depth-first traversal
+        while (stack.length > 0) {
+            const current = stack.pop()!
+            if (isElement(current.node)) {
+                // has event listeners
+                if (element.listeners.length) {
+                    initDatabags(current.name).push(this.genEventListeners(element.listeners));
+                }
+
+                // see STATIC_SAFE_DIRECTIVES for what's allowed here
+                for (const directive of element.directives) {
+                    if (directive.name === 'Ref') {
+                        initDatabags(current.name).push(this.genRef(directive));
+                    }
+                }
+                const baseName = current.name
+                current.node.children.forEach((child, i) => {
+                    stack.push({
+                        name: `${baseName}_c${i}`, // 'c' for 'child'
+                        node: child
+                    })
+                })
+            }
+        }
+
+        if (variableNamesToDatabags.size === 0) {
+            return undefined // no databags needed
+        }
+
+        const variableNamesToDatabagsAST: t.Property[] = []
+        for (const [ variableName, databags] of variableNamesToDatabags.entries()) {
+            variableNamesToDatabagsAST.push(t.property(t.identifier(variableName), t.objectExpression(databags)))
+        }
+
+        const func = t.functionDeclaration(null, [t.identifier('elm')], t.blockStatement([
+            // `return { elm: { on: ... }, elm_c1: { on: ...}, elm_c2: { on: ... } }`
+            t.returnStatement(t.objectExpression(variableNamesToDatabagsAST))
+        ]))
+
         if (element.listeners.length || element.directives.length) {
             const databagProperties: t.Property[] = [];
 
@@ -552,9 +619,7 @@ export default class CodeGen {
                 }
             }
 
-            args.push(t.objectExpression(databagProperties));
+            return t.objectExpression(databagProperties);
         }
-
-        return this._renderApiCall(RENDER_APIS.staticFragment, args);
     }
 }
