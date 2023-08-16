@@ -2,7 +2,7 @@ import { parseFragment, registerTemplate } from "lwc";
 const $fragment1 = parseFragment`<button${3}>New</button>`;
 const $fragment2 = parseFragment`<button${3}>[X]</button>`;
 const stc0 = {
-  key: 2,
+  key: 3,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
   const {
@@ -16,10 +16,19 @@ function tmpl($api, $cmp, $slotset, $ctx) {
   } = $api;
   const { _m0, _m1 } = $ctx;
   return [
-    api_static_fragment($fragment1(), 1, {
-      on: {
-        click: _m1 || ($ctx._m1 = api_bind($cmp.create)),
-      },
+    api_static_fragment($fragment1(), 1, function (elm) {
+      const elm_c0 = elm.firstChild;
+      return [
+        {
+          elm: elm,
+          data: {
+            on: {
+              click: _m1 || ($ctx._m1 = api_bind($cmp.create)),
+            },
+          },
+          key: 2,
+        },
+      ];
     }),
     api_element(
       "ul",
@@ -28,14 +37,23 @@ function tmpl($api, $cmp, $slotset, $ctx) {
         return api_element(
           "li",
           {
-            key: api_key(3, task.id),
+            key: api_key(4, task.id),
           },
           [
             api_text(api_dynamic_text(task.title)),
-            api_static_fragment($fragment2(), 5, {
-              on: {
-                click: api_bind(task.delete),
-              },
+            api_static_fragment($fragment2(), 6, function (elm) {
+              const elm_c0 = elm.firstChild;
+              return [
+                {
+                  elm: elm,
+                  data: {
+                    on: {
+                      click: api_bind(task.delete),
+                    },
+                  },
+                  key: 7,
+                },
+              ];
             }),
           ]
         );

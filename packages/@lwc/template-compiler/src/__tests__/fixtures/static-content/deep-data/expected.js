@@ -1,5 +1,5 @@
 import { parseFragment, registerTemplate } from "lwc";
-const $fragment1 = parseFragment`<section${3}><div${3}>x</div><div${3}>x</div></section>`;
+const $fragment1 = parseFragment`<div${3}><div${3}></div><div${3}><div${3}><div${3}></div><div${3}></div></div></div><div${3}></div><div${3}></div></div>`;
 function tmpl($api, $cmp, $slotset, $ctx) {
   const { st: api_static_fragment } = $api;
   return [api_static_fragment($fragment1(), 1)];
