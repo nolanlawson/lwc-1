@@ -1,18 +1,18 @@
 import { parseFragment, registerTemplate } from "lwc";
-const $fragment1 = parseFragment`<section${3}><button${3}></button></section>`;
+const $fragment1 = parseFragment`<div${3}></div>`;
 function tmpl($api, $cmp, $slotset, $ctx) {
   const { b: api_bind, st: api_static_fragment } = $api;
-  const { _m0 } = $ctx;
+  const { _m0, _m1 } = $ctx;
   return [
     api_static_fragment($fragment1(), 1, function (elm) {
-      const elm_c0 = elm.firstChild;
       return [
         {
-          elm: elm_c0,
+          elm: elm,
           data: {
             on: {
-              click: _m0 || ($ctx._m0 = api_bind(() => $cmp.foo++)),
+              click: _m1 || ($ctx._m1 = api_bind($cmp.onClick)),
             },
+            ref: "foo",
           },
           key: 2,
         },
@@ -23,3 +23,4 @@ function tmpl($api, $cmp, $slotset, $ctx) {
 }
 export default registerTemplate(tmpl);
 tmpl.stylesheets = [];
+tmpl.hasRefs = true;

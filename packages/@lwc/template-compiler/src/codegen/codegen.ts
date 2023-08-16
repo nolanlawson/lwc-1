@@ -572,46 +572,46 @@ export default class CodeGen {
             const current = stack.pop()!;
             if (isElement(current.node)) {
                 // has event listeners
-                if (element.listeners.length) {
-                    initDatabags(current.name).push(this.genEventListeners(element.listeners));
+                if (current.node.listeners.length) {
+                    initDatabags(current.name).push(this.genEventListeners(current.node.listeners));
                 }
 
                 // see STATIC_SAFE_DIRECTIVES for what's allowed here
-                for (const directive of element.directives) {
+                for (const directive of current.node.directives) {
                     if (directive.name === 'Ref') {
                         initDatabags(current.name).push(this.genRef(directive));
                     }
                 }
                 const parentName = current.name;
-                let firstChildName: string | undefined;
+                let previousSiblingName: string | undefined;
                 current.node.children.forEach((child, i) => {
-                    const variableName = `${parentName}_c${i}`; // 'c' for 'child'
+                    const childName = `${parentName}_c${i}`; // 'c' for 'child'
 
                     if (i === 0) {
                         variableDeclarators.push(
                             t.variableDeclarator(
-                                t.identifier(variableName),
+                                t.identifier(childName),
                                 t.memberExpression(
                                     t.identifier(parentName),
                                     t.identifier('firstChild')
                                 )
                             )
                         );
-                        firstChildName = variableName;
                     } else {
                         variableDeclarators.push(
                             t.variableDeclarator(
-                                t.identifier(variableName),
+                                t.identifier(childName),
                                 t.memberExpression(
-                                    t.identifier(firstChildName!),
+                                    t.identifier(previousSiblingName!),
                                     t.identifier('nextSibling')
                                 )
                             )
                         );
                     }
+                    previousSiblingName = childName;
 
                     stack.push({
-                        name: variableName,
+                        name: childName,
                         node: child,
                     });
                 });
@@ -632,15 +632,17 @@ export default class CodeGen {
             })
         );
 
-        return t.functionExpression(
-            null,
-            [t.identifier('elm')],
-            t.blockStatement([
-                // `const elm_c1 = elm.firstChild, elm_c2 = elm_c1.nextSibling, ...`
-                t.variableDeclaration('const', variableDeclarators),
-                // `return [{ elm: elm, data: { on: ... } }, { elm: elm_c1, data: { on: ...} }, ... ]`
-                t.returnStatement(databagsArray),
-            ])
-        );
+        const functionBody: t.Statement[] = [];
+
+        // if no function declarators, only need the root `elm` from the function param
+        if (variableDeclarators.length > 0) {
+            // `const elm_c1 = elm.firstChild, elm_c2 = elm_c1.nextSibling, ...`
+            functionBody.push(t.variableDeclaration('const', variableDeclarators));
+        }
+
+        // `return [{ elm: elm, data: { on: ... } }, { elm: elm_c1, data: { on: ...} }, ... ]`
+        functionBody.push(t.returnStatement(databagsArray));
+
+        return t.functionExpression(null, [t.identifier('elm')], t.blockStatement(functionBody));
     }
 }
