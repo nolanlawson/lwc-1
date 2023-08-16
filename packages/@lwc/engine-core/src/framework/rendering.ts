@@ -24,7 +24,7 @@ import {
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
 import { LifecycleCallback, RendererAPI } from './renderer';
-import { EmptyArray } from './utils';
+import { EmptyArray, setRefVNode } from './utils';
 import { markComponentAsDirty } from './component';
 import { getScopeTokenClass } from './stylesheet';
 import { lockDomMutation, patchElementWithRestrictions, unlockDomMutation } from './restrictions';
@@ -275,9 +275,13 @@ function mountStatic(
     anchor: Node | null,
     renderer: RendererAPI
 ) {
-    const { owner } = vnode;
+    const { owner, dataPartsFactory } = vnode;
     const { cloneNode, isSyntheticShadowDefined } = renderer;
     const elm = (vnode.elm = cloneNode(vnode.fragment, true));
+
+    const dataParts = !isUndefined(dataPartsFactory)
+        ? (vnode.dataParts = dataPartsFactory(elm))
+        : undefined;
 
     linkNodeToShadow(elm, owner, renderer);
     applyElementRestrictions(elm, vnode);
@@ -292,8 +296,16 @@ function mountStatic(
     }
 
     insertNode(elm, parent, anchor, renderer);
-    // Event listeners are only applied once when mounting, so they are allowed for static vnodes
-    applyEventListeners(vnode, renderer);
+
+    if (!isUndefined(dataParts)) {
+        for (const dataPart of dataParts) {
+            if (!isUndefined(dataPart.data.ref)) {
+                setRefVNode(owner, dataPart.data.ref, dataPart);
+            }
+            // Event listeners are only applied once when mounting, so they are allowed for static vnodes
+            applyEventListeners(dataPart, renderer);
+        }
+    }
 }
 
 function mountCustomElement(

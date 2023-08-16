@@ -10,21 +10,22 @@ import { SVG_NAMESPACE } from '@lwc/shared';
 import * as t from '../shared/estree';
 import {
     ChildNode,
-    Element,
     Expression,
     ComplexExpression,
     Literal,
     LWCDirectiveRenderMode,
     Root,
     EventListener,
-    RefDirective, Text, StaticElement,
+    RefDirective,
+    Text,
+    StaticElement,
 } from '../shared/types';
 import {
     PARSE_FRAGMENT_METHOD_NAME,
     PARSE_SVG_FRAGMENT_METHOD_NAME,
     TEMPLATE_PARAMS,
 } from '../shared/constants';
-import {isElement, isPreserveCommentsDirective, isRenderModeDirective} from '../shared/ast';
+import { isElement, isPreserveCommentsDirective, isRenderModeDirective } from '../shared/ast';
 import { isArrayExpression } from '../shared/estree';
 import State from '../state';
 import { getStaticNodes, memorizeHandler, objectToAST } from './helpers';
@@ -536,38 +537,39 @@ export default class CodeGen {
 
         const args: t.Expression[] = [t.callExpression(identifier, []), t.literal(key)];
 
-        // Only add the third argument (databagFactory) if this element needs it
-        const databagIife = this.genStaticDatabagIife(element);
-        if (databagIife) {
-            args.push(databagIife)
+        // Only add the third argument (databagsFactory) if this element needs it
+        const databagsFactory = this.genStaticDatabagsFactory(element);
+        if (databagsFactory) {
+            args.push(databagsFactory);
         }
 
         return this._renderApiCall(RENDER_APIS.staticFragment, args);
     }
 
-    genStaticDatabagIife(element: StaticElement): t.Expression | undefined {
-
+    genStaticDatabagsFactory(element: StaticElement): t.FunctionExpression | undefined {
         interface StackItem {
-            node: (StaticElement | Text),
-            name: string
+            node: StaticElement | Text;
+            name: string;
         }
 
-        const stack: StackItem[] = [{ node: element, name: 'elm' }]
+        const stack: StackItem[] = [{ node: element, name: 'elm' }];
 
-        const variableNamesToDatabags = new Map<string, t.Property[]>()
+        const variableNamesToDatabags = new Map<string, t.Property[]>();
 
         const initDatabags = (variableName: string): t.Property[] => {
             let databags = variableNamesToDatabags.get(variableName);
             if (!databags) {
-                databags = []
-                variableNamesToDatabags.set(variableName, databags)
+                databags = [];
+                variableNamesToDatabags.set(variableName, databags);
             }
-            return databags
-        }
+            return databags;
+        };
+
+        const variableDeclarators: t.VariableDeclarator[] = [];
 
         // Depth-first traversal
         while (stack.length > 0) {
-            const current = stack.pop()!
+            const current = stack.pop()!;
             if (isElement(current.node)) {
                 // has event listeners
                 if (element.listeners.length) {
@@ -580,30 +582,65 @@ export default class CodeGen {
                         initDatabags(current.name).push(this.genRef(directive));
                     }
                 }
-                const baseName = current.name
+                const parentName = current.name;
+                let firstChildName: string | undefined;
                 current.node.children.forEach((child, i) => {
+                    const variableName = `${parentName}_c${i}`; // 'c' for 'child'
+
+                    if (i === 0) {
+                        variableDeclarators.push(
+                            t.variableDeclarator(
+                                t.identifier(variableName),
+                                t.memberExpression(
+                                    t.identifier(parentName),
+                                    t.identifier('firstChild')
+                                )
+                            )
+                        );
+                        firstChildName = variableName;
+                    } else {
+                        variableDeclarators.push(
+                            t.variableDeclarator(
+                                t.identifier(variableName),
+                                t.memberExpression(
+                                    t.identifier(firstChildName!),
+                                    t.identifier('nextSibling')
+                                )
+                            )
+                        );
+                    }
+
                     stack.push({
-                        name: `${baseName}_c${i}`, // 'c' for 'child'
-                        node: child
-                    })
-                })
+                        name: variableName,
+                        node: child,
+                    });
+                });
             }
         }
 
         if (variableNamesToDatabags.size === 0) {
-            return undefined // no databags needed
+            return undefined; // no databags needed
         }
 
-        // should be array, not object
-        const variableNamesToDatabagsAST: t.Property[] = []
-        for (const [ variableName, databags] of variableNamesToDatabags.entries()) {
-            variableNamesToDatabagsAST.push(t.property(t.identifier(variableName), t.objectExpression(databags)))
-        }
+        const databagsArray = t.arrayExpression(
+            [...variableNamesToDatabags.entries()].map(([variableName, databag]) => {
+                return t.objectExpression([
+                    t.property(t.identifier('elm'), t.identifier(variableName)),
+                    t.property(t.identifier('data'), t.objectExpression(databag)),
+                    t.property(t.identifier('key'), t.literal(this.generateKey())),
+                ]);
+            })
+        );
 
-        // turn into IIFE
-        const func = t.functionDeclaration(null, [t.identifier('elm')], t.blockStatement([
-            // `return { elm: { on: ... }, elm_c1: { on: ...}, elm_c2: { on: ... } }`
-            t.returnStatement(t.objectExpression(variableNamesToDatabagsAST))
-        ]))
+        return t.functionExpression(
+            null,
+            [t.identifier('elm')],
+            t.blockStatement([
+                // `const elm_c1 = elm.firstChild, elm_c2 = elm_c1.nextSibling, ...`
+                t.variableDeclaration('const', variableDeclarators),
+                // `return [{ elm: elm, data: { on: ... } }, { elm: elm_c1, data: { on: ...} }, ... ]`
+                t.returnStatement(databagsArray),
+            ])
+        );
     }
 }

@@ -21,7 +21,7 @@ import {
 import { logError, logWarn } from '../shared/logger';
 
 import { RendererAPI } from './renderer';
-import { cloneAndOmitKey, parseStyleText } from './utils';
+import { cloneAndOmitKey, parseStyleText, setRefVNode } from './utils';
 import { allocateChildren, mount, removeNode } from './rendering';
 import {
     createVM,
@@ -218,7 +218,20 @@ function hydrateStaticElement(elm: Node, vnode: VStatic, renderer: RendererAPI):
     }
 
     vnode.elm = elm;
-    applyEventListeners(vnode, renderer);
+
+    const { dataPartsFactory, owner } = vnode;
+    const dataParts = !isUndefined(dataPartsFactory)
+        ? (vnode.dataParts = dataPartsFactory(elm))
+        : undefined;
+    if (!isUndefined(dataParts)) {
+        for (const dataPart of dataParts) {
+            if (!isUndefined(dataPart.data.ref)) {
+                setRefVNode(owner, dataPart.data.ref, dataPart);
+            }
+            // Event listeners are only applied once when mounting, so they are allowed for static vnodes
+            applyEventListeners(dataPart, renderer);
+        }
+    }
 
     return elm;
 }

@@ -51,7 +51,8 @@ import {
     ForOf,
     BaseElement,
     ElseifBlock,
-    ScopedSlotFragment, StaticElement,
+    ScopedSlotFragment,
+    StaticElement,
 } from '../shared/types';
 import * as t from '../shared/estree';
 import {
