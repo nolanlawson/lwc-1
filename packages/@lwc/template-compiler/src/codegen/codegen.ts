@@ -538,7 +538,7 @@ export default class CodeGen {
         const args: t.Expression[] = [t.callExpression(identifier, []), t.literal(key)];
 
         // Only add the third argument (databagsFactory) if this element needs it
-        const databagsFactory = this.genStaticDatabagsFactory(element);
+        const databagsFactory = this.genStaticPartsFactory(element);
         if (databagsFactory) {
             args.push(databagsFactory);
         }
@@ -546,13 +546,15 @@ export default class CodeGen {
         return this._renderApiCall(RENDER_APIS.staticFragment, args);
     }
 
-    genStaticDatabagsFactory(element: StaticElement): t.FunctionExpression | undefined {
+    genStaticPartsFactory(element: StaticElement): t.FunctionExpression | undefined {
         interface StackItem {
             node: StaticElement | Text;
             name: string;
         }
 
-        const stack: StackItem[] = [{ node: element, name: 'elm' }];
+        const ROOT_ELEMENT_NAME = 'root'
+
+        const stack: StackItem[] = [{ node: element, name: ROOT_ELEMENT_NAME }];
 
         const variableNamesToDatabags = new Map<string, t.Property[]>();
 
@@ -643,6 +645,10 @@ export default class CodeGen {
         // `return [{ elm: elm, data: { on: ... } }, { elm: elm_c1, data: { on: ...} }, ... ]`
         functionBody.push(t.returnStatement(databagsArray));
 
-        return t.functionExpression(null, [t.identifier('elm')], t.blockStatement(functionBody));
+        const funcParams = [
+            t.identifier(ROOT_ELEMENT_NAME)
+        ]
+
+        return t.functionExpression(null, funcParams, t.blockStatement(functionBody));
     }
 }
