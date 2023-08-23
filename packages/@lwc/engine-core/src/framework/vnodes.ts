@@ -49,7 +49,10 @@ export interface VScopedSlotFragment extends BaseVNode {
     slotName: unknown;
 }
 
-export type VStaticElementDataPartsFactory = (elm: Element) => VStaticDataPart[];
+export type VStaticElementDataPartsFactory = (
+    elm: Element,
+    renderer: RendererAPI
+) => VStaticDataPart[];
 
 export interface VStaticDataPart {
     readonly elm: Element;

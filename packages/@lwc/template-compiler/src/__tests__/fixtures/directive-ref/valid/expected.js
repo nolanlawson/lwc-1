@@ -6,11 +6,12 @@ const stc0 = {
 function tmpl($api, $cmp, $slotset, $ctx) {
   const { st: api_static_fragment } = $api;
   return [
-    api_static_fragment($fragment1(), 1, function (elm) {
-      const elm_c0 = elm.firstChild;
+    api_static_fragment($fragment1(), 1, function (root, renderer) {
+      const { getFirstChild, nextSibling } = renderer;
+      const root_c0 = getFirstChild(root);
       return [
         {
-          elm: elm,
+          elm: root,
           data: stc0,
           key: 2,
         },

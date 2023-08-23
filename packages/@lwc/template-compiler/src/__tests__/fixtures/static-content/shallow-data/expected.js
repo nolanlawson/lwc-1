@@ -4,10 +4,11 @@ function tmpl($api, $cmp, $slotset, $ctx) {
   const { b: api_bind, st: api_static_fragment } = $api;
   const { _m0, _m1 } = $ctx;
   return [
-    api_static_fragment($fragment1(), 1, function (elm) {
+    api_static_fragment($fragment1(), 1, function (root, renderer) {
+      const { getFirstChild, nextSibling } = renderer;
       return [
         {
-          elm: elm,
+          elm: root,
           data: {
             on: {
               click: _m1 || ($ctx._m1 = api_bind($cmp.onClick)),

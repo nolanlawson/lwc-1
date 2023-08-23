@@ -24,7 +24,7 @@ import {
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
 import { LifecycleCallback, RendererAPI } from './renderer';
-import { EmptyArray, setRefVNode } from './utils';
+import { EmptyArray } from './utils';
 import { markComponentAsDirty } from './component';
 import { getScopeTokenClass } from './stylesheet';
 import { lockDomMutation, patchElementWithRestrictions, unlockDomMutation } from './restrictions';
@@ -69,6 +69,7 @@ import { patchStyleAttribute } from './modules/computed-style-attr';
 import { applyEventListeners } from './modules/events';
 import { applyStaticClassAttribute } from './modules/static-class-attr';
 import { applyStaticStyleAttribute } from './modules/static-style-attr';
+import { applyRefs } from './modules/refs';
 
 export function patchChildren(
     c1: VNodes,
@@ -255,6 +256,7 @@ function mountElement(
     applyStyleScoping(elm, owner, renderer);
     applyDomManual(elm, vnode);
     applyElementRestrictions(elm, vnode);
+    applyRefs(vnode, owner);
 
     patchElementPropsAndAttrs(null, vnode, renderer);
 
@@ -280,7 +282,7 @@ function mountStatic(
     const elm = (vnode.elm = cloneNode(vnode.fragment, true));
 
     const dataParts = !isUndefined(dataPartsFactory)
-        ? (vnode.dataParts = dataPartsFactory(elm))
+        ? (vnode.dataParts = dataPartsFactory(elm, renderer))
         : undefined;
 
     linkNodeToShadow(elm, owner, renderer);
@@ -299,11 +301,10 @@ function mountStatic(
 
     if (!isUndefined(dataParts)) {
         for (const dataPart of dataParts) {
-            if (!isUndefined(dataPart.data.ref)) {
-                setRefVNode(owner, dataPart.data.ref, dataPart);
-            }
             // Event listeners are only applied once when mounting, so they are allowed for static vnodes
             applyEventListeners(dataPart, renderer);
+            // Refs are allowed as well
+            applyRefs(dataPart, owner);
         }
     }
 }
@@ -364,6 +365,7 @@ function mountCustomElement(
     }
 
     patchElementPropsAndAttrs(null, vnode, renderer);
+    applyRefs(vnode, owner);
     insertNode(elm, parent, anchor, renderer);
 
     if (vm) {

@@ -552,7 +552,10 @@ export default class CodeGen {
             name: string;
         }
 
-        const ROOT_ELEMENT_NAME = 'root'
+        const ROOT_ELEMENT_NAME = 'root';
+        const RENDERER_NAME = 'renderer';
+        const GET_FIRST_CHILD = 'getFirstChild'; // see renderer.ts
+        const GET_NEXT_SIBLING = 'nextSibling'; // see renderer.ts
 
         const stack: StackItem[] = [{ node: element, name: ROOT_ELEMENT_NAME }];
 
@@ -589,33 +592,23 @@ export default class CodeGen {
                 current.node.children.forEach((child, i) => {
                     const childName = `${parentName}_c${i}`; // 'c' for 'child'
 
-                    if (i === 0) {
-                        variableDeclarators.push(
-                            t.variableDeclarator(
-                                t.identifier(childName),
-                                t.memberExpression(
-                                    t.identifier(parentName),
-                                    t.identifier('firstChild')
-                                )
+                    // FIXME: remove unused variables, or use PURE annotations so terser can do it
+                    variableDeclarators.push(
+                        t.variableDeclarator(
+                            t.identifier(childName),
+                            t.callExpression(
+                                t.identifier(i === 0 ? GET_FIRST_CHILD : GET_NEXT_SIBLING),
+                                [t.identifier(i === 0 ? parentName : previousSiblingName!)]
                             )
-                        );
-                    } else {
-                        variableDeclarators.push(
-                            t.variableDeclarator(
-                                t.identifier(childName),
-                                t.memberExpression(
-                                    t.identifier(previousSiblingName!),
-                                    t.identifier('nextSibling')
-                                )
-                            )
-                        );
-                    }
-                    previousSiblingName = childName;
+                        )
+                    );
 
                     stack.push({
                         name: childName,
                         node: child,
                     });
+
+                    previousSiblingName = childName;
                 });
             }
         }
@@ -634,7 +627,26 @@ export default class CodeGen {
             })
         );
 
-        const functionBody: t.Statement[] = [];
+        const functionBody: t.Statement[] = [
+            // `const { getFirstChild, getNextSibling } = renderer`
+            t.variableDeclaration('const', [
+                t.variableDeclarator(
+                    t.objectPattern([
+                        t.assignmentProperty(
+                            t.identifier(GET_FIRST_CHILD),
+                            t.identifier(GET_FIRST_CHILD),
+                            { shorthand: true }
+                        ),
+                        t.assignmentProperty(
+                            t.identifier(GET_NEXT_SIBLING),
+                            t.identifier(GET_NEXT_SIBLING),
+                            { shorthand: true }
+                        ),
+                    ]),
+                    t.identifier(RENDERER_NAME)
+                ),
+            ]),
+        ];
 
         // if no function declarators, only need the root `elm` from the function param
         if (variableDeclarators.length > 0) {
@@ -645,9 +657,7 @@ export default class CodeGen {
         // `return [{ elm: elm, data: { on: ... } }, { elm: elm_c1, data: { on: ...} }, ... ]`
         functionBody.push(t.returnStatement(databagsArray));
 
-        const funcParams = [
-            t.identifier(ROOT_ELEMENT_NAME)
-        ]
+        const funcParams = [t.identifier(ROOT_ELEMENT_NAME), t.identifier(RENDERER_NAME)];
 
         return t.functionExpression(null, funcParams, t.blockStatement(functionBody));
     }

@@ -16,11 +16,12 @@ function tmpl($api, $cmp, $slotset, $ctx) {
   } = $api;
   const { _m0, _m1 } = $ctx;
   return [
-    api_static_fragment($fragment1(), 1, function (elm) {
-      const elm_c0 = elm.firstChild;
+    api_static_fragment($fragment1(), 1, function (root, renderer) {
+      const { getFirstChild, nextSibling } = renderer;
+      const root_c0 = getFirstChild(root);
       return [
         {
-          elm: elm,
+          elm: root,
           data: {
             on: {
               click: _m1 || ($ctx._m1 = api_bind($cmp.create)),
@@ -41,11 +42,12 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           },
           [
             api_text(api_dynamic_text(task.title)),
-            api_static_fragment($fragment2(), 6, function (elm) {
-              const elm_c0 = elm.firstChild;
+            api_static_fragment($fragment2(), 6, function (root, renderer) {
+              const { getFirstChild, nextSibling } = renderer;
+              const root_c0 = getFirstChild(root);
               return [
                 {
-                  elm: elm,
+                  elm: root,
                   data: {
                     on: {
                       click: api_bind(task.delete),
