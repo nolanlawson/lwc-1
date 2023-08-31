@@ -1,20 +1,16 @@
 import { parseFragment, registerTemplate } from "lwc";
 const $fragment1 = parseFragment`<div${3}></div>`;
 function tmpl($api, $cmp, $slotset, $ctx) {
-  const { b: api_bind, st: api_static_fragment } = $api;
+  const { b: api_bind, sp: api_static_part, st: api_static_fragment } = $api;
   const { _m0, _m1 } = $ctx;
   return [
     api_static_fragment($fragment1(), 1, [
-      {
-        partId: 0,
-        data: {
-          on: {
-            click: _m1 || ($ctx._m1 = api_bind($cmp.onClick)),
-          },
-          ref: "foo",
+      api_static_part(0, {
+        on: {
+          click: _m1 || ($ctx._m1 = api_bind($cmp.onClick)),
         },
-        elm: undefined,
-      },
+        ref: "foo",
+      }),
     ]),
   ];
   /*LWC compiler vX.X.X*/

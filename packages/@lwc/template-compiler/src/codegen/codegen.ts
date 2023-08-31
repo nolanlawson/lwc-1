@@ -51,7 +51,8 @@ type RenderPrimitive =
     | 'sanitizeHtmlContent'
     | 'fragment'
     | 'staticFragment'
-    | 'scopedSlotFactory';
+    | 'scopedSlotFactory'
+    | 'staticPart';
 
 interface RenderPrimitiveDefinition {
     name: string;
@@ -79,6 +80,7 @@ const RENDER_APIS: { [primitive in RenderPrimitive]: RenderPrimitiveDefinition }
     fragment: { name: 'fr', alias: 'api_fragment' },
     staticFragment: { name: 'st', alias: 'api_static_fragment' },
     scopedSlotFactory: { name: 'ssf', alias: 'api_scoped_slot_factory' },
+    staticPart: { name: 'sp', alias: 'api_static_part' },
 };
 
 interface Scope {
@@ -590,13 +592,16 @@ export default class CodeGen {
         }
 
         return t.arrayExpression(
-            [...partIdsToDatabagProps.entries()].map(([partId, databag]) => {
-                return t.objectExpression([
-                    t.property(t.identifier('partId'), t.literal(partId)),
-                    t.property(t.identifier('data'), t.objectExpression(databag)),
-                    t.property(t.identifier('elm'), t.identifier('undefined')), // JS VMs like consistent object shapes
-                ]);
+            [...partIdsToDatabagProps.entries()].map(([partId, databagProperties]) => {
+                return this.genStaticPart(partId, databagProperties);
             })
         );
+    }
+
+    genStaticPart(partId: number, databagProperties: t.Property[]): t.CallExpression {
+        return this._renderApiCall(RENDER_APIS.staticPart, [
+            t.literal(partId),
+            t.objectExpression(databagProperties),
+        ]);
     }
 }
