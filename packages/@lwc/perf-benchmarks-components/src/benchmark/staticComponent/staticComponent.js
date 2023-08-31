@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { api, LightningElement } from 'lwc';
+import { LightningElement } from 'lwc';
 
 export default class extends LightningElement {
-    @api rows = [];
+    onClick() {}
 }
