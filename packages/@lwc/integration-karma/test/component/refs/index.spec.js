@@ -6,6 +6,7 @@ import None from 'x/none';
 import NoneActive from 'x/noneActive';
 import Multi from 'x/multi';
 import MultiNoRefsInOne from 'x/multiNoRefsInOne';
+import MultiParent from 'x/multiParent';
 import Overwrite from 'x/overwrite';
 import Conflict from 'x/conflict';
 import ConflictDynamic from 'x/conflictDynamic';
@@ -202,6 +203,16 @@ describe('refs', () => {
                 expect(elm.getRefTextContent('quux')).toEqual('september');
             });
         });
+    });
+
+    it('multiple copies of same component, refs do not collide', () => {
+        const elm = createElement('x-multi-parent', { is: MultiParent });
+
+        document.body.appendChild(elm);
+
+        const allRefDivs = [...elm.shadowRoot.children].map((_) => _.shadowRoot.firstChild);
+
+        expect(elm.getAllRefs()).toBe(allRefDivs);
     });
 
     it('ref on a component', () => {
