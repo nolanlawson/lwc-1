@@ -210,9 +210,12 @@ describe('refs', () => {
 
         document.body.appendChild(elm);
 
-        const allRefDivs = [...elm.shadowRoot.children].map((_) => _.shadowRoot.firstChild);
-
-        expect(elm.getAllRefs()).toBe(allRefDivs);
+        const expectedDivs = [...elm.shadowRoot.children].map((_) => _.shadowRoot.firstChild);
+        const actualDivs = elm.getAllRefs();
+        expect(expectedDivs.length).toBe(actualDivs.length);
+        expect(expectedDivs[0]).toBe(actualDivs[0]);
+        expect(expectedDivs[1]).toBe(actualDivs[1]);
+        expect(expectedDivs[2]).toBe(actualDivs[2]);
     });
 
     it('ref on a component', () => {
