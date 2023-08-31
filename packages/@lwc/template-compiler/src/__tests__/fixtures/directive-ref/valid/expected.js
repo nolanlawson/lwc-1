@@ -1,23 +1,17 @@
 import { parseFragment, registerTemplate } from "lwc";
 const $fragment1 = parseFragment`<div${3}>Foo</div>`;
-const stc0 = {
-  ref: "foo",
-};
+const stc0 = [
+  {
+    partId: 0,
+    data: {
+      ref: "foo",
+    },
+    elm: undefined,
+  },
+];
 function tmpl($api, $cmp, $slotset, $ctx) {
   const { st: api_static_fragment } = $api;
-  return [
-    api_static_fragment($fragment1(), 1, function (root, renderer) {
-      const { getFirstChild, nextSibling } = renderer;
-      const root_c0 = getFirstChild(root);
-      return [
-        {
-          elm: root,
-          data: stc0,
-          key: 2,
-        },
-      ];
-    }),
-  ];
+  return [api_static_fragment($fragment1(), 1, stc0)];
   /*LWC compiler vX.X.X*/
 }
 export default registerTemplate(tmpl);

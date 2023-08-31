@@ -70,6 +70,7 @@ import { applyEventListeners } from './modules/events';
 import { applyStaticClassAttribute } from './modules/static-class-attr';
 import { applyStaticStyleAttribute } from './modules/static-style-attr';
 import { applyRefs } from './modules/refs';
+import { applyStaticParts } from './modules/static-parts';
 
 export function patchChildren(
     c1: VNodes,
@@ -277,13 +278,9 @@ function mountStatic(
     anchor: Node | null,
     renderer: RendererAPI
 ) {
-    const { owner, dataPartsFactory } = vnode;
+    const { owner } = vnode;
     const { cloneNode, isSyntheticShadowDefined } = renderer;
     const elm = (vnode.elm = cloneNode(vnode.fragment, true));
-
-    const dataParts = !isUndefined(dataPartsFactory)
-        ? (vnode.dataParts = dataPartsFactory(elm, renderer))
-        : undefined;
 
     linkNodeToShadow(elm, owner, renderer);
     applyElementRestrictions(elm, vnode);
@@ -298,15 +295,7 @@ function mountStatic(
     }
 
     insertNode(elm, parent, anchor, renderer);
-
-    if (!isUndefined(dataParts)) {
-        for (const dataPart of dataParts) {
-            // Event listeners are only applied once when mounting, so they are allowed for static vnodes
-            applyEventListeners(dataPart, renderer);
-            // Refs are allowed as well
-            applyRefs(dataPart, owner);
-        }
-    }
+    applyStaticParts(elm, vnode, renderer);
 }
 
 function mountCustomElement(

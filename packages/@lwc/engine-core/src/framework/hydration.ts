@@ -48,7 +48,7 @@ import {
 
 import { patchProps } from './modules/props';
 import { applyEventListeners } from './modules/events';
-import { applyRefs } from './modules/refs';
+import { applyStaticParts } from './modules/static-parts';
 import { getScopeTokenClass, getStylesheetTokenHost } from './stylesheet';
 import { renderComponent } from './component';
 
@@ -220,18 +220,7 @@ function hydrateStaticElement(elm: Node, vnode: VStatic, renderer: RendererAPI):
 
     vnode.elm = elm;
 
-    const { dataPartsFactory } = vnode;
-    const dataParts = !isUndefined(dataPartsFactory)
-        ? (vnode.dataParts = dataPartsFactory(elm, renderer))
-        : undefined;
-    if (!isUndefined(dataParts)) {
-        for (const dataPart of dataParts) {
-            // Event listeners are only applied once when mounting, so they are allowed for static vnodes
-            applyEventListeners(dataPart, renderer);
-            // Refs are allowed as well
-            applyRefs(dataPart, vnode.owner);
-        }
-    }
+    applyStaticParts(elm, vnode, renderer);
 
     return elm;
 }

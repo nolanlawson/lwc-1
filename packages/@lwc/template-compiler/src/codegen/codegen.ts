@@ -537,128 +537,66 @@ export default class CodeGen {
 
         const args: t.Expression[] = [t.callExpression(identifier, []), t.literal(key)];
 
-        // Only add the third argument (databagsFactory) if this element needs it
-        const databagsFactory = this.genStaticPartsFactory(element);
-        if (databagsFactory) {
-            args.push(databagsFactory);
+        // Only add the third argument (staticParts) if this element needs it
+        const staticParts = this.genStaticParts(element);
+        if (staticParts) {
+            args.push(staticParts);
         }
 
         return this._renderApiCall(RENDER_APIS.staticFragment, args);
     }
 
-    genStaticPartsFactory(element: StaticElement): t.FunctionExpression | undefined {
-        interface StackItem {
-            node: StaticElement | Text;
-            name: string;
-        }
+    genStaticParts(element: StaticElement): t.ArrayExpression | undefined {
+        const stack: (StaticElement | Text)[] = [element];
+        const partIdsToDatabagProps = new Map<number, t.Property[]>();
+        let partId = -1;
 
-        const ROOT_ELEMENT_NAME = 'root';
-        const RENDERER_NAME = 'renderer';
-        const GET_FIRST_CHILD = 'getFirstChild'; // see renderer.ts
-        const GET_NEXT_SIBLING = 'nextSibling'; // see renderer.ts
-
-        const stack: StackItem[] = [{ node: element, name: ROOT_ELEMENT_NAME }];
-
-        const variableNamesToDatabags = new Map<string, t.Property[]>();
-
-        const initDatabags = (variableName: string): t.Property[] => {
-            let databags = variableNamesToDatabags.get(variableName);
+        const addDatabagProp = (prop: t.Property) => {
+            let databags = partIdsToDatabagProps.get(partId);
             if (!databags) {
                 databags = [];
-                variableNamesToDatabags.set(variableName, databags);
+                partIdsToDatabagProps.set(partId, databags);
             }
-            return databags;
+            databags.push(prop);
         };
 
-        const variableDeclarators: t.VariableDeclarator[] = [];
-
-        // Depth-first traversal
+        // Depth-first traversal. We assign a partId to each element, which is an integer based on traversal order.
         while (stack.length > 0) {
-            const current = stack.pop()!;
-            if (isElement(current.node)) {
+            const node = stack.shift()!;
+            partId++;
+            if (isElement(node)) {
                 // has event listeners
-                if (current.node.listeners.length) {
-                    initDatabags(current.name).push(this.genEventListeners(current.node.listeners));
+                if (node.listeners.length) {
+                    addDatabagProp(this.genEventListeners(node.listeners));
                 }
 
                 // see STATIC_SAFE_DIRECTIVES for what's allowed here
-                for (const directive of current.node.directives) {
+                for (const directive of node.directives) {
                     if (directive.name === 'Ref') {
-                        initDatabags(current.name).push(this.genRef(directive));
+                        addDatabagProp(this.genRef(directive));
                     }
                 }
-                const parentName = current.name;
-                let previousSiblingName: string | undefined;
-                current.node.children.forEach((child, i) => {
-                    const childName = `${parentName}_c${i}`; // 'c' for 'child'
 
-                    // FIXME: remove unused variables, or use PURE annotations so terser can do it
-                    variableDeclarators.push(
-                        t.variableDeclarator(
-                            t.identifier(childName),
-                            t.callExpression(
-                                t.identifier(i === 0 ? GET_FIRST_CHILD : GET_NEXT_SIBLING),
-                                [t.identifier(i === 0 ? parentName : previousSiblingName!)]
-                            )
-                        )
-                    );
-
-                    stack.push({
-                        name: childName,
-                        node: child,
-                    });
-
-                    previousSiblingName = childName;
-                });
+                // For depth-first traversal, prepend to the stack in reverse order
+                for (let i = node.children.length - 1; i >= 0; i--) {
+                    const childNode = node.children[i];
+                    stack.unshift(childNode);
+                }
             }
         }
 
-        if (variableNamesToDatabags.size === 0) {
+        if (partIdsToDatabagProps.size === 0) {
             return undefined; // no databags needed
         }
 
-        const databagsArray = t.arrayExpression(
-            [...variableNamesToDatabags.entries()].map(([variableName, databag]) => {
+        return t.arrayExpression(
+            [...partIdsToDatabagProps.entries()].map(([partId, databag]) => {
                 return t.objectExpression([
-                    t.property(t.identifier('elm'), t.identifier(variableName)),
+                    t.property(t.identifier('partId'), t.literal(partId)),
                     t.property(t.identifier('data'), t.objectExpression(databag)),
-                    t.property(t.identifier('key'), t.literal(this.generateKey())),
+                    t.property(t.identifier('elm'), t.identifier('undefined')), // JS VMs like consistent object shapes
                 ]);
             })
         );
-
-        const functionBody: t.Statement[] = [
-            // `const { getFirstChild, getNextSibling } = renderer`
-            t.variableDeclaration('const', [
-                t.variableDeclarator(
-                    t.objectPattern([
-                        t.assignmentProperty(
-                            t.identifier(GET_FIRST_CHILD),
-                            t.identifier(GET_FIRST_CHILD),
-                            { shorthand: true }
-                        ),
-                        t.assignmentProperty(
-                            t.identifier(GET_NEXT_SIBLING),
-                            t.identifier(GET_NEXT_SIBLING),
-                            { shorthand: true }
-                        ),
-                    ]),
-                    t.identifier(RENDERER_NAME)
-                ),
-            ]),
-        ];
-
-        // if no function declarators, only need the root `elm` from the function param
-        if (variableDeclarators.length > 0) {
-            // `const elm_c1 = elm.firstChild, elm_c2 = elm_c1.nextSibling, ...`
-            functionBody.push(t.variableDeclaration('const', variableDeclarators));
-        }
-
-        // `return [{ elm: elm, data: { on: ... } }, { elm: elm_c1, data: { on: ...} }, ... ]`
-        functionBody.push(t.returnStatement(databagsArray));
-
-        const funcParams = [t.identifier(ROOT_ELEMENT_NAME), t.identifier(RENDERER_NAME)];
-
-        return t.functionExpression(null, funcParams, t.blockStatement(functionBody));
     }
 }

@@ -8,6 +8,8 @@ import Multi from 'x/multi';
 import MultiNoRefsInOne from 'x/multiNoRefsInOne';
 import Overwrite from 'x/overwrite';
 import Conflict from 'x/conflict';
+import ConflictDynamic from 'x/conflictDynamic';
+import ConflictFullyStatic from 'x/conflictFullyStatic';
 import Parent from 'x/parent';
 import Light from 'x/light';
 import Dynamic from 'x/dynamic';
@@ -169,15 +171,37 @@ describe('refs', () => {
         expect(elm.refs).toEqual(undefined);
     });
 
-    it('conflict between elements with same ref', () => {
-        const elm = createElement('x-conflict', { is: Conflict });
+    describe('conflicts between elements with the same ref', () => {
+        const scenarios = [
+            {
+                name: 'Basic',
+                tagName: 'x-conflict',
+                Ctor: Conflict,
+            },
+            {
+                name: 'Dynamic',
+                tagName: 'x-dynamic',
+                Ctor: ConflictDynamic,
+            },
+            {
+                name: 'Fully static',
+                tagName: 'x-fully-static',
+                Ctor: ConflictFullyStatic,
+            },
+        ];
 
-        document.body.appendChild(elm);
+        scenarios.forEach(({ name, tagName, Ctor }) => {
+            it(name, () => {
+                const elm = createElement(tagName, { is: Ctor });
 
-        expect(elm.getRefTextContent('foo')).toEqual('march');
-        expect(elm.getRefTextContent('bar')).toEqual('april');
-        expect(elm.getRefTextContent('baz')).toEqual('july');
-        expect(elm.getRefTextContent('quux')).toEqual('september');
+                document.body.appendChild(elm);
+
+                expect(elm.getRefTextContent('foo')).toEqual('march');
+                expect(elm.getRefTextContent('bar')).toEqual('april');
+                expect(elm.getRefTextContent('baz')).toEqual('july');
+                expect(elm.getRefTextContent('quux')).toEqual('september');
+            });
+        });
     });
 
     it('ref on a component', () => {
