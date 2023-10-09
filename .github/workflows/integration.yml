@@ -1,0 +1,41 @@
+name: Run Karma integration tests
+
+on:
+  push:
+    branches:
+      - master
+      - release
+      - 'spring*'
+      - 'summer*'
+      - 'winter*'
+  pull_request:
+    branches:
+      - master
+      - release
+      - 'spring*'
+      - 'summer*'
+      - 'winter*'
+
+jobs:
+  run-unit-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.18.0"
+          cache: 'yarn'
+      - uses: saucelabs/sauce-connect-action@v2
+        with:
+          username: ${{ secrets.SAUCE_USERNAME }}
+          accessKey: ${{ secrets.SAUCE_ACCESS_KEY }}
+          tunnelName: github-action-tunnel
+
+      - name: Install dependencies
+        # Puppeteer Chromium download is only needed for @best/runner-local, which is unused here
+        run: PUPPETEER_SKIP_DOWNLOAD=true yarn install --frozen-lockfile
+      - run: yarn sauce:prod --browsers chrome
+      - run: yarn sauce:dev --browsers chrome
