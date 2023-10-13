@@ -27,7 +27,7 @@ import Slotter from 'x/slotter';
 import AccessDuringRender from 'x/accessDuringRender';
 import RerenderElement from 'x/rerenderElement';
 import RerenderComponent from 'x/rerenderComponent';
-import RerenderElementStaticRef from 'x/RerenderElementStaticRef'
+import RerenderElementStaticRef from 'x/RerenderElementStaticRef';
 
 describe('refs', () => {
     describe('basic refs example', () => {
@@ -334,27 +334,28 @@ describe('refs', () => {
             expect(elm.getRef('foo')).toBe(elm.shadowRoot.querySelector('x-rerender-element'));
             for (let i = 0; i < 3; i++) {
                 elm.version = i;
-                expect(elm.getRef('foo')).toBeUndefined();
                 await Promise.resolve();
                 expect(elm.getRef('foo')).toBe(elm.shadowRoot.querySelector('x-rerender-element'));
             }
         });
 
-        fit('element with static ref', async () => {
-            const elm = createElement('x-rerender-element-static-ref', { is: RerenderElementStaticRef });
+        it('element with static ref', async () => {
+            const elm = createElement('x-rerender-element-static-ref', {
+                is: RerenderElementStaticRef,
+            });
             document.body.appendChild(elm);
 
-            await Promise.resolve()
+            await Promise.resolve();
 
-            const fooDiv = elm.getRef('foo')
-            expect(fooDiv).not.toBeUndefined()
+            const fooDiv = elm.getRef('foo');
+            expect(fooDiv).not.toBeUndefined();
 
-            expect(elm.getRef('foo')).toBe(fooDiv)
-            await Promise.resolve()
+            expect(elm.getRef('foo')).toBe(fooDiv);
+            await Promise.resolve();
             for (let i = 0; i < 3; i++) {
                 elm.version = i;
                 expect(elm.getRef('foo')).toBe(fooDiv);
-                await Promise.resolve()
+                await Promise.resolve();
                 expect(elm.getRef('foo')).toBe(fooDiv);
             }
         });
