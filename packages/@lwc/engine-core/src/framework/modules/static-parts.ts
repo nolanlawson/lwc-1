@@ -6,30 +6,30 @@
  */
 
 import { isNull, isUndefined, assert, ArrayShift, ArrayUnshift } from '@lwc/shared';
-import { VStatic, VStaticPart } from '../vnodes';
+import {VStatic, VStaticPart } from '../vnodes';
 import { RendererAPI } from '../renderer';
 import { applyEventListeners } from './events';
 import { applyRefs } from './refs';
 
-function traverseAndSetElements(root: Element, parts: VStaticPart[], renderer: RendererAPI): void {
+function calculateElmParts(root: Element, parts: VStaticPart[], renderer: RendererAPI): Map<number, Element> {
     const numParts = parts.length;
+    const result = new Map<number, Element>();
 
     // Optimization given that, in most cases, there will be one part, and it's just the root
     if (numParts === 1) {
         const firstPart = parts[0];
         if (firstPart.partId === 0) {
             // 0 means the root node
-            firstPart.elm = root;
-            return;
+            result.set(0, root)
+            return result
         }
     }
 
-    const partIdsToParts = new Map<number, VStaticPart>();
-    for (const staticPart of parts) {
-        partIdsToParts.set(staticPart.partId, staticPart);
+    const knownPartIds = new Set()
+    for (const part of parts) {
+        knownPartIds.add(part.partId)
     }
 
-    let numFoundParts = 0;
     const { previousSibling, getLastChild } = renderer;
     const stack = [root];
     let partId = -1;
@@ -39,11 +39,10 @@ function traverseAndSetElements(root: Element, parts: VStaticPart[], renderer: R
         const elm = ArrayShift.call(stack)!;
         partId++;
 
-        const part = partIdsToParts.get(partId);
-        if (!isUndefined(part)) {
-            part.elm = elm;
-            if (++numFoundParts === numParts) {
-                return; // perf optimization - stop traversing once we've found everything we need
+        if (knownPartIds.has(partId)) {
+            result.set(partId, elm)
+            if (result.size === numParts) {
+                break; // perf optimization - stop traversing once we've found everything we need
             }
         }
 
@@ -60,10 +59,12 @@ function traverseAndSetElements(root: Element, parts: VStaticPart[], renderer: R
 
     if (process.env.NODE_ENV !== 'production') {
         assert.isTrue(
-            numFoundParts === numParts,
-            `Should have found all parts by now. Found ${numFoundParts}, needed ${numParts}.`
+            result.size === numParts,
+            `Should have found all parts by now. Found ${result.size}, needed ${numParts}.`
         );
     }
+
+    return result
 }
 
 /**
@@ -90,9 +91,10 @@ export function applyStaticParts(
         return;
     }
 
-    // This adds `part.elm` to each `part`. We have to do this on every mount/patch because the `parts`
-    // array is recreated from scratch every time, so each `part.elm` is now undefined.
-    traverseAndSetElements(root, parts, renderer);
+    // This only needs to be calculated once, because the parts/elements never change for a given vnode
+    if (mount) {
+        vnode.elmParts = calculateElmParts(root, parts, renderer);
+    }
 
     // Currently only event listeners and refs are supported for static vnodes
     for (const part of parts) {

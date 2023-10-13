@@ -597,10 +597,10 @@ export default class CodeGen {
         );
     }
 
-    genStaticPart(partId: number, databagProperties: t.Property[]): t.CallExpression {
-        return this._renderApiCall(RENDER_APIS.staticPart, [
-            t.literal(partId),
-            t.objectExpression(databagProperties),
-        ]);
+    genStaticPart(partId: number, databagProperties: t.Property[]): t.ObjectExpression {
+        return t.objectExpression([
+            t.property(t.literal('partId'), t.literal(partId)),
+            t.property(t.literal('data'), t.objectExpression(databagProperties))
+        ])
     }
 }

@@ -52,9 +52,8 @@ export interface VScopedSlotFragment extends BaseVNode {
 export interface VStaticPart {
     readonly partId: number;
     readonly data: VStaticPartData;
-    elm: Element | undefined;
 }
-export type VStaticPartData = Pick<VElementData, 'on' | 'ref'>;
+export type VStaticPartData = Readonly<Pick<VElementData, 'on' | 'ref'>>;
 
 export interface VStatic extends BaseVNode {
     readonly type: VNodeType.Static;
@@ -63,6 +62,7 @@ export interface VStatic extends BaseVNode {
     readonly fragment: Element;
     readonly parts: VStaticPart[] | undefined;
     elm: Element | undefined;
+    elmParts: Map<number, Element> | undefined;
 }
 
 export interface VFragment extends BaseVNode, BaseVParent {

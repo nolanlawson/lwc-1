@@ -47,7 +47,6 @@ import {
     isVScopedSlotFragment,
     VScopedSlotFragment,
     VStaticPart,
-    VStaticPartData,
 } from './vnodes';
 import { getComponentRegisteredName } from './component';
 
@@ -55,15 +54,6 @@ const SymbolIterator: typeof Symbol.iterator = Symbol.iterator;
 
 function addVNodeToChildLWC(vnode: VCustomElement) {
     ArrayPush.call(getVMBeingRendered()!.velements, vnode);
-}
-
-// [s]tatic [p]art
-function sp(partId: number, data: VStaticPartData): VStaticPart {
-    return {
-        partId,
-        data,
-        elm: undefined, // elm is defined later
-    };
 }
 
 // [s]coped [s]lot [f]actory
@@ -687,7 +677,6 @@ const api = ObjectFreeze({
     shc,
     ssf,
     ddc,
-    sp,
 });
 
 export default api;
