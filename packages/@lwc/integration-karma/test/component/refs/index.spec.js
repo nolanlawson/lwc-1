@@ -334,6 +334,7 @@ describe('refs', () => {
             expect(elm.getRef('foo')).toBe(elm.shadowRoot.querySelector('x-rerender-element'));
             for (let i = 0; i < 3; i++) {
                 elm.version = i;
+                expect(elm.getRef('foo')).toBeUndefined();
                 await Promise.resolve();
                 expect(elm.getRef('foo')).toBe(elm.shadowRoot.querySelector('x-rerender-element'));
             }
@@ -345,12 +346,16 @@ describe('refs', () => {
 
             await Promise.resolve()
 
-            expect(elm.getRef('foo')).not.toBeUndefined();
+            const fooDiv = elm.getRef('foo')
+            expect(fooDiv).not.toBeUndefined()
+
+            expect(elm.getRef('foo')).toBe(fooDiv)
             await Promise.resolve()
             for (let i = 0; i < 3; i++) {
                 elm.version = i;
-                expect(elm.getRef('foo')).not.toBeUndefined();
+                expect(elm.getRef('foo')).toBe(fooDiv);
                 await Promise.resolve()
+                expect(elm.getRef('foo')).toBe(fooDiv);
             }
         });
     });
