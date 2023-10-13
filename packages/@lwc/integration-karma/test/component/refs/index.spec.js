@@ -27,6 +27,7 @@ import Slotter from 'x/slotter';
 import AccessDuringRender from 'x/accessDuringRender';
 import RerenderElement from 'x/rerenderElement';
 import RerenderComponent from 'x/rerenderComponent';
+import RerenderElementStaticRef from 'x/RerenderElementStaticRef'
 
 describe('refs', () => {
     describe('basic refs example', () => {
@@ -335,6 +336,21 @@ describe('refs', () => {
                 elm.version = i;
                 await Promise.resolve();
                 expect(elm.getRef('foo')).toBe(elm.shadowRoot.querySelector('x-rerender-element'));
+            }
+        });
+
+        fit('element with static ref', async () => {
+            const elm = createElement('x-rerender-element-static-ref', { is: RerenderElementStaticRef });
+            document.body.appendChild(elm);
+
+            await Promise.resolve()
+
+            expect(elm.getRef('foo')).not.toBeUndefined();
+            await Promise.resolve()
+            for (let i = 0; i < 3; i++) {
+                elm.version = i;
+                expect(elm.getRef('foo')).not.toBeUndefined();
+                await Promise.resolve()
             }
         });
     });
