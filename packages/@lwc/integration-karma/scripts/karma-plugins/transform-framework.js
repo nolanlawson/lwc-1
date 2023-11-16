@@ -11,7 +11,6 @@
  */
 'use strict';
 
-const path = require('node:path');
 const Watcher = require('./Watcher');
 const { runRollupFromKarma } = require('./run-rollup-from-karma.js');
 
@@ -38,8 +37,6 @@ function createPreprocessor(config, emitter, logger) {
 
     return async (content, file, done) => {
         const input = file.path;
-
-        const suiteDir = path.dirname(input);
 
         const plugins = [
             [
@@ -86,15 +83,17 @@ function createPreprocessor(config, emitter, logger) {
         const iifeName = getIifeName(input);
 
         await runRollupFromKarma({
+            rollupWorkerOptions: {
+                input,
+                plugins,
+                iifeName,
+            },
             basePath,
-            suiteDir,
             input,
-            plugins,
             log,
             watcher,
             file,
             content,
-            iifeName,
             done,
         });
     };

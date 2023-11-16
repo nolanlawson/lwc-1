@@ -4,33 +4,17 @@ const { pool } = require('workerpool');
 const workerPool = pool(require.resolve('./rollup-worker.js'));
 
 module.exports.runRollupFromKarma = async function runRollupFromKarma({
+    rollupWorkerOptions,
     basePath,
-    suiteDir,
     input,
-    plugins,
     log,
     watcher,
     file,
     content,
-    iifeName,
-    globals,
-    external,
-    intro,
-    outro,
     done,
 }) {
     const { code, map, watchFiles, error } = await workerPool.exec('transform', [
-        {
-            basePath,
-            suiteDir,
-            input,
-            plugins,
-            iifeName,
-            globals,
-            external,
-            intro,
-            outro,
-        },
+        rollupWorkerOptions,
     ]);
 
     if (error) {

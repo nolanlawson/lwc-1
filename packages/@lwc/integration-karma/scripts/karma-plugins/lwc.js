@@ -73,18 +73,20 @@ function createPreprocessor(config, emitter, logger) {
         const external = ['lwc', 'wire-service', 'test-utils', '@test/loader'];
 
         await runRollupFromKarma({
+            rollupWorkerOptions: {
+                intro,
+                outro,
+                input,
+                plugins,
+                globals,
+                external,
+            },
             basePath,
-            suiteDir,
             input,
-            plugins,
             log,
             watcher,
             file,
             content,
-            globals,
-            intro,
-            outro,
-            external,
             done,
         });
     };
