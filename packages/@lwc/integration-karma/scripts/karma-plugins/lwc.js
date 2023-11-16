@@ -11,9 +11,7 @@
  */
 'use strict';
 
-const os = require('node:os');
 const path = require('node:path');
-const { pool } = require('workerpool');
 
 const {
     DISABLE_SYNTHETIC_SHADOW_SUPPORT_IN_COMPILER,
@@ -21,8 +19,7 @@ const {
     DISABLE_STATIC_CONTENT_OPTIMIZATION,
 } = require('../shared/options');
 const Watcher = require('./Watcher');
-
-const workerPool = pool(require.resolve('./worker.js'));
+const { runRollupFromKarma } = require('./run-rollup-from-karma.js');
 
 function createPreprocessor(config, emitter, logger) {
     const { basePath } = config;
@@ -35,60 +32,61 @@ function createPreprocessor(config, emitter, logger) {
 
         const suiteDir = path.dirname(input);
 
+        // Wrap all the tests into a describe block with the file stricture name
+        const ancestorDirectories = path.relative(basePath, suiteDir).split(path.sep);
+        const intro = ancestorDirectories
+            .map((tag) => `describe("${tag}", function () {`)
+            .join('\n');
+        const outro = ancestorDirectories.map(() => `});`).join('\n');
+
         // TODO [#3370]: remove experimental template expression flag
         const experimentalComplexExpressions = suiteDir.includes('template-expressions');
 
-        const lwcRollupPluginOptions = {
-            sourcemap: true,
-            experimentalDynamicComponent: {
-                loader: 'test-utils',
-                strict: true,
-            },
-            enableDynamicComponents: true,
-            experimentalComplexExpressions,
-            enableStaticContentOptimization: !DISABLE_STATIC_CONTENT_OPTIMIZATION,
-            disableSyntheticShadowSupport: DISABLE_SYNTHETIC_SHADOW_SUPPORT_IN_COMPILER,
-            apiVersion: API_VERSION,
-            parallel: true,
-        };
-
-        const { code, map, watchFiles, error } = await workerPool.exec(
-            'transform',
+        const plugins = [
             [
+                '@lwc/rollup-plugin',
                 {
-                    basePath,
-                    suiteDir,
-                    input,
-                    lwcRollupPluginOptions,
+                    sourcemap: true,
+                    experimentalDynamicComponent: {
+                        loader: 'test-utils',
+                        strict: true,
+                    },
+                    enableDynamicComponents: true,
+                    experimentalComplexExpressions,
+                    enableStaticContentOptimization: !DISABLE_STATIC_CONTENT_OPTIMIZATION,
+                    disableSyntheticShadowSupport: DISABLE_SYNTHETIC_SHADOW_SUPPORT_IN_COMPILER,
+                    apiVersion: API_VERSION,
                 },
             ],
-            {
-                // Default to CPUS-1 so there is one CPU left for Karma itself
-                maxWorkers: os.cpus().length - 1,
-            }
-        );
+        ];
 
-        if (error) {
-            const location = path.relative(basePath, file.path);
-            log.error('Error processing “%s”\n\n%s\n', location, error.stack || error.message);
+        // The engine and the test-utils is injected as UMD. This mapping defines how those modules can be
+        // referenced from the window object.
+        const globals = {
+            lwc: 'LWC',
+            'wire-service': 'WireService',
+            'test-utils': 'TestUtils',
+        };
 
-            if (process.env.KARMA_MODE === 'watch') {
-                log.error('Ignoring error in watch mode');
-                done(null, content); // just pass the untransformed content in for now
-            } else {
-                done(error, null);
-            }
-        } else {
-            // no error
-            watcher.watchSuite(input, watchFiles);
+        // Rollup should not attempt to resolve the engine and the test utils, Karma takes care of injecting it
+        // globally in the page before running the tests.
+        const external = ['lwc', 'wire-service', 'test-utils', '@test/loader'];
 
-            // We need to assign the source to the original file so Karma can source map the error in the console. Add
-            // also adding the source map inline for browser debugging.
-            // eslint-disable-next-line require-atomic-updates
-            file.sourceMap = map;
-
-            done(null, code);
-        }
+        await runRollupFromKarma({
+            basePath,
+            suiteDir,
+            input,
+            plugins,
+            log,
+            watcher,
+            file,
+            content,
+            globals,
+            intro,
+            outro,
+            external,
+            done,
+        });
     };
 }
 
