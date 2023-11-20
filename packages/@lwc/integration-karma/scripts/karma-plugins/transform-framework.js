@@ -11,6 +11,8 @@
  */
 'use strict';
 
+const path = require('node:path')
+const { readFile } = require('node:fs/promises')
 const MagicString = require('magic-string');
 const { init, parse } = require('es-module-lexer');
 const Watcher = require('./Watcher');
@@ -41,7 +43,15 @@ function createPreprocessor(config, emitter, logger) {
         watcher.watchSuite(input, []);
 
         // Strip sourcemap for now since we can't get index.js.map to actually work in either Karma or Istanbul
-        const magicString = new MagicString(content.replace(/\/\/# sourceMappingURL=\S+/, ''));
+        const sourcemapRegex = /\/\/# sourceMappingURL=(\S+)/
+        const sourcemapFile = sourcemapRegex.exec(content)[1]
+        const sourcemapFileContents = await readFile(path.resolve(path.dirname(input), sourcemapFile))
+        const sourcemapBase64 = sourcemapFileContents.toString('base64')
+        const contentWithInlineSourcemap = content
+          .replace(sourcemapRegex, `//# sourceMappingURL=data:application/json;base64,${sourcemapBase64}`)
+
+        debugger
+        const magicString = new MagicString(contentWithInlineSourcemap);
 
         /**
          * This transformation replaces:
