@@ -25,6 +25,7 @@ const features: FeatureFlagMap = {
 if (!globalThis.lwcRuntimeFlags) {
     Object.defineProperty(globalThis, 'lwcRuntimeFlags', { value: create(null) });
 }
+lwcRuntimeFlags.ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE = true;
 
 // eslint-disable-next-line no-restricted-properties
 const flags: Partial<FeatureFlagMap> = globalThis.lwcRuntimeFlags;
