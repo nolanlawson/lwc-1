@@ -25,6 +25,7 @@ const features: FeatureFlagMap = {
 if (!globalThis.lwcRuntimeFlags) {
     Object.defineProperty(globalThis, 'lwcRuntimeFlags', { value: create(null) });
 }
+lwcRuntimeFlags.ENABLE_FORCE_SHADOW_MIGRATE_MODE = true;
 
 // eslint-disable-next-line no-restricted-properties
 const flags: Partial<FeatureFlagMap> = globalThis.lwcRuntimeFlags;
