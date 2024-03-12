@@ -8,6 +8,8 @@ import ParentProp from 'x/parentProp';
 import Container from 'invocationorder/container';
 import LightContainer from 'invocationorder/lightContainer';
 import DispatchEvents from 'x/dispatchEvents';
+import TimingParent from 'timing/parent';
+import TimingParentLight from 'timing/parentLight';
 
 function resetTimingBuffer() {
     window.timingBuffer = [];
@@ -264,6 +266,62 @@ describe('invocation order', () => {
                 ];
 
                 expect(window.timingBuffer).toEqual(expected);
+            });
+        });
+    });
+});
+
+describe('connectedCallback/renderedCallback timing when reconnected', () => {
+    const scenarios = [
+        {
+            testName: 'shadow',
+            tagName: 'timing-parent',
+            Ctor: TimingParent,
+        },
+        {
+            testName: 'light',
+            tagName: 'timing-parent-light',
+            Ctor: TimingParentLight,
+        },
+    ];
+
+    scenarios.forEach(({ testName, Ctor, tagName }) => {
+        describe(testName, () => {
+            it('connect/disconnect/reconnect', async () => {
+                const elm = createElement(tagName, { is: Ctor });
+                document.body.appendChild(elm);
+                document.body.removeChild(elm);
+
+                await Promise.resolve();
+                resetTimingBuffer();
+
+                document.body.appendChild(elm);
+                expect(window.timingBuffer).toEqual(
+                    ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+                        ? [
+                              'parent:connectedCallback',
+                              'parent:renderedCallback',
+                              'child:connectedCallback',
+                          ]
+                        : ['parent:connectedCallback', 'parent:renderedCallback']
+                );
+            });
+
+            it('connect/mutate/disconnect/reconnect', async () => {
+                const elm = createElement(tagName, { is: Ctor });
+                document.body.appendChild(elm);
+                elm.value = 'baz';
+                document.body.removeChild(elm);
+
+                await Promise.resolve();
+                resetTimingBuffer();
+
+                document.body.appendChild(elm);
+                expect(window.timingBuffer).toEqual(
+                    ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+                        ? ['parent:connectedCallback', 'child:connectedCallback']
+                        : ['parent:connectedCallback']
+                );
             });
         });
     });
