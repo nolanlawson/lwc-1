@@ -10,6 +10,8 @@ import LightContainer from 'invocationorder/lightContainer';
 import DispatchEvents from 'x/dispatchEvents';
 import TimingParent from 'timing/parent';
 import TimingParentLight from 'timing/parentLight';
+import ReorderingList from 'reordering/list';
+import ReorderingListLight from 'reordering/listLight';
 
 function resetTimingBuffer() {
     window.timingBuffer = [];
@@ -321,6 +323,48 @@ describe('connectedCallback/renderedCallback timing when reconnected', () => {
                     ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
                         ? ['parent:connectedCallback', 'child:connectedCallback']
                         : ['parent:connectedCallback']
+                );
+            });
+        });
+    });
+});
+
+describe('timing when reordering a list', () => {
+    const scenarios = [
+        {
+            testName: 'shadow',
+            tagName: 'reordering-list',
+            Ctor: ReorderingList,
+        },
+        {
+            testName: 'light',
+            tagName: 'reordering-list-light',
+            Ctor: ReorderingListLight,
+        },
+    ];
+    scenarios.forEach(({ testName, tagName, Ctor }) => {
+        describe(testName, () => {
+            it('invokes the expected callbacks when reordering', async () => {
+                const elm = createElement(tagName, { is: Ctor });
+                elm.uids = [1, 2];
+                document.body.appendChild(elm);
+
+                await Promise.resolve();
+                resetTimingBuffer();
+
+                elm.uids = [2, 1];
+                await Promise.resolve();
+
+                expect(window.timingBuffer).toEqual(
+                    ENABLE_NATIVE_CUSTOM_ELEMENT_LIFECYCLE
+                        ? [
+                              'item-wrapper-1:disconnectedCallback',
+                              'item-1:disconnectedCallback',
+                              'item-wrapper-1:connectedCallback',
+                              'item-wrapper-1:renderedCallback',
+                              'item-1:connectedCallback',
+                          ]
+                        : []
                 );
             });
         });
