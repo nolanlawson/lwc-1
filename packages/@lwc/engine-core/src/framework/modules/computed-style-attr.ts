@@ -6,18 +6,16 @@
  */
 import { isNull, isString } from '@lwc/shared';
 import { RendererAPI } from '../renderer';
-import { VBaseElement } from '../vnodes';
+import { VBaseElement, VElementData } from '../vnodes';
 
 // The style property is a string when defined via an expression in the template.
 export function patchStyleAttribute(
     oldVnode: VBaseElement | null,
-    vnode: VBaseElement,
+    elm: Element,
+    data: VElementData,
     renderer: RendererAPI
 ) {
-    const {
-        elm,
-        data: { style: newStyle },
-    } = vnode;
+    const { style: newStyle } = data;
 
     const oldStyle = isNull(oldVnode) ? undefined : oldVnode.data.style;
     if (oldStyle === newStyle) {

@@ -265,10 +265,10 @@ function mountElement(
 }
 
 function patchStatic(n1: VStatic, n2: VStatic, renderer: RendererAPI) {
-    n2.elm = n1.elm!;
+    const elm = (n2.elm = n1.elm!);
 
     // slotAssignments can only apply to the top level element, never to a static part.
-    patchSlotAssignment(n1, n2, renderer);
+    patchSlotAssignment(n1, n2, elm, renderer);
     // The `refs` object is blown away in every re-render, so we always need to re-apply them
     patchStaticParts(n1, n2, renderer);
 }
@@ -303,7 +303,7 @@ function mountStatic(
     }
 
     // slotAssignments can only apply to the top level element, never to a static part.
-    patchSlotAssignment(null, vnode, renderer);
+    patchSlotAssignment(null, vnode, elm!, renderer);
     mountStaticParts(elm, vnode, renderer);
     insertNode(elm, parent, anchor, renderer);
 }
@@ -599,23 +599,24 @@ function patchElementPropsAndAttrsAndRefs(
     vnode: VBaseElement,
     renderer: RendererAPI
 ) {
+    const { elm, data, owner } = vnode;
     if (isNull(oldVnode)) {
-        applyEventListeners(vnode, renderer);
-        applyStaticClassAttribute(vnode, renderer);
-        applyStaticStyleAttribute(vnode, renderer);
+        applyEventListeners(elm!, data, renderer);
+        applyStaticClassAttribute(elm!, data, renderer);
+        applyStaticStyleAttribute(elm!, data, renderer);
     }
 
     // Attrs need to be applied to element before props IE11 will wipe out value on radio inputs if
     // value is set before type=radio.
-    patchClassAttribute(oldVnode, vnode, renderer);
-    patchStyleAttribute(oldVnode, vnode, renderer);
+    patchClassAttribute(oldVnode, elm!, data, renderer);
+    patchStyleAttribute(oldVnode, elm!, data, renderer);
 
-    patchAttributes(oldVnode, vnode, renderer);
-    patchProps(oldVnode, vnode, renderer);
-    patchSlotAssignment(oldVnode, vnode, renderer);
+    patchAttributes(oldVnode, elm!, data, renderer);
+    patchProps(oldVnode, vnode, elm!, data, renderer);
+    patchSlotAssignment(oldVnode, vnode, elm!, renderer);
 
     // The `refs` object is blown away in every re-render, so we always need to re-apply them
-    applyRefs(vnode, vnode.owner);
+    applyRefs(vnode, data, owner);
 }
 
 function applyStyleScoping(elm: Element, owner: VM, renderer: RendererAPI) {

@@ -100,11 +100,12 @@ export function mountStaticParts(root: Element, vnode: VStatic, renderer: Render
 
     // Currently only event listeners and refs are supported for static vnodes
     for (const part of parts) {
+        const { elm, data } = part;
         // Event listeners only need to be applied once when mounting
-        applyEventListeners(part, renderer);
+        applyEventListeners(elm!, data, renderer);
         // Refs must be updated after every render due to refVNodes getting reset before every render
-        applyRefs(part, owner);
-        patchAttributes(null, part, renderer);
+        applyRefs(part, data, owner);
+        patchAttributes(null, elm!, data, renderer);
     }
 }
 
@@ -136,12 +137,13 @@ export function patchStaticParts(n1: VStatic, n2: VStatic, renderer: RendererAPI
 
     for (let i = 0; i < currParts.length; i++) {
         const part = currParts[i];
+        const { data } = part;
         // Patch only occurs if the vnode is newly generated, which means the part.elm is always undefined
         // Since the vnode and elements are the same we can safely assume that prevParts[i].elm is defined.
-        part.elm = prevParts![i].elm;
+        const elm = (part.elm = prevParts![i].elm);
         // Refs must be updated after every render due to refVNodes getting reset before every render
-        applyRefs(part, currPartsOwner);
-        patchAttributes(prevParts![i], part, renderer);
+        applyRefs(part, data, currPartsOwner);
+        patchAttributes(prevParts![i], elm!, data, renderer);
     }
 }
 
@@ -164,9 +166,10 @@ export function hydrateStaticParts(vnode: VStatic, renderer: RendererAPI): void 
     // which guarantees that the elements are the same.
     // We only need to apply the parts for things that cannot be done on the server.
     for (const part of parts) {
+        const { elm, data } = part;
         // Event listeners only need to be applied once when mounting
-        applyEventListeners(part, renderer);
+        applyEventListeners(elm!, data, renderer);
         // Refs must be updated after every render due to refVNodes getting reset before every render
-        applyRefs(part, owner);
+        applyRefs(part, data, owner);
     }
 }
