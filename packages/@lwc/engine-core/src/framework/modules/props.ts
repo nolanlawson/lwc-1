@@ -8,7 +8,7 @@ import { htmlPropertyToAttribute, isNull, isUndefined } from '@lwc/shared';
 import { logWarn } from '../../shared/logger';
 import { RendererAPI } from '../renderer';
 import { EmptyObject } from '../utils';
-import { VBaseElement } from '../vnodes';
+import { VBaseElement, VElementData } from '../vnodes';
 
 function isLiveBindingProp(sel: string, key: string): boolean {
     // For properties with live bindings, we read values from the DOM element
@@ -19,9 +19,11 @@ function isLiveBindingProp(sel: string, key: string): boolean {
 export function patchProps(
     oldVnode: VBaseElement | null,
     vnode: VBaseElement,
+    elm: Element,
+    data: VElementData,
     renderer: RendererAPI
 ) {
-    const { props } = vnode.data;
+    const { props } = data;
 
     if (isUndefined(props)) {
         return;
@@ -41,7 +43,7 @@ export function patchProps(
     }
 
     const isFirstPatch = isNull(oldVnode);
-    const { elm, sel } = vnode;
+    const { sel } = vnode;
     const { getProperty, setProperty } = renderer;
 
     for (const key in props) {

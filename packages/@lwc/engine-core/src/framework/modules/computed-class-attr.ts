@@ -16,7 +16,7 @@ import {
 import { RendererAPI } from '../renderer';
 
 import { EmptyObject, SPACE_CHAR } from '../utils';
-import { VBaseElement } from '../vnodes';
+import { VBaseElement, VElementData } from '../vnodes';
 
 const classNameToClassMap = create(null);
 
@@ -60,13 +60,11 @@ function getMapFromClassName(className: string | undefined): Record<string, bool
 
 export function patchClassAttribute(
     oldVnode: VBaseElement | null,
-    vnode: VBaseElement,
+    elm: Element,
+    data: VElementData,
     renderer: RendererAPI
 ) {
-    const {
-        elm,
-        data: { className: newClass },
-    } = vnode;
+    const { className: newClass } = data;
 
     const oldClass = isNull(oldVnode) ? undefined : oldVnode.data.className;
     if (oldClass === newClass) {
@@ -74,7 +72,7 @@ export function patchClassAttribute(
     }
 
     const { getClassList } = renderer;
-    const classList = getClassList(elm!);
+    const classList = getClassList(elm);
     const newClassMap = getMapFromClassName(newClass);
     const oldClassMap = getMapFromClassName(oldClass);
 

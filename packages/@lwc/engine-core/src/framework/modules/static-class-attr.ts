@@ -6,16 +6,13 @@
  */
 import { isUndefined } from '@lwc/shared';
 import { RendererAPI } from '../renderer';
-import { VBaseElement } from '../vnodes';
+import { VElementData } from '../vnodes';
 
 // The HTML class property becomes the vnode.data.classMap object when defined as a string in the template.
 // The compiler takes care of transforming the inline classnames into an object. It's faster to set the
 // different classnames properties individually instead of via a string.
-export function applyStaticClassAttribute(vnode: VBaseElement, renderer: RendererAPI) {
-    const {
-        elm,
-        data: { classMap },
-    } = vnode;
+export function applyStaticClassAttribute(elm: Element, data: VElementData, renderer: RendererAPI) {
+    const { classMap } = data;
 
     if (isUndefined(classMap)) {
         return;

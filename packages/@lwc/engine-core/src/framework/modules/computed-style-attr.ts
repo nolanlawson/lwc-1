@@ -6,21 +6,19 @@
  */
 import { isNull, isString, isUndefined } from '@lwc/shared';
 import { RendererAPI } from '../renderer';
-import { VBaseElement, VStaticPart } from '../vnodes';
-import { logError } from '../../shared/logger';
-import { VM } from '../vm';
+import {VBaseElement, VElementData, VStaticPart, VStaticPartData} from '../vnodes';
+import {VM} from "../vm";
+import {logError} from "../../shared/logger";
 
 // The style property is a string when defined via an expression in the template.
 export function patchStyleAttribute(
     oldVnode: VBaseElement | VStaticPart | null,
-    vnode: VBaseElement | VStaticPart,
+    elm: Element,
+    data: VElementData | VStaticPartData,
     renderer: RendererAPI,
     owner: VM
 ) {
-    const {
-        elm,
-        data: { style: newStyle },
-    } = vnode;
+    const { style: newStyle } = data;
 
     if (process.env.NODE_ENV !== 'production') {
         if (!isNull(newStyle) && !isUndefined(newStyle) && !isString(newStyle)) {

@@ -15,16 +15,16 @@ import {
 import { RendererAPI } from '../renderer';
 
 import { EmptyObject } from '../utils';
-import { VBaseElement, VStatic, VStaticPart } from '../vnodes';
+import { VBaseElement, VElementData, VStatic, VStaticPart, VStaticPartData } from '../vnodes';
 
 const ColonCharCode = 58;
 
 export function patchAttributes(
     oldVnode: VBaseElement | VStaticPart | null,
-    vnode: VBaseElement | VStaticPart,
+    elm: Element,
+    data: VElementData | VStaticPartData,
     renderer: RendererAPI
 ) {
-    const { data, elm } = vnode;
     const { attrs } = data;
 
     if (isUndefined(attrs)) {
@@ -70,6 +70,7 @@ export function patchAttributes(
 export function patchSlotAssignment(
     oldVnode: VBaseElement | VStatic | null,
     vnode: VBaseElement | VStatic,
+    elm: Element,
     renderer: RendererAPI
 ) {
     const { slotAssignment } = vnode;
@@ -78,7 +79,6 @@ export function patchSlotAssignment(
         return;
     }
 
-    const { elm } = vnode;
     const { setAttribute, removeAttribute } = renderer;
 
     if (isUndefined(slotAssignment) || isNull(slotAssignment)) {

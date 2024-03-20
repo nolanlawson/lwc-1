@@ -459,10 +459,11 @@ function handleMismatch(node: Node, vnode: VNode, renderer: RendererAPI): Node |
 }
 
 function patchElementPropsAndAttrsAndRefs(vnode: VBaseElement, renderer: RendererAPI) {
-    applyEventListeners(vnode, renderer);
-    patchProps(null, vnode, renderer);
+    const { elm, data } = vnode;
+    applyEventListeners(elm!, data, renderer);
+    patchProps(null, vnode, elm!, data, renderer);
     // The `refs` object is blown away in every re-render, so we always need to re-apply them
-    applyRefs(vnode, vnode.owner);
+    applyRefs(vnode, data, vnode.owner);
 }
 
 function hasCorrectNodeType<T extends Node>(
