@@ -165,7 +165,7 @@ export function normalizeConfig(config: Config): NormalizedConfig {
         experimentalComplexExpressions: false,
         experimentalDynamicDirective: false,
         enableDynamicComponents: false,
-        enableStaticContentOptimization: true,
+        enableStaticContentOptimization: false,
         enableLwcSpread: true,
         ...config,
         apiVersion, // overrides the config apiVersion

@@ -26,7 +26,7 @@ type RecursiveRequired<T> = {
 const DEFAULT_OPTIONS = {
     isExplicitImport: false,
     preserveHtmlComments: false,
-    enableStaticContentOptimization: true,
+    enableStaticContentOptimization: false,
     // TODO [#3370]: remove experimental template expression flag
     experimentalComplexExpressions: false,
     disableSyntheticShadowSupport: false,
