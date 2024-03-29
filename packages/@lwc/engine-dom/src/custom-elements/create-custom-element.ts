@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { isUndefined, entries, isTrue } from '@lwc/shared';
+import { isUndefined, isTrue } from '@lwc/shared';
 import {
     LifecycleCallback,
     connectRootElement,
@@ -14,15 +14,6 @@ import {
     runFormResetCallback,
     runFormStateRestoreCallback,
 } from '@lwc/engine-core';
-
-const LIFECYCLE_CALLBACKS = {
-    connectedCallback: connectRootElement,
-    disconnectedCallback: disconnectRootElement,
-    formAssociatedCallback: runFormAssociatedCallback,
-    formDisabledCallback: runFormDisabledCallback,
-    formResetCallback: runFormResetCallback,
-    formStateRestoreCallback: runFormStateRestoreCallback,
-};
 
 const cachedConstructors = new Map<string, CustomElementConstructor>();
 const nativeLifecycleElementsToUpgradedByLWC = new WeakMap<HTMLElement, boolean>();
@@ -57,16 +48,37 @@ const createUpgradableConstructor = (isFormAssociated: boolean) => {
             // TODO [#2970]: LWC elements cannot be upgraded via new Ctor()
             // Do we want to support this? Throw an error? Currently for backwards compat it's a no-op.
         }
-    }
 
-    for (const [propName, callback] of entries(LIFECYCLE_CALLBACKS)) {
-        (UpgradableConstructor.prototype as any)[propName] = function () {
-            // If the element is in the WeakMap (i.e. it's marked as native lifecycle), and if it was upgraded by LWC,
-            // then it can use native lifecycle
+        connectedCallback() {
             if (isTrue(nativeLifecycleElementsToUpgradedByLWC.get(this))) {
-                callback(this);
+                connectRootElement(this);
             }
-        };
+        }
+        disconnectedCallback() {
+            if (isTrue(nativeLifecycleElementsToUpgradedByLWC.get(this))) {
+                disconnectRootElement(this);
+            }
+        }
+        formAssociatedCallback() {
+            if (isTrue(nativeLifecycleElementsToUpgradedByLWC.get(this))) {
+                runFormAssociatedCallback(this);
+            }
+        }
+        formDisabledCallback() {
+            if (isTrue(nativeLifecycleElementsToUpgradedByLWC.get(this))) {
+                runFormDisabledCallback(this);
+            }
+        }
+        formResetCallback() {
+            if (isTrue(nativeLifecycleElementsToUpgradedByLWC.get(this))) {
+                runFormResetCallback(this);
+            }
+        }
+        formStateRestoreCallback() {
+            if (isTrue(nativeLifecycleElementsToUpgradedByLWC.get(this))) {
+                runFormStateRestoreCallback(this);
+            }
+        }
     }
 
     return UpgradableConstructor;
