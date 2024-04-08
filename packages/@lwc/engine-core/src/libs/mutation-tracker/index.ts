@@ -136,19 +136,14 @@ export function notify(reactiveObserver: ReactiveObserver) {
     reactiveObserver.callback.call(undefined, reactiveObserver);
 }
 
-/**
- * Link one reactive observer to others in the graph
- * @param reactiveObserver
- * @param reactiveObservers
- */
-function link(reactiveObserver: ReactiveObserver, reactiveObservers: ReactiveObserver[]) {
+function link(source: ReactiveObserver, targets: ReactiveObserver[]) {
     // On the server side, we don't need mutation tracking. Skipping it improves performance.
     if (!process.env.IS_BROWSER) {
         return;
     }
-    ArrayPush.call(reactiveObservers, reactiveObserver);
+    ArrayPush.call(targets, source);
     // we keep track of observing records where the observing record was added to so we can do some clean up later on
-    ArrayPush.call(reactiveObserver.listeners, reactiveObservers);
+    ArrayPush.call(source.listeners, targets);
 }
 
 /**
