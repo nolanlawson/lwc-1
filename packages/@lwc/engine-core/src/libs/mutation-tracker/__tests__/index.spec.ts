@@ -4,7 +4,13 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { observe, ReactiveObserver, reset, valueMutated, valueObserved } from '../index';
+import {
+    instantiateNewReactiveObserver,
+    observe,
+    reset,
+    valueMutated,
+    valueObserved,
+} from '../index';
 
 describe('reactive-service', () => {
     beforeEach(() => {
@@ -18,12 +24,9 @@ describe('reactive-service', () => {
         let changed = false;
         const o = { x: 1 };
         // listening for mutation on object `o`
-        const ro: ReactiveObserver = {
-            callback: () => {
-                changed = true;
-            },
-            listeners: [],
-        };
+        const ro = instantiateNewReactiveObserver(() => {
+            changed = true;
+        });
         observe(ro, () => {
             valueObserved(o, 'x');
         });
@@ -43,12 +46,9 @@ describe('reactive-service', () => {
         let changed = 0;
         const o = { x: 1 };
         // listening for mutation on object `o`
-        const ro = {
-            callback: () => {
-                changed++;
-            },
-            listeners: [],
-        };
+        const ro = instantiateNewReactiveObserver(() => {
+            changed++;
+        });
         observe(ro, () => {
             valueObserved(o, 'x');
             valueObserved(o, 'x');
@@ -65,12 +65,9 @@ describe('reactive-service', () => {
         let changed = false;
         const o = { x: 1 };
         // listening for mutation on object `o`
-        const ro = {
-            callback: () => {
-                changed = true;
-            },
-            listeners: [],
-        };
+        const ro = instantiateNewReactiveObserver(() => {
+            changed = true;
+        });
         try {
             observe(ro, () => {
                 throw new Error('this should not break the observing phase flags');
@@ -97,12 +94,9 @@ describe('reactive-service', () => {
         let changed = false;
         const o = { x: 1 };
         // listening for mutation on object `o`
-        const ro = {
-            callback: () => {
-                changed = true;
-            },
-            listeners: [],
-        };
+        const ro = instantiateNewReactiveObserver(() => {
+            changed = true;
+        });
         reset(ro);
         // mutating object `o`
         o.x = 2;
@@ -113,12 +107,9 @@ describe('reactive-service', () => {
         let changed = false;
         const o = { x: 1 };
         // listening for mutation on object `o`
-        const ro = {
-            callback: () => {
-                changed = true;
-            },
-            listeners: [],
-        };
+        const ro = instantiateNewReactiveObserver(() => {
+            changed = true;
+        });
         reset(ro);
         valueObserved(o, 'x');
         // mutating object `o`

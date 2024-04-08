@@ -136,14 +136,14 @@ export function notify(reactiveObserver: ReactiveObserver) {
     reactiveObserver.callback.call(undefined, reactiveObserver);
 }
 
-function link(source: ReactiveObserver, targets: ReactiveObserver[]) {
+function link(parent: ReactiveObserver, targets: ReactiveObserver[]) {
     // On the server side, we don't need mutation tracking. Skipping it improves performance.
     if (!process.env.IS_BROWSER) {
         return;
     }
-    ArrayPush.call(targets, source);
+    ArrayPush.call(targets, parent);
     // we keep track of observing records where the observing record was added to so we can do some clean up later on
-    ArrayPush.call(source.listeners, targets);
+    ArrayPush.call(parent.listeners, targets);
 }
 
 /**
@@ -152,4 +152,11 @@ function link(source: ReactiveObserver, targets: ReactiveObserver[]) {
  */
 export function isObserving(reactiveObserver: ReactiveObserver) {
     return currentReactiveObserver === reactiveObserver;
+}
+
+export function instantiateNewReactiveObserver(callback: CallbackFunction): ReactiveObserver {
+    return {
+        callback,
+        listeners: [],
+    };
 }

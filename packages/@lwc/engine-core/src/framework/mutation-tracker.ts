@@ -8,6 +8,7 @@ import { isFunction, isNull, isObject, noop } from '@lwc/shared';
 import { Signal } from '@lwc/signals';
 import {
     CallbackFunction,
+    instantiateNewReactiveObserver,
     isObserving,
     notify,
     ReactiveObserver,
@@ -19,8 +20,8 @@ import { VM } from './vm';
 import { EmptyArray } from './utils';
 
 const DUMMY_REACTIVE_OBSERVER: ReactiveObserver = {
-    listeners: EmptyArray,
     callback: noop,
+    listeners: EmptyArray,
 };
 
 export function componentValueMutated(vm: VM, key: PropertyKey) {
@@ -60,7 +61,9 @@ export function componentValueObserved(vm: VM, key: PropertyKey, target: any = {
 
 export function createReactiveObserver(callback: CallbackFunction): ReactiveObserver {
     // On the server side, we don't need mutation tracking. Skipping it improves performance.
-    return process.env.IS_BROWSER ? { callback, listeners: [] } : DUMMY_REACTIVE_OBSERVER;
+    return process.env.IS_BROWSER
+        ? instantiateNewReactiveObserver(callback)
+        : DUMMY_REACTIVE_OBSERVER;
 }
 
 export * from '../libs/mutation-tracker';
