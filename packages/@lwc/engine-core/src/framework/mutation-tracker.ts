@@ -17,11 +17,11 @@ import {
 } from '../libs/mutation-tracker';
 import { subscribeToSignal } from '../libs/signal-tracker';
 import { VM } from './vm';
-import { EmptyArray } from './utils';
 
 const DUMMY_REACTIVE_OBSERVER: ReactiveObserver = {
     callback: noop,
-    listeners: EmptyArray,
+    nextSibling: null,
+    previousSibling: null,
 };
 
 export function componentValueMutated(vm: VM, key: PropertyKey) {

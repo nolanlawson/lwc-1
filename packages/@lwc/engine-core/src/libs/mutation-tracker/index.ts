@@ -4,25 +4,20 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { create, isUndefined, ArraySplice, ArrayIndexOf, ArrayPush } from '@lwc/shared';
+import { create, isUndefined, isNull } from '@lwc/shared';
 
 const TargetToReactiveRecordMap: WeakMap<object, ReactiveRecord> = new WeakMap();
-
-/**
- * An Observed MemberProperty Record represents the list of all Reactive Observers,
- * if any, where the member property was observed.
- */
-type ObservedMemberPropertyRecords = ReactiveObserver[];
 
 /**
  * A Reactive Record is a meta representation of an arbitrary object and its member
  * properties that were accessed while a Reactive Observer was observing.
  */
-type ReactiveRecord = Record<PropertyKey, ObservedMemberPropertyRecords>;
+type ReactiveRecord = Record<PropertyKey, ReactiveObserver>;
 
 export interface ReactiveObserver {
-    listeners: ObservedMemberPropertyRecords[];
     callback: CallbackFunction;
+    nextSibling: ReactiveObserver | null;
+    previousSibling: ReactiveObserver | null;
 }
 
 function getReactiveRecord(target: object): ReactiveRecord {
@@ -40,11 +35,12 @@ let currentReactiveObserver: ReactiveObserver | null = null;
 export function valueMutated(target: object, key: PropertyKey) {
     const reactiveRecord = TargetToReactiveRecordMap.get(target);
     if (!isUndefined(reactiveRecord)) {
-        const reactiveObservers = reactiveRecord[key as any];
-        if (!isUndefined(reactiveObservers)) {
-            for (let i = 0, len = reactiveObservers.length; i < len; i += 1) {
-                const ro = reactiveObservers[i];
-                notify(ro);
+        const firstReactiveObserver = reactiveRecord[key as any];
+        if (!isUndefined(firstReactiveObserver)) {
+            let currentObserver: ReactiveObserver | null = firstReactiveObserver;
+            while (!isNull(currentObserver)) {
+                notify(currentObserver);
+                currentObserver = currentObserver.nextSibling;
             }
         }
     }
@@ -52,20 +48,29 @@ export function valueMutated(target: object, key: PropertyKey) {
 
 export function valueObserved(target: object, key: PropertyKey) {
     // We should determine if an active Observing Record is present to track mutations.
-    if (currentReactiveObserver === null) {
+    if (isNull(currentReactiveObserver)) {
         return;
     }
-    const ro = currentReactiveObserver;
+    const childReactiveObserver = currentReactiveObserver;
     const reactiveRecord = getReactiveRecord(target);
-    let reactiveObservers = reactiveRecord[key as any];
-    if (isUndefined(reactiveObservers)) {
-        reactiveObservers = [];
-        reactiveRecord[key as any] = reactiveObservers;
-    } else if (reactiveObservers[0] === ro) {
-        return; // perf optimization considering that most subscriptions will come from the same record
-    }
-    if (ArrayIndexOf.call(reactiveObservers, ro) === -1) {
-        link(ro, reactiveObservers);
+    const firstReactiveObserver = reactiveRecord[key as any];
+    if (isUndefined(firstReactiveObserver)) {
+        // linked list is empty
+        reactiveRecord[key as any] = childReactiveObserver;
+    } else {
+        // linked list already has an element
+        let previousSibling: ReactiveObserver | null = null;
+        let currentSibling: ReactiveObserver | null = firstReactiveObserver;
+        while (!isNull(currentSibling)) {
+            previousSibling = currentSibling;
+            currentSibling = previousSibling!.nextSibling;
+            if (currentSibling === childReactiveObserver) {
+                return; // already exists in the list
+            }
+        }
+        // end of the list, append our child
+        previousSibling!.nextSibling = childReactiveObserver;
+        childReactiveObserver.previousSibling = previousSibling;
     }
 }
 
@@ -109,22 +114,12 @@ export function reset(reactiveObserver: ReactiveObserver) {
     if (!process.env.IS_BROWSER) {
         return;
     }
-    const { listeners } = reactiveObserver;
-    const len = listeners.length;
-    if (len > 0) {
-        for (let i = 0; i < len; i++) {
-            const set = listeners[i];
-            if (set.length === 1) {
-                // Perf optimization for the common case - the length is usually 1, so avoid the indexOf+splice.
-                // If the length is 1, we can also be sure that `this` is the first item in the array.
-                set.length = 0;
-            } else {
-                // Slow case
-                const pos = ArrayIndexOf.call(set, reactiveObserver);
-                ArraySplice.call(set, pos, 1);
-            }
-        }
-        listeners.length = 0;
+    const { previousSibling, nextSibling } = reactiveObserver;
+    if (!isNull(previousSibling)) {
+        previousSibling.nextSibling = nextSibling;
+    }
+    if (!isNull(nextSibling)) {
+        nextSibling.previousSibling = previousSibling;
     }
 }
 
@@ -134,16 +129,6 @@ export function reset(reactiveObserver: ReactiveObserver) {
  */
 export function notify(reactiveObserver: ReactiveObserver) {
     reactiveObserver.callback.call(undefined, reactiveObserver);
-}
-
-function link(parent: ReactiveObserver, targets: ReactiveObserver[]) {
-    // On the server side, we don't need mutation tracking. Skipping it improves performance.
-    if (!process.env.IS_BROWSER) {
-        return;
-    }
-    ArrayPush.call(targets, parent);
-    // we keep track of observing records where the observing record was added to so we can do some clean up later on
-    ArrayPush.call(parent.listeners, targets);
 }
 
 /**
@@ -157,6 +142,7 @@ export function isObserving(reactiveObserver: ReactiveObserver) {
 export function instantiateNewReactiveObserver(callback: CallbackFunction): ReactiveObserver {
     return {
         callback,
-        listeners: [],
+        nextSibling: null,
+        previousSibling: null,
     };
 }
