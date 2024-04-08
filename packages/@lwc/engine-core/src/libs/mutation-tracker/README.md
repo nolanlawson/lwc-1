@@ -15,12 +15,15 @@ Additionally, you can create a `ReactiveObserver` object, which allows you to tr
 The following example illustrates how to create a `ReactiveObserver` instance:
 
 ```js
-import { ReactiveObserver } from '../libs/mutation-tracker';
-const ro = new ReactiveObserver(() => {
-    // this callback will be called when tracked property `x` of `o`
-    // is mutated via `valueMutated` in the future.
-});
-ro.observe(() => {
+import { ReactiveObserver, observe } from '../libs/mutation-tracker';
+const ro = {
+    listeners: [],
+    callback: () => {
+        // this callback will be called when tracked property `x` of `o`
+        // is mutated via `valueMutated` in the future.
+    },
+};
+observe(ro, () => {
     // every time observe() is invoked, the callback will be immediately
     // called, and any observed value will be recorded and linked to this
     // ReactiveObserver instance, in case a mutation happens in the future.
@@ -48,7 +51,7 @@ Note: `valuedObserved` and `valueMutated` can be used anywhere. It is usually us
 Following the previous example, you can call the `reset()` method on a `ReactiveObserver` instance to unlink any previously linked call to `valueObserved` from the previous call to `observe()` method. E.g.:
 
 ```js
-ro.reset();
+reset(ro);
 ```
 
 Note: this library relies on a `WeakMap` to avoid leaking memory. The call to `reset()` method is not intended to release any memory allocation, it is purely designed to stop observing, so the callback will not be invoked until a new invocation to the `observe()` method is issued.
@@ -57,25 +60,22 @@ Note: Instances of `ReactiveObserver` are reusable by design, which means you ca
 
 ## API
 
-### `new ReactiveObserver(callback)`
+### `observe(reactiveObserver, job)`
 
-Create a new reactive observer instance.
-
-**Parameters**
-
--   `callback` [function] The callback function to be called once a qualifying mutation notification is received by code calling `valueMutated(...)`.
-
-### `ReactiveObserver.prototype.observe(job)`
-
-Method on a `ReactiveObserver` instance to invoke the job and link any invocation of `valueObserved(...)` to this record.
+Invoke the job and link any invocation of `valueObserved(...)` to this record.
 
 **Parameters**
 
+-   `reactiveObserver` [ReactiveObserver] The relevant `ReactiveObserver`.
 -   `job` [function] The function to be immediately invoked to track any invocation of `valueObserved(...)` during the execution of this function.
 
-### `ReactiveObserver.prototype.reset()`
+### `reset(ReactiveObserver)`
 
-Method on a `ReactiveObserver` instance to unlink any previous recorded `valueObserved` invocation associated to this instance.
+**Parameters**
+
+-   `reactiveObserver` [ReactiveObserver] The relevant `ReactiveObserver`.
+
+Method to unlink any previous recorded `valueObserved` invocation associated to this instance.
 
 ### `valueObserved(obj, key)`
 

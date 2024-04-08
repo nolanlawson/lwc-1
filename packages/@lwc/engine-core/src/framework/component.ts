@@ -16,6 +16,7 @@ import {
 import {
     createReactiveObserver,
     ReactiveObserver,
+    reset,
     unsubscribeFromSignals,
 } from './mutation-tracker';
 
@@ -94,7 +95,7 @@ export function getTemplateReactiveObserver(vm: VM): ReactiveObserver {
 
 export function resetTemplateObserverAndUnsubscribe(vm: VM) {
     const { tro, component } = vm;
-    tro.reset();
+    reset(tro);
     // Unsubscribe every time the template reactive observer is reset.
     if (lwcRuntimeFlags.ENABLE_EXPERIMENTAL_SIGNALS) {
         unsubscribeFromSignals(component);

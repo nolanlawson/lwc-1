@@ -7,7 +7,7 @@
 
 import { assert, create, isUndefined, ArrayPush, defineProperty, noop } from '@lwc/shared';
 import { LightningElement } from '../base-lightning-element';
-import { createReactiveObserver, ReactiveObserver } from '../mutation-tracker';
+import { createReactiveObserver, observe, ReactiveObserver, reset } from '../mutation-tracker';
 import { runWithBoundaryProtection, VMState, VM } from '../vm';
 import { updateComponentValue } from '../update-component-value';
 import { createContextWatcher } from './context';
@@ -66,7 +66,7 @@ function createConfigWatcher(
             Promise.resolve().then(() => {
                 hasPendingConfig = false;
                 // resetting current reactive params
-                ro.reset();
+                reset(ro);
                 // dispatching a new config due to a change in the configuration
                 computeConfigAndUpdate();
             });
@@ -74,7 +74,7 @@ function createConfigWatcher(
     });
     const computeConfigAndUpdate = () => {
         let config: ConfigValue;
-        ro.observe(() => (config = configCallback(component)));
+        observe(ro, () => (config = configCallback(component)));
         // eslint-disable-next-line @lwc/lwc-internal/no-invalid-todo
         // TODO: dev-mode validation of config based on the adapter.configSchema
         // @ts-expect-error it is assigned in the observe() callback
@@ -194,7 +194,7 @@ function createConnector(
         // @ts-expect-error the boundary protection executes sync, connector is always defined
         connector,
         computeConfigAndUpdate,
-        resetConfigWatcher: () => ro.reset(),
+        resetConfigWatcher: () => reset(ro),
     };
 }
 

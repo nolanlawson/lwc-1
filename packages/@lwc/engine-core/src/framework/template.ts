@@ -22,6 +22,7 @@ import {
     toString,
 } from '@lwc/shared';
 
+import { observe } from '../libs/mutation-tracker';
 import { logError } from '../shared/logger';
 import { getComponentTag } from '../shared/format';
 import api, { RenderAPI } from './api';
@@ -383,7 +384,7 @@ export function evaluateTemplate(vm: VM, html: Template): VNodes {
         () => {
             // job
             const { component, context, cmpSlots, cmpTemplate, tro } = vm;
-            tro.observe(() => {
+            observe(tro, () => {
                 // Reset the cache memoizer for template when needed.
                 if (html !== cmpTemplate) {
                     // Check that the template was built by the compiler.

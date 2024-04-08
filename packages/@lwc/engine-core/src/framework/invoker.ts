@@ -6,6 +6,7 @@
  */
 import { assert, isFunction, isUndefined, noop } from '@lwc/shared';
 
+import { observe } from '../libs/mutation-tracker';
 import { addErrorComponentStack } from '../shared/error';
 
 import { evaluateTemplate, Template, setVMBeingRendered, getVMBeingRendered } from './template';
@@ -95,7 +96,7 @@ export function invokeComponentRenderMethod(vm: VM): VNodes {
         },
         () => {
             // job
-            vm.tro.observe(() => {
+            observe(vm.tro, () => {
                 html = callHook(component, render);
                 renderInvocationSuccessful = true;
             });

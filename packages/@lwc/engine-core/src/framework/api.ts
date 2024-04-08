@@ -25,6 +25,7 @@ import {
     toString,
 } from '@lwc/shared';
 
+import { observe } from '../libs/mutation-tracker';
 import { logError } from '../shared/logger';
 
 import { invokeEventListener } from './invoker';
@@ -257,7 +258,7 @@ function s(
                         // The factory function is a template snippet from the slot set owner's template,
                         // hence switch over to the slot set owner's template reactive observer
                         const { tro } = slotset.owner!;
-                        tro.observe(() => {
+                        observe(tro, () => {
                             ArrayPush.call(newChildren, vnode.factory(data.slotData, data.key));
                         });
                     } finally {

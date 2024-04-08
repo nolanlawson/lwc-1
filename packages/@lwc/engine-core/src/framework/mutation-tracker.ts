@@ -4,25 +4,24 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { isFunction, isNull, isObject } from '@lwc/shared';
+import { isFunction, isNull, isObject, noop } from '@lwc/shared';
 import { Signal } from '@lwc/signals';
 import {
-    JobFunction,
     CallbackFunction,
+    isObserving,
+    notify,
     ReactiveObserver,
     valueMutated,
     valueObserved,
 } from '../libs/mutation-tracker';
 import { subscribeToSignal } from '../libs/signal-tracker';
 import { VM } from './vm';
+import { EmptyArray } from './utils';
 
-const DUMMY_REACTIVE_OBSERVER = {
-    observe(job: JobFunction) {
-        job();
-    },
-    reset() {},
-    link() {},
-} as unknown as ReactiveObserver;
+const DUMMY_REACTIVE_OBSERVER: ReactiveObserver = {
+    listeners: EmptyArray,
+    callback: noop,
+};
 
 export function componentValueMutated(vm: VM, key: PropertyKey) {
     // On the server side, we don't need mutation tracking. Skipping it improves performance.
@@ -50,16 +49,18 @@ export function componentValueObserved(vm: VM, key: PropertyKey, target: any = {
         'subscribe' in target &&
         isFunction(target.subscribe) &&
         // Only subscribe if a template is being rendered by the engine
-        tro.isObserving()
+        isObserving(tro)
     ) {
         // Subscribe the template reactive observer's notify method, which will mark the vm as dirty and schedule hydration.
-        subscribeToSignal(component, target as Signal<any>, tro.notify.bind(tro));
+        subscribeToSignal(component, target as Signal<any>, () => {
+            notify(tro);
+        });
     }
 }
 
 export function createReactiveObserver(callback: CallbackFunction): ReactiveObserver {
     // On the server side, we don't need mutation tracking. Skipping it improves performance.
-    return process.env.IS_BROWSER ? new ReactiveObserver(callback) : DUMMY_REACTIVE_OBSERVER;
+    return process.env.IS_BROWSER ? { callback, listeners: [] } : DUMMY_REACTIVE_OBSERVER;
 }
 
 export * from '../libs/mutation-tracker';
