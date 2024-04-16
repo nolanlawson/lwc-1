@@ -2,10 +2,16 @@ import { createElement, swapStyle } from 'lwc';
 import { extractDataIds } from 'test-utils';
 import ShadowSimple from 'shadow/simple';
 import ShadowStaleProp from 'shadow/staleProp';
+import ShadowTweedledum from 'shadow/tweedledum';
+import ShadowTweedledee from 'shadow/tweedledee';
 import LightSimple from 'light/simple';
 import LightStaleProp from 'light/staleProp';
+import LightTweedledum from 'light/tweedledum';
+import LightTweedledee from 'light/tweedledee';
 import LightGlobalSimple from 'light-global/simple';
 import LightGlobalStaleProp from 'light-global/staleProp';
+import LightGlobalTweedledum from 'light-global/tweedledum';
+import LightGlobalTweedledee from 'light-global/tweedledee';
 
 function expectStyles(elm, styles) {
     const computed = getComputedStyle(elm);
@@ -29,6 +35,8 @@ if (process.env.NODE_ENV !== 'production') {
                 components: {
                     Simple: ShadowSimple,
                     StaleProp: ShadowStaleProp,
+                    Tweedledee: ShadowTweedledee,
+                    Tweedledum: ShadowTweedledum,
                 },
             },
             {
@@ -36,6 +44,8 @@ if (process.env.NODE_ENV !== 'production') {
                 components: {
                     Simple: LightSimple,
                     StaleProp: LightStaleProp,
+                    Tweedledee: LightTweedledee,
+                    Tweedledum: LightTweedledum,
                 },
             },
             {
@@ -43,12 +53,14 @@ if (process.env.NODE_ENV !== 'production') {
                 components: {
                     Simple: LightGlobalSimple,
                     StaleProp: LightGlobalStaleProp,
+                    Tweedledee: LightGlobalTweedledee,
+                    Tweedledum: LightGlobalTweedledum,
                 },
             },
         ];
         scenarios.forEach(({ testName, components }) => {
             describe(testName, () => {
-                const { Simple, StaleProp } = components;
+                const { Simple, StaleProp, Tweedledum, Tweedledee } = components;
                 it('should work with components with implicit style definition', async () => {
                     const { blockStyle, inlineStyle, noneStyle } = Simple;
                     const elm = createElement(`${testName}-simple`, { is: Simple });
@@ -150,6 +162,30 @@ if (process.env.NODE_ENV !== 'production') {
                             opacity: '0.5',
                         });
                     }
+                });
+
+                it('should handle stylesheet collisions correctly', async () => {
+                    const { stylesV1, stylesV2 } = Tweedledum;
+                    const elm1 = createElement(`${testName}-tweedledum`, { is: Tweedledum });
+                    const elm2 = createElement(`${testName}-tweedledee`, { is: Tweedledee });
+                    document.body.appendChild(elm1);
+                    document.body.appendChild(elm2);
+
+                    await Promise.resolve();
+                    for (const elm of [elm1, elm2]) {
+                        expectStyles(extractDataIds(elm).paragraph, {
+                            marginTop: '19px',
+                        });
+                    }
+                    swapStyle(stylesV1[0], stylesV2[0]);
+
+                    await Promise.resolve();
+                    expectStyles(extractDataIds(elm1).paragraph, {
+                        marginTop: '37px',
+                    });
+                    expectStyles(extractDataIds(elm2).paragraph, {
+                        marginTop: '19px',
+                    });
                 });
             });
         });
