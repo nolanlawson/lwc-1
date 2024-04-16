@@ -125,6 +125,14 @@ if (process.env.NODE_ENV !== 'production') {
                         display: 'flex',
                         opacity: '1',
                     });
+
+                    swapStyle(stylesV1[0], stylesV2[0]);
+
+                    await Promise.resolve();
+                    expectStyles(extractDataIds(elm).paragraph, {
+                        display: 'block',
+                        opacity: '0.5',
+                    });
                 });
 
                 it('should replace the same stylesheet in multiple components', async () => {
