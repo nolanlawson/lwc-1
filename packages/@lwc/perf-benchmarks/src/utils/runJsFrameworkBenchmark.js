@@ -44,7 +44,7 @@ export function runJsFrameworkBenchmark(
                         return [
                             action,
                             async () => {
-                                elm.querySelector(id).click();
+                                elm.shadowRoot.querySelector(id + '-0').click();
                                 await Promise.resolve(); // wait for LWC to render
                             },
                         ];
@@ -52,15 +52,17 @@ export function runJsFrameworkBenchmark(
                 ),
                 // actions that require clicking inside a particular row
                 select: async (rowToClick) => {
-                    elm.querySelector(
-                        `tbody>tr:nth-of-type(${rowToClick})>td:nth-of-type(2)>a`
-                    ).click();
+                    elm.shadowRoot
+                        .querySelector(`tbody>tr:nth-of-type(${rowToClick})>td:nth-of-type(2)>a`)
+                        .click();
                     await Promise.resolve(); // wait for LWC to render
                 },
                 remove: async (rowToClick) => {
-                    elm.querySelector(
-                        `tbody>tr:nth-of-type(${rowToClick})>td:nth-of-type(3)>a>span:nth-of-type(1)`
-                    ).click();
+                    elm.shadowRoot
+                        .querySelector(
+                            `tbody>tr:nth-of-type(${rowToClick})>td:nth-of-type(3)>a>span:nth-of-type(1)`
+                        )
+                        .click();
                     await Promise.resolve(); // wait for LWC to render
                 },
             };

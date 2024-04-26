@@ -15,7 +15,6 @@ function _random(max) {
 }
 
 export default class App extends LightningElement {
-    static renderMode = 'light';
     @track rows = [];
     selected;
 
