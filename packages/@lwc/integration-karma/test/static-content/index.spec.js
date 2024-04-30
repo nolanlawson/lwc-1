@@ -22,6 +22,7 @@ import IframeOnload from 'x/iframeOnload';
 import WithKey from 'x/withKey';
 import Text from 'x/text';
 import TableWithExpression from 'x/tableWithExpressions';
+import StaticBeforeDynamic from 'x/staticBeforeDynamic'
 
 if (!process.env.NATIVE_SHADOW) {
     describe('Mixed mode for static content', () => {
@@ -749,3 +750,18 @@ describe('table with static content containing expressions', () => {
         });
     });
 });
+
+fdescribe('static content immediately followed by dynamic content', () => {
+    it('renders correctly', async () => {
+        const elm = createElement('x-static-before-dynamic', { is: StaticBeforeDynamic })
+        document.body.appendChild(elm)
+
+        await Promise.resolve()
+
+        const { firstChild, lastChild } = elm.shadowRoot
+        expect(firstChild.tagName).toBe('DIV')
+        expect(firstChild.textContent).toBe('I am static')
+        expect(lastChild.tagName).toBe('DIV')
+        expect(lastChild.textContent).toBe('I am dynamic')
+    })
+})

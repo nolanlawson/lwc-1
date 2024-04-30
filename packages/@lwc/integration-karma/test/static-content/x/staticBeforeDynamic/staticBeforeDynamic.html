@@ -1,0 +1,7 @@
+<template>
+    <!-- The goal of this test is to have a dynamic vnode directly after a static vnode. We use a grab-bag
+      of features that (as of this writing) are not supported by the static vnode optimization), while
+      also including a large number of parts so that we trigger a full traversal in traverseAndSetElements. -->
+    <div class={nonexistent}>I am static{nonexistent}</div>
+    <div lwc:spread={nonexistent} slot="foo" id="bar">I am dynamic</div>
+</template>

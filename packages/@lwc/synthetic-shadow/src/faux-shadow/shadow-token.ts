@@ -12,6 +12,8 @@ import {
     KEY__SHADOW_STATIC,
     KEY__SHADOW_STATIC_PRIVATE,
     KEY__SHADOW_RESOLVER,
+    assert,
+    isNull
 } from '@lwc/shared';
 import { setAttribute, removeAttribute } from '../env/element';
 import { nextSiblingGetter } from '../env/node';
@@ -60,6 +62,14 @@ function traverseAndSetShadowResolver(root: Node, fn: any) {
     // Do not traverse past the next sibling of the root (or null if it doesn't exist)
     while ((node = treeWalker.nextNode()) !== nextSiblingOfRoot) {
         (node as any)[KEY__SHADOW_RESOLVER] = fn;
+    }
+    // There is a potential for memory leaks here due to the TreeWalker holding onto a reference
+    // to the currentNode. This is not a problem in practice, because this function is only invoked
+    // on `mountStatic()` which cannot have any nextSibling nodes after it. However, we do test this
+    // in our Jest tests for safety purposes (since it's more catastrophic to traverse out beyond
+    // the root than to leak one DOM node).
+    if (process.env.NODE_ENV !== 'production') {
+        assert.isTrue(isNull(treeWalker.currentNode), 'treeWalker.currentNode should be null to avoid a memory leak')
     }
 }
 
