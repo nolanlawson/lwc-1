@@ -16,8 +16,9 @@ import {
 import { setAttribute, removeAttribute } from '../env/element';
 import { nextSiblingGetter } from '../env/node';
 
-const treeWalker = document.createTreeWalker(
-    document,
+const doc = document; // Cache a reference to the document for perf
+const treeWalker = doc.createTreeWalker(
+    doc,
     // NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT | NodeFilter.SHOW_COMMENT
     133
 );
@@ -61,6 +62,9 @@ function traverseAndSetShadowResolver(root: Node, fn: any) {
     while ((node = treeWalker.nextNode()) !== nextSiblingOfRoot) {
         (node as any)[KEY__SHADOW_RESOLVER] = fn;
     }
+    // There is a potential for memory leaks here due to the TreeWalker holding onto a reference
+    // to the currentNode. Setting the currentNode to the document avoids the leak.
+    treeWalker.currentNode = doc;
 }
 
 defineProperty(Element.prototype, KEY__SHADOW_STATIC, {
