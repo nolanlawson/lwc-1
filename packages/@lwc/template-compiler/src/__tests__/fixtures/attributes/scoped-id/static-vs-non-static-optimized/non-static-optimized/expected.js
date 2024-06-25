@@ -31,6 +31,12 @@ const stc3 = {
   },
   key: 5,
 };
+const stc4 = {
+  classMap: {
+    "these-are-the-empty-string": true,
+  },
+  key: 6,
+};
 function tmpl($api, $cmp, $slotset, $ctx) {
   const { gid: api_scoped_id, h: api_element } = $api;
   return [
@@ -63,6 +69,20 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       }),
     ]),
     api_element("section", stc2, [api_element("div", stc3)]),
+    api_element("section", stc4, [
+      api_element("div", {
+        attrs: {
+          "aria-describedby": api_scoped_id(""),
+          "aria-activedescendant": api_scoped_id(""),
+          "aria-errormessage": api_scoped_id(""),
+          "aria-flowto": api_scoped_id(""),
+          "aria-labelledby": api_scoped_id(""),
+          for: api_scoped_id(""),
+          id: api_scoped_id(""),
+        },
+        key: 7,
+      }),
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }

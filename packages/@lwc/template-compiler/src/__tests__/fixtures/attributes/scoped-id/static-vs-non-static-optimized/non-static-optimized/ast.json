@@ -4,10 +4,10 @@
         "location": {
             "startLine": 1,
             "startColumn": 1,
-            "endLine": 35,
+            "endLine": 46,
             "endColumn": 12,
             "start": 0,
-            "end": 974,
+            "end": 1292,
             "startTag": {
                 "startLine": 1,
                 "startColumn": 1,
@@ -17,12 +17,12 @@
                 "end": 10
             },
             "endTag": {
-                "startLine": 35,
+                "startLine": 46,
                 "startColumn": 1,
-                "endLine": 35,
+                "endLine": 46,
                 "endColumn": 12,
-                "start": 963,
-                "end": 974
+                "start": 1281,
+                "end": 1292
             }
         },
         "directives": [],
@@ -684,6 +684,205 @@
                                     "endColumn": 19,
                                     "start": 929,
                                     "end": 931
+                                }
+                            }
+                        ],
+                        "properties": [],
+                        "directives": [],
+                        "listeners": [],
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "type": "Element",
+                "name": "section",
+                "namespace": "http://www.w3.org/1999/xhtml",
+                "location": {
+                    "startLine": 35,
+                    "startColumn": 5,
+                    "endLine": 45,
+                    "endColumn": 15,
+                    "start": 967,
+                    "end": 1280,
+                    "startTag": {
+                        "startLine": 35,
+                        "startColumn": 5,
+                        "endLine": 35,
+                        "endColumn": 49,
+                        "start": 967,
+                        "end": 1011
+                    },
+                    "endTag": {
+                        "startLine": 45,
+                        "startColumn": 5,
+                        "endLine": 45,
+                        "endColumn": 15,
+                        "start": 1270,
+                        "end": 1280
+                    }
+                },
+                "attributes": [
+                    {
+                        "type": "Attribute",
+                        "name": "class",
+                        "value": {
+                            "type": "Literal",
+                            "value": "these-are-the-empty-string"
+                        },
+                        "location": {
+                            "startLine": 35,
+                            "startColumn": 14,
+                            "endLine": 35,
+                            "endColumn": 48,
+                            "start": 976,
+                            "end": 1010
+                        }
+                    }
+                ],
+                "properties": [],
+                "directives": [],
+                "listeners": [],
+                "children": [
+                    {
+                        "type": "Element",
+                        "name": "div",
+                        "namespace": "http://www.w3.org/1999/xhtml",
+                        "location": {
+                            "startLine": 36,
+                            "startColumn": 9,
+                            "endLine": 44,
+                            "endColumn": 16,
+                            "start": 1020,
+                            "end": 1265,
+                            "startTag": {
+                                "startLine": 36,
+                                "startColumn": 9,
+                                "endLine": 44,
+                                "endColumn": 10,
+                                "start": 1020,
+                                "end": 1259
+                            },
+                            "endTag": {
+                                "startLine": 44,
+                                "startColumn": 10,
+                                "endLine": 44,
+                                "endColumn": 16,
+                                "start": 1259,
+                                "end": 1265
+                            }
+                        },
+                        "attributes": [
+                            {
+                                "type": "Attribute",
+                                "name": "aria-describedby",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": ""
+                                },
+                                "location": {
+                                    "startLine": 37,
+                                    "startColumn": 17,
+                                    "endLine": 37,
+                                    "endColumn": 36,
+                                    "start": 1041,
+                                    "end": 1060
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-activedescendant",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": ""
+                                },
+                                "location": {
+                                    "startLine": 38,
+                                    "startColumn": 17,
+                                    "endLine": 38,
+                                    "endColumn": 41,
+                                    "start": 1077,
+                                    "end": 1101
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-errormessage",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": ""
+                                },
+                                "location": {
+                                    "startLine": 39,
+                                    "startColumn": 17,
+                                    "endLine": 39,
+                                    "endColumn": 37,
+                                    "start": 1118,
+                                    "end": 1138
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-flowto",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": ""
+                                },
+                                "location": {
+                                    "startLine": 40,
+                                    "startColumn": 17,
+                                    "endLine": 40,
+                                    "endColumn": 31,
+                                    "start": 1155,
+                                    "end": 1169
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-labelledby",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": ""
+                                },
+                                "location": {
+                                    "startLine": 41,
+                                    "startColumn": 17,
+                                    "endLine": 41,
+                                    "endColumn": 35,
+                                    "start": 1186,
+                                    "end": 1204
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "for",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": ""
+                                },
+                                "location": {
+                                    "startLine": 42,
+                                    "startColumn": 17,
+                                    "endLine": 42,
+                                    "endColumn": 23,
+                                    "start": 1221,
+                                    "end": 1227
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "id",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": ""
+                                },
+                                "location": {
+                                    "startLine": 43,
+                                    "startColumn": 17,
+                                    "endLine": 43,
+                                    "endColumn": 22,
+                                    "start": 1244,
+                                    "end": 1249
                                 }
                             }
                         ],

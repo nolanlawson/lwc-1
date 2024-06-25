@@ -73,9 +73,11 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
             v = String(v.toLowerCase() !== 'false');
         }
 
-        if (name === 'id' || isIdReferencingAttribute(name)) {
+        if ((name === 'id' || isIdReferencingAttribute(name)) && typeof v === 'string') {
             // IDs and IDREF attributes must be handled dynamically at runtime due to synthetic shadow scoping.
             // Skip serializing here and handle it as if it were a dynamic attribute instead.
+            // Note that, to maintain backwards compatibility with the non-static output, we treat the valueless
+            // "boolean" format (e.g. `<div id>`) as the empty string, which is syntactically equivalent.
             // TODO [#3658]: `disableSyntheticShadowSupport` should also disable this dynamic behavior
             return;
         }

@@ -3,7 +3,8 @@ import _implicitScopedStylesheets from "./static-optimized.scoped.css?scoped=tru
 import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
 const $fragment1 = parseFragment`<section class="these-are-dynamic${0}"${2}><div${3}></div></section>`;
 const $fragment2 = parseFragment`<section class="these-are-static${0}"${2}><div${3}></div></section>`;
-const $fragment3 = parseFragment`<section class="these-are-boolean-true${0}"${2}><div${3}></div></section>`;
+const $fragment3 = parseFragment`<section class="these-are-boolean-true${0}"${2}><div aria-describedby aria-activedescendant aria-errormessage aria-flowto aria-labelledby for id${3}></div></section>`;
+const $fragment4 = parseFragment`<section class="these-are-the-empty-string${0}"${2}><div${3}></div></section>`;
 function tmpl($api, $cmp, $slotset, $ctx) {
   const {
     gid: api_scoped_id,
@@ -46,6 +47,23 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       ),
     ]),
     api_static_fragment($fragment3, 5),
+    api_static_fragment($fragment4, 7, [
+      api_static_part(
+        1,
+        {
+          attrs: {
+            "aria-describedby": api_scoped_id(""),
+            "aria-activedescendant": api_scoped_id(""),
+            "aria-errormessage": api_scoped_id(""),
+            "aria-flowto": api_scoped_id(""),
+            "aria-labelledby": api_scoped_id(""),
+            for: api_scoped_id(""),
+            id: api_scoped_id(""),
+          },
+        },
+        null
+      ),
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }
