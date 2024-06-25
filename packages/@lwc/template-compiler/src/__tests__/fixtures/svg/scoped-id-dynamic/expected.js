@@ -6,7 +6,7 @@ import {
   registerTemplate,
   sanitizeAttribute,
 } from "lwc";
-const $fragment1 = parseSVGFragment`<defs${3}><circle${"a1:id"} r="10" cx="10" cy="10" fill="black"${3}/><circle${"a2:id"} r="10" cx="14" cy="14" fill="red"${3}/></defs>`;
+const $fragment1 = parseSVGFragment`<defs${3}><circle r="10" cx="10" cy="10" fill="black"${3}/><circle r="10" cx="14" cy="14" fill="red"${3}/></defs>`;
 const stc0 = {
   attrs: {
     width: "100px",

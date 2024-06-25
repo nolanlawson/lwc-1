@@ -6,7 +6,7 @@ import {
   registerTemplate,
   renderer,
 } from "lwc";
-const $fragment1 = parseSVGFragment`<circle${"a0:id"} cx="5" cy="5" r="4" stroke="black"${3}/>`;
+const $fragment1 = parseSVGFragment`<circle cx="5" cy="5" r="4" stroke="black"${3}/>`;
 const stc0 = {
   attrs: {
     viewBox: "0 0 30 10",

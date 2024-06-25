@@ -1,0 +1,699 @@
+{
+    "root": {
+        "type": "Root",
+        "location": {
+            "startLine": 1,
+            "startColumn": 1,
+            "endLine": 35,
+            "endColumn": 12,
+            "start": 0,
+            "end": 974,
+            "startTag": {
+                "startLine": 1,
+                "startColumn": 1,
+                "endLine": 1,
+                "endColumn": 11,
+                "start": 0,
+                "end": 10
+            },
+            "endTag": {
+                "startLine": 35,
+                "startColumn": 1,
+                "endLine": 35,
+                "endColumn": 12,
+                "start": 963,
+                "end": 974
+            }
+        },
+        "directives": [],
+        "children": [
+            {
+                "type": "Element",
+                "name": "section",
+                "namespace": "http://www.w3.org/1999/xhtml",
+                "location": {
+                    "startLine": 2,
+                    "startColumn": 5,
+                    "endLine": 12,
+                    "endColumn": 15,
+                    "start": 15,
+                    "end": 333,
+                    "startTag": {
+                        "startLine": 2,
+                        "startColumn": 5,
+                        "endLine": 2,
+                        "endColumn": 40,
+                        "start": 15,
+                        "end": 50
+                    },
+                    "endTag": {
+                        "startLine": 12,
+                        "startColumn": 5,
+                        "endLine": 12,
+                        "endColumn": 15,
+                        "start": 323,
+                        "end": 333
+                    }
+                },
+                "attributes": [
+                    {
+                        "type": "Attribute",
+                        "name": "class",
+                        "value": {
+                            "type": "Literal",
+                            "value": "these-are-dynamic"
+                        },
+                        "location": {
+                            "startLine": 2,
+                            "startColumn": 14,
+                            "endLine": 2,
+                            "endColumn": 39,
+                            "start": 24,
+                            "end": 49
+                        }
+                    }
+                ],
+                "properties": [],
+                "directives": [],
+                "listeners": [],
+                "children": [
+                    {
+                        "type": "Element",
+                        "name": "div",
+                        "namespace": "http://www.w3.org/1999/xhtml",
+                        "location": {
+                            "startLine": 3,
+                            "startColumn": 9,
+                            "endLine": 11,
+                            "endColumn": 16,
+                            "start": 59,
+                            "end": 318,
+                            "startTag": {
+                                "startLine": 3,
+                                "startColumn": 9,
+                                "endLine": 11,
+                                "endColumn": 10,
+                                "start": 59,
+                                "end": 312
+                            },
+                            "endTag": {
+                                "startLine": 11,
+                                "startColumn": 10,
+                                "endLine": 11,
+                                "endColumn": 16,
+                                "start": 312,
+                                "end": 318
+                            }
+                        },
+                        "attributes": [
+                            {
+                                "type": "Attribute",
+                                "name": "aria-describedby",
+                                "value": {
+                                    "type": "Identifier",
+                                    "start": 1,
+                                    "end": 7,
+                                    "name": "scoped",
+                                    "location": {
+                                        "startLine": 4,
+                                        "startColumn": 13,
+                                        "endLine": 4,
+                                        "endColumn": 38,
+                                        "start": 76,
+                                        "end": 101
+                                    }
+                                },
+                                "location": {
+                                    "startLine": 4,
+                                    "startColumn": 13,
+                                    "endLine": 4,
+                                    "endColumn": 38,
+                                    "start": 76,
+                                    "end": 101
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-activedescendant",
+                                "value": {
+                                    "type": "Identifier",
+                                    "start": 1,
+                                    "end": 7,
+                                    "name": "scoped",
+                                    "location": {
+                                        "startLine": 5,
+                                        "startColumn": 13,
+                                        "endLine": 5,
+                                        "endColumn": 43,
+                                        "start": 114,
+                                        "end": 144
+                                    }
+                                },
+                                "location": {
+                                    "startLine": 5,
+                                    "startColumn": 13,
+                                    "endLine": 5,
+                                    "endColumn": 43,
+                                    "start": 114,
+                                    "end": 144
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-errormessage",
+                                "value": {
+                                    "type": "Identifier",
+                                    "start": 1,
+                                    "end": 7,
+                                    "name": "scoped",
+                                    "location": {
+                                        "startLine": 6,
+                                        "startColumn": 13,
+                                        "endLine": 6,
+                                        "endColumn": 39,
+                                        "start": 157,
+                                        "end": 183
+                                    }
+                                },
+                                "location": {
+                                    "startLine": 6,
+                                    "startColumn": 13,
+                                    "endLine": 6,
+                                    "endColumn": 39,
+                                    "start": 157,
+                                    "end": 183
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-flowto",
+                                "value": {
+                                    "type": "Identifier",
+                                    "start": 1,
+                                    "end": 7,
+                                    "name": "scoped",
+                                    "location": {
+                                        "startLine": 7,
+                                        "startColumn": 13,
+                                        "endLine": 7,
+                                        "endColumn": 33,
+                                        "start": 196,
+                                        "end": 216
+                                    }
+                                },
+                                "location": {
+                                    "startLine": 7,
+                                    "startColumn": 13,
+                                    "endLine": 7,
+                                    "endColumn": 33,
+                                    "start": 196,
+                                    "end": 216
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-labelledby",
+                                "value": {
+                                    "type": "Identifier",
+                                    "start": 1,
+                                    "end": 7,
+                                    "name": "scoped",
+                                    "location": {
+                                        "startLine": 8,
+                                        "startColumn": 13,
+                                        "endLine": 8,
+                                        "endColumn": 37,
+                                        "start": 229,
+                                        "end": 253
+                                    }
+                                },
+                                "location": {
+                                    "startLine": 8,
+                                    "startColumn": 13,
+                                    "endLine": 8,
+                                    "endColumn": 37,
+                                    "start": 229,
+                                    "end": 253
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "for",
+                                "value": {
+                                    "type": "Identifier",
+                                    "start": 1,
+                                    "end": 7,
+                                    "name": "scoped",
+                                    "location": {
+                                        "startLine": 9,
+                                        "startColumn": 13,
+                                        "endLine": 9,
+                                        "endColumn": 25,
+                                        "start": 266,
+                                        "end": 278
+                                    }
+                                },
+                                "location": {
+                                    "startLine": 9,
+                                    "startColumn": 13,
+                                    "endLine": 9,
+                                    "endColumn": 25,
+                                    "start": 266,
+                                    "end": 278
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "id",
+                                "value": {
+                                    "type": "Identifier",
+                                    "start": 1,
+                                    "end": 7,
+                                    "name": "scoped",
+                                    "location": {
+                                        "startLine": 10,
+                                        "startColumn": 13,
+                                        "endLine": 10,
+                                        "endColumn": 24,
+                                        "start": 291,
+                                        "end": 302
+                                    }
+                                },
+                                "location": {
+                                    "startLine": 10,
+                                    "startColumn": 13,
+                                    "endLine": 10,
+                                    "endColumn": 24,
+                                    "start": 291,
+                                    "end": 302
+                                }
+                            }
+                        ],
+                        "properties": [],
+                        "directives": [],
+                        "listeners": [],
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "type": "Element",
+                "name": "section",
+                "namespace": "http://www.w3.org/1999/xhtml",
+                "location": {
+                    "startLine": 13,
+                    "startColumn": 5,
+                    "endLine": 23,
+                    "endColumn": 15,
+                    "start": 338,
+                    "end": 669,
+                    "startTag": {
+                        "startLine": 13,
+                        "startColumn": 5,
+                        "endLine": 13,
+                        "endColumn": 39,
+                        "start": 338,
+                        "end": 372
+                    },
+                    "endTag": {
+                        "startLine": 23,
+                        "startColumn": 5,
+                        "endLine": 23,
+                        "endColumn": 15,
+                        "start": 659,
+                        "end": 669
+                    }
+                },
+                "attributes": [
+                    {
+                        "type": "Attribute",
+                        "name": "class",
+                        "value": {
+                            "type": "Literal",
+                            "value": "these-are-static"
+                        },
+                        "location": {
+                            "startLine": 13,
+                            "startColumn": 14,
+                            "endLine": 13,
+                            "endColumn": 38,
+                            "start": 347,
+                            "end": 371
+                        }
+                    }
+                ],
+                "properties": [],
+                "directives": [],
+                "listeners": [],
+                "children": [
+                    {
+                        "type": "Element",
+                        "name": "div",
+                        "namespace": "http://www.w3.org/1999/xhtml",
+                        "location": {
+                            "startLine": 14,
+                            "startColumn": 9,
+                            "endLine": 22,
+                            "endColumn": 16,
+                            "start": 381,
+                            "end": 654,
+                            "startTag": {
+                                "startLine": 14,
+                                "startColumn": 9,
+                                "endLine": 22,
+                                "endColumn": 10,
+                                "start": 381,
+                                "end": 648
+                            },
+                            "endTag": {
+                                "startLine": 22,
+                                "startColumn": 10,
+                                "endLine": 22,
+                                "endColumn": 16,
+                                "start": 648,
+                                "end": 654
+                            }
+                        },
+                        "attributes": [
+                            {
+                                "type": "Attribute",
+                                "name": "aria-describedby",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": "yolo"
+                                },
+                                "location": {
+                                    "startLine": 15,
+                                    "startColumn": 17,
+                                    "endLine": 15,
+                                    "endColumn": 40,
+                                    "start": 402,
+                                    "end": 425
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-activedescendant",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": "yolo"
+                                },
+                                "location": {
+                                    "startLine": 16,
+                                    "startColumn": 17,
+                                    "endLine": 16,
+                                    "endColumn": 45,
+                                    "start": 442,
+                                    "end": 470
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-errormessage",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": "yolo"
+                                },
+                                "location": {
+                                    "startLine": 17,
+                                    "startColumn": 17,
+                                    "endLine": 17,
+                                    "endColumn": 41,
+                                    "start": 487,
+                                    "end": 511
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-flowto",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": "yolo"
+                                },
+                                "location": {
+                                    "startLine": 18,
+                                    "startColumn": 17,
+                                    "endLine": 18,
+                                    "endColumn": 35,
+                                    "start": 528,
+                                    "end": 546
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-labelledby",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": "yolo"
+                                },
+                                "location": {
+                                    "startLine": 19,
+                                    "startColumn": 17,
+                                    "endLine": 19,
+                                    "endColumn": 39,
+                                    "start": 563,
+                                    "end": 585
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "for",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": "yolo"
+                                },
+                                "location": {
+                                    "startLine": 20,
+                                    "startColumn": 17,
+                                    "endLine": 20,
+                                    "endColumn": 27,
+                                    "start": 602,
+                                    "end": 612
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "id",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": "yolo"
+                                },
+                                "location": {
+                                    "startLine": 21,
+                                    "startColumn": 17,
+                                    "endLine": 21,
+                                    "endColumn": 26,
+                                    "start": 629,
+                                    "end": 638
+                                }
+                            }
+                        ],
+                        "properties": [],
+                        "directives": [],
+                        "listeners": [],
+                        "children": []
+                    }
+                ]
+            },
+            {
+                "type": "Element",
+                "name": "section",
+                "namespace": "http://www.w3.org/1999/xhtml",
+                "location": {
+                    "startLine": 24,
+                    "startColumn": 5,
+                    "endLine": 34,
+                    "endColumn": 15,
+                    "start": 674,
+                    "end": 962,
+                    "startTag": {
+                        "startLine": 24,
+                        "startColumn": 5,
+                        "endLine": 24,
+                        "endColumn": 45,
+                        "start": 674,
+                        "end": 714
+                    },
+                    "endTag": {
+                        "startLine": 34,
+                        "startColumn": 5,
+                        "endLine": 34,
+                        "endColumn": 15,
+                        "start": 952,
+                        "end": 962
+                    }
+                },
+                "attributes": [
+                    {
+                        "type": "Attribute",
+                        "name": "class",
+                        "value": {
+                            "type": "Literal",
+                            "value": "these-are-boolean-true"
+                        },
+                        "location": {
+                            "startLine": 24,
+                            "startColumn": 14,
+                            "endLine": 24,
+                            "endColumn": 44,
+                            "start": 683,
+                            "end": 713
+                        }
+                    }
+                ],
+                "properties": [],
+                "directives": [],
+                "listeners": [],
+                "children": [
+                    {
+                        "type": "Element",
+                        "name": "div",
+                        "namespace": "http://www.w3.org/1999/xhtml",
+                        "location": {
+                            "startLine": 25,
+                            "startColumn": 9,
+                            "endLine": 33,
+                            "endColumn": 16,
+                            "start": 723,
+                            "end": 947,
+                            "startTag": {
+                                "startLine": 25,
+                                "startColumn": 9,
+                                "endLine": 33,
+                                "endColumn": 10,
+                                "start": 723,
+                                "end": 941
+                            },
+                            "endTag": {
+                                "startLine": 33,
+                                "startColumn": 10,
+                                "endLine": 33,
+                                "endColumn": 16,
+                                "start": 941,
+                                "end": 947
+                            }
+                        },
+                        "attributes": [
+                            {
+                                "type": "Attribute",
+                                "name": "aria-describedby",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": true
+                                },
+                                "location": {
+                                    "startLine": 26,
+                                    "startColumn": 17,
+                                    "endLine": 26,
+                                    "endColumn": 33,
+                                    "start": 744,
+                                    "end": 760
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-activedescendant",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": true
+                                },
+                                "location": {
+                                    "startLine": 27,
+                                    "startColumn": 17,
+                                    "endLine": 27,
+                                    "endColumn": 38,
+                                    "start": 777,
+                                    "end": 798
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-errormessage",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": true
+                                },
+                                "location": {
+                                    "startLine": 28,
+                                    "startColumn": 17,
+                                    "endLine": 28,
+                                    "endColumn": 34,
+                                    "start": 815,
+                                    "end": 832
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-flowto",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": true
+                                },
+                                "location": {
+                                    "startLine": 29,
+                                    "startColumn": 17,
+                                    "endLine": 29,
+                                    "endColumn": 28,
+                                    "start": 849,
+                                    "end": 860
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "aria-labelledby",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": true
+                                },
+                                "location": {
+                                    "startLine": 30,
+                                    "startColumn": 17,
+                                    "endLine": 30,
+                                    "endColumn": 32,
+                                    "start": 877,
+                                    "end": 892
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "for",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": true
+                                },
+                                "location": {
+                                    "startLine": 31,
+                                    "startColumn": 17,
+                                    "endLine": 31,
+                                    "endColumn": 20,
+                                    "start": 909,
+                                    "end": 912
+                                }
+                            },
+                            {
+                                "type": "Attribute",
+                                "name": "id",
+                                "value": {
+                                    "type": "Literal",
+                                    "value": true
+                                },
+                                "location": {
+                                    "startLine": 32,
+                                    "startColumn": 17,
+                                    "endLine": 32,
+                                    "endColumn": 19,
+                                    "start": 929,
+                                    "end": 931
+                                }
+                            }
+                        ],
+                        "properties": [],
+                        "directives": [],
+                        "listeners": [],
+                        "children": []
+                    }
+                ]
+            }
+        ]
+    }
+}

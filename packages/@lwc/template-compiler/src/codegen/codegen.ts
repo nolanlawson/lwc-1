@@ -48,6 +48,7 @@ import {
 } from '../shared/ast';
 import { isArrayExpression } from '../shared/estree';
 import State from '../state';
+import { isIdReferencingAttribute } from '../parser/attribute';
 import { memorizeHandler, objectToAST } from './helpers';
 import {
     transformStaticChildren,
@@ -737,7 +738,23 @@ export default class CodeGen {
 
                 for (const attribute of elm.attributes) {
                     const { name, value } = attribute;
-                    if (isExpression(value)) {
+
+                    // IDs and IDREF attributes must be handled dynamically at runtime due to synthetic shadow scoping.
+                    // TODO [#3658]: `disableSyntheticShadowSupport` should also disable this dynamic behavior
+                    const isIdOrIdRef = name === 'id' || isIdReferencingAttribute(name);
+                    if (isIdOrIdRef && (isStringLiteral(value) || isExpression(value))) {
+                        const partToken = `${STATIC_PART_TOKEN_ID.ATTRIBUTE}${partId}:${name}`;
+                        attributeExpressions.push(
+                            t.property(
+                                t.literal(name),
+                                this.genScopedId(
+                                    isExpression(value) ? this.bindExpression(value) : value.value
+                                )
+                            )
+                        );
+
+                        this.staticExpressionMap.set(attribute, partToken);
+                    } else if (isExpression(value)) {
                         let partToken = '';
                         if (name === 'style') {
                             partToken = `${STATIC_PART_TOKEN_ID.STYLE}${partId}`;

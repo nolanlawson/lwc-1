@@ -1,7 +1,7 @@
 import _implicitStylesheets from "./scoped.css";
 import _implicitScopedStylesheets from "./scoped.scoped.css?scoped=true";
 import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
-const $fragment1 = parseFragment`<div${"a0:aria-describedby"}${"a0:aria-activedescendant"}${"a0:aria-errormessage"}${"a0:aria-flowto"}${"a0:aria-labelledby"}${"a0:aria-controls"}${"a0:aria-details"}${"a0:aria-owns"}${"a0:for"}${3}></div>`;
+const $fragment1 = parseFragment`<div${3}></div>`;
 function tmpl($api, $cmp, $slotset, $ctx) {
   const {
     gid: api_scoped_id,

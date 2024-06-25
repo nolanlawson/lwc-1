@@ -5,6 +5,7 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
 import { htmlEscape, HTML_NAMESPACE, isVoidElement } from '@lwc/shared';
+import { isIdReferencingAttribute } from '../parser/attribute';
 import { Comment, Element, Literal, StaticChildNode, StaticElement, Text } from '../shared/types';
 import { isElement, isComment, isExpression, isText } from '../shared/ast';
 import { transformStaticChildren, isContiguousText, hasDynamicText } from './static-element';
@@ -70,6 +71,13 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
         // https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/spellcheck
         if (name === 'spellcheck' && typeof v === 'string' && !hasExpression) {
             v = String(v.toLowerCase() !== 'false');
+        }
+
+        if (name === 'id' || isIdReferencingAttribute(name)) {
+            // IDs and IDREF attributes must be handled dynamically at runtime due to synthetic shadow scoping.
+            // Skip serializing here and handle it as if it were a dynamic attribute instead.
+            // TODO [#3658]: `disableSyntheticShadowSupport` should also disable this dynamic behavior
+            return;
         }
 
         if (typeof v === 'string') {
