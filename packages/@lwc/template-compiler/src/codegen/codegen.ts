@@ -49,7 +49,6 @@ import {
 } from '../shared/ast';
 import { isArrayExpression } from '../shared/estree';
 import State from '../state';
-import { isCustomRendererHookRequired } from '../shared/renderer-hooks';
 import {
     isAllowedFragOnlyUrlsXHTML,
     isFragmentOnlyUrl,
@@ -763,7 +762,7 @@ export default class CodeGen {
                         this.scopeFragmentId &&
                         isStringLiteral(value) &&
                         isAllowedFragOnlyUrlsXHTML(currentNode.name, name, currentNode.namespace) &&
-                        isFragmentOnlyUrl(value.value as string);
+                        isFragmentOnlyUrl(value.value);
 
                     if (isExpression(value) || isIdOrIdRef || isSvgHref || isScopedFragmentRef) {
                         let partToken = '';

@@ -9,10 +9,17 @@ import {
     isAllowedFragOnlyUrlsXHTML,
     isFragmentOnlyUrl,
     isIdReferencingAttribute,
-    isSvgUseHref
+    isSvgUseHref,
 } from '../parser/attribute';
 import { Comment, Element, Literal, StaticChildNode, StaticElement, Text } from '../shared/types';
-import {isElement, isComment, isExpression, isText, isBooleanLiteral, isStringLiteral} from '../shared/ast';
+import {
+    isElement,
+    isComment,
+    isExpression,
+    isText,
+    isBooleanLiteral,
+    isStringLiteral,
+} from '../shared/ast';
 import { transformStaticChildren, isContiguousText, hasDynamicText } from './static-element';
 import type CodeGen from './codegen';
 
@@ -90,7 +97,8 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
             // Note that, to maintain backwards compatibility with the non-static output, we treat the valueless
             // "boolean" format (e.g. `<div id>`) as the empty string, which is semantically equivalent.
             // TODO [#3658]: `disableSyntheticShadowSupport` should also disable this dynamic behavior
-            const needsPlaceholder = hasExpression || hasIdOrIdRef || hasSvgUseHref || hasScopedFragmentRef;
+            const needsPlaceholder =
+                hasExpression || hasIdOrIdRef || hasSvgUseHref || hasScopedFragmentRef;
 
             // Inject a placeholder where the staticPartId will go when an expression occurs.
             // This is only needed for SSR to inject the expression value during serialization.
