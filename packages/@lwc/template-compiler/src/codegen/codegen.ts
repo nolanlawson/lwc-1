@@ -682,8 +682,6 @@ export default class CodeGen {
         const partIdsToArgs = new Map<number, { text: t.Expression; databag: t.Expression }>();
         let partId = -1;
 
-        const addSanitizationHook = isCustomRendererHookRequired(element, this.state);
-
         const getPartIdArgs = (partId: number) => {
             let args = partIdsToArgs.get(partId);
             if (!args) {
@@ -795,7 +793,9 @@ export default class CodeGen {
                                         attribute,
                                         currentNode,
                                         this,
-                                        !addSanitizationHook
+                                        // `addLegacySanitizationHook` is true because `isCustomRendererHookRequired`
+                                        // being false is a precondition for static nodes.
+                                        true
                                     )
                                 )
                             );

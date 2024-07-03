@@ -28,7 +28,6 @@ import {
     isComment,
     isConditionalParentBlock,
     isElement,
-    isExpression,
     isStringLiteral,
     isText,
 } from '../shared/ast';
@@ -64,10 +63,10 @@ function isStaticNode(node: BaseElement, apiVersion: APIVersion): boolean {
 
     // all attrs are static-safe
     // the criteria to determine safety can be found in computeAttrValue
-    result &&= attributes.every(({ name, value }) => {
-        const isStaticSafeLiteral = isLiteral(value) && name !== 'slot';
-        const isStaticSafeExpression = isExpression(value) && name !== 'slot';
-        return isStaticSafeLiteral || isStaticSafeExpression;
+    result &&= attributes.every(({ name }) => {
+        // Slots are not safe because the VDOM handles them specially in synthetic shadow and light DOM mode
+        // TODO [#4351]: `disableSyntheticShadowSupport` should allow slots to be static-optimized
+        return name !== 'slot'
     });
 
     // all directives are static-safe
