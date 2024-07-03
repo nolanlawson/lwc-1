@@ -705,15 +705,15 @@ export default class CodeGen {
 
         // Depth-first traversal. We assign a partId to each element, which is an integer based on traversal order.
         while (stack.length > 0) {
-            const current = stack.shift()!;
+            const currentNode = stack.shift()!;
 
             // Skip comment nodes in parts count, as they will be stripped in production, unless when `lwc:preserve-comments` is enabled
-            if (isContiguousText(current) || !isComment(current) || this.preserveComments) {
+            if (isContiguousText(currentNode) || !isComment(currentNode) || this.preserveComments) {
                 partId++;
             }
 
-            if (isContiguousText(current)) {
-                const textNodes = current;
+            if (isContiguousText(currentNode)) {
+                const textNodes = currentNode;
                 if (hasDynamicText(textNodes)) {
                     const partToken = `${STATIC_PART_TOKEN_ID.TEXT}${partId}`;
                     // Use the first text node as the key.
@@ -726,18 +726,17 @@ export default class CodeGen {
                     );
                     setPartIdText(concatenatedText);
                 }
-            } else if (isElement(current)) {
-                const currentElement = current;
+            } else if (isElement(currentNode)) {
                 const databag = [];
                 // has event listeners
-                if (currentElement.listeners.length) {
-                    databag.push(this.genEventListeners(currentElement.listeners));
+                if (currentNode.listeners.length) {
+                    databag.push(this.genEventListeners(currentNode.listeners));
                 }
 
                 // See STATIC_SAFE_DIRECTIVES for what's allowed here.
                 // Also note that we don't generate the 'key' here, because we only support it at the top level
                 // directly passed into the `api_static_fragment` function, not as a part.
-                for (const directive of currentElement.directives) {
+                for (const directive of currentNode.directives) {
                     if (directive.name === 'Ref') {
                         databag.push(this.genRef(directive));
                     }
@@ -745,7 +744,7 @@ export default class CodeGen {
 
                 const attributeExpressions = [];
 
-                for (const attribute of currentElement.attributes) {
+                for (const attribute of currentNode.attributes) {
                     const { name, value } = attribute;
 
                     // IDs/IDRefs must be handled dynamically at runtime due to synthetic shadow scoping.
@@ -757,7 +756,7 @@ export default class CodeGen {
 
                     // For boolean literals (e.g. `<use xlink:href>`), there is no reason to sanitize since it's empty
                     const isSvgHref =
-                        isSvgUseHref(currentElement.name, name, currentElement.namespace) &&
+                        isSvgUseHref(currentNode.name, name, currentNode.namespace) &&
                         !isBooleanLiteral(value);
 
                     // `<a href="#foo">` and `<area href="#foo">` must be dynamic due to synthetic shadow scoping
@@ -765,11 +764,7 @@ export default class CodeGen {
                     const isScopedFragmentRef =
                         this.scopeFragmentId &&
                         isStringLiteral(value) &&
-                        isAllowedFragOnlyUrlsXHTML(
-                            currentElement.name,
-                            name,
-                            currentElement.namespace
-                        ) &&
+                        isAllowedFragOnlyUrlsXHTML(currentNode.name, name, currentNode.namespace) &&
                         isFragmentOnlyUrl(value.value as string);
 
                     if (isExpression(value) || isIdOrIdRef || isSvgHref || isScopedFragmentRef) {
@@ -798,7 +793,7 @@ export default class CodeGen {
                                     t.literal(name),
                                     bindAttributeExpression(
                                         attribute,
-                                        currentElement,
+                                        currentNode,
                                         this,
                                         !addSanitizationHook
                                     )
@@ -822,7 +817,7 @@ export default class CodeGen {
                 // For depth-first traversal, children must be prepended in order, so that they are processed before
                 // siblings. Note that this is consistent with the order used in the diffing algo as well as
                 // `traverseAndSetElements` in @lwc/engine-core.
-                stack.unshift(...transformStaticChildren(currentElement, this.preserveComments));
+                stack.unshift(...transformStaticChildren(currentNode, this.preserveComments));
             }
         }
 
