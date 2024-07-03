@@ -1,35 +1,13 @@
 import _implicitStylesheets from "./attribute-href.css";
 import _implicitScopedStylesheets from "./attribute-href.scoped.css?scoped=true";
-import { freezeTemplate, registerTemplate } from "lwc";
-const stc0 = {
-  attrs: {
-    href: "#yasaka-taxi",
-  },
-  key: 0,
-};
-const stc1 = {
-  key: 1,
-};
-const stc2 = {
-  attrs: {
-    href: "#eneos-gas",
-  },
-  key: 2,
-};
-const stc3 = {
-  attrs: {
-    href: "#kawaramachi",
-  },
-  key: 3,
-};
+import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
+const $fragment1 = parseFragment`<a href="#yasaka-taxi"${3}>Yasaka Taxi</a>`;
+const $fragment2 = parseFragment`<map${3}><area href="#eneos-gas"${3}><area href="#kawaramachi"${3}></map>`;
 function tmpl($api, $cmp, $slotset, $ctx) {
-  const { t: api_text, h: api_element } = $api;
+  const { st: api_static_fragment } = $api;
   return [
-    api_element("a", stc0, [api_text("Yasaka Taxi")]),
-    api_element("map", stc1, [
-      api_element("area", stc2),
-      api_element("area", stc3),
-    ]),
+    api_static_fragment($fragment1, 1),
+    api_static_fragment($fragment2, 3),
   ];
   /*LWC compiler vX.X.X*/
 }

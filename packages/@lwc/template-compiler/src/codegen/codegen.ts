@@ -50,7 +50,12 @@ import {
 import { isArrayExpression } from '../shared/estree';
 import State from '../state';
 import { isCustomRendererHookRequired } from '../shared/renderer-hooks';
-import { isIdReferencingAttribute, isSvgUseHref } from '../parser/attribute';
+import {
+    isAllowedFragOnlyUrlsXHTML,
+    isFragmentOnlyUrl,
+    isIdReferencingAttribute,
+    isSvgUseHref,
+} from '../parser/attribute';
 import { memorizeHandler, objectToAST } from './helpers';
 import {
     transformStaticChildren,
@@ -722,17 +727,17 @@ export default class CodeGen {
                     setPartIdText(concatenatedText);
                 }
             } else if (isElement(current)) {
-                const elm = current;
+                const currentElement = current;
                 const databag = [];
                 // has event listeners
-                if (elm.listeners.length) {
-                    databag.push(this.genEventListeners(elm.listeners));
+                if (currentElement.listeners.length) {
+                    databag.push(this.genEventListeners(currentElement.listeners));
                 }
 
                 // See STATIC_SAFE_DIRECTIVES for what's allowed here.
                 // Also note that we don't generate the 'key' here, because we only support it at the top level
                 // directly passed into the `api_static_fragment` function, not as a part.
-                for (const directive of elm.directives) {
+                for (const directive of currentElement.directives) {
                     if (directive.name === 'Ref') {
                         databag.push(this.genRef(directive));
                     }
@@ -740,7 +745,7 @@ export default class CodeGen {
 
                 const attributeExpressions = [];
 
-                for (const attribute of elm.attributes) {
+                for (const attribute of currentElement.attributes) {
                     const { name, value } = attribute;
 
                     // IDs/IDRefs must be handled dynamically at runtime due to synthetic shadow scoping.
@@ -752,9 +757,22 @@ export default class CodeGen {
 
                     // For boolean literals (e.g. `<use xlink:href>`), there is no reason to sanitize since it's empty
                     const isSvgHref =
-                        isSvgUseHref(elm.name, name, elm.namespace) && !isBooleanLiteral(value);
+                        isSvgUseHref(currentElement.name, name, currentElement.namespace) &&
+                        !isBooleanLiteral(value);
 
-                    if (isExpression(value) || isIdOrIdRef || isSvgHref) {
+                    // `<a href="#foo">` and `<area href="#foo">` must be dynamic due to synthetic shadow scoping
+                    // Note this only applies if there is an `id` attribute somewhere in the template
+                    const isScopedFragmentRef =
+                        this.scopeFragmentId &&
+                        isStringLiteral(value) &&
+                        isAllowedFragOnlyUrlsXHTML(
+                            currentElement.name,
+                            name,
+                            currentElement.namespace
+                        ) &&
+                        isFragmentOnlyUrl(value.value as string);
+
+                    if (isExpression(value) || isIdOrIdRef || isSvgHref || isScopedFragmentRef) {
                         let partToken = '';
                         if (name === 'style') {
                             partToken = `${STATIC_PART_TOKEN_ID.STYLE}${partId}`;
@@ -780,7 +798,7 @@ export default class CodeGen {
                                     t.literal(name),
                                     bindAttributeExpression(
                                         attribute,
-                                        elm,
+                                        currentElement,
                                         this,
                                         !addSanitizationHook
                                     )
@@ -804,7 +822,7 @@ export default class CodeGen {
                 // For depth-first traversal, children must be prepended in order, so that they are processed before
                 // siblings. Note that this is consistent with the order used in the diffing algo as well as
                 // `traverseAndSetElements` in @lwc/engine-core.
-                stack.unshift(...transformStaticChildren(elm, this.preserveComments));
+                stack.unshift(...transformStaticChildren(currentElement, this.preserveComments));
             }
         }
 
