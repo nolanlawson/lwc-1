@@ -6,7 +6,6 @@
  */
 import {
     APIFeature,
-    APIVersion,
     ArrayEvery,
     ArraySome,
     HTML_NAMESPACE,
@@ -18,9 +17,10 @@ import { isLiteral } from '../shared/estree';
 import {
     BaseElement,
     ChildNode,
+    LWCDirectiveRenderMode,
     Root,
-    StaticElement,
     StaticChildNode,
+    StaticElement,
     Text,
 } from '../shared/types';
 import {
@@ -28,6 +28,7 @@ import {
     isComment,
     isConditionalParentBlock,
     isElement,
+    isRenderModeDirective,
     isStringLiteral,
     isText,
 } from '../shared/ast';
@@ -45,12 +46,20 @@ const STATIC_ELEMENT_TO_DYNAMIC_TEXT_CHILDREN_CACHE = new WeakMap<
     (StaticChildNode | Text[])[]
 >();
 
-function isStaticNode(node: BaseElement, apiVersion: APIVersion): boolean {
+function isStaticNode(
+    node: BaseElement,
+    renderMode: LWCDirectiveRenderMode,
+    state: State
+): boolean {
     let result = true;
     const { namespace = '', attributes, directives, properties } = node;
+    const { apiVersion, disableSyntheticShadowSupport } = state.config;
+    const isNativeShadow =
+        renderMode === LWCDirectiveRenderMode.shadow && disableSyntheticShadowSupport;
 
     // SVG is excluded from static content optimization in older API versions due to issues with case sensitivity
     // in CSS scope tokens. See https://github.com/salesforce/lwc/issues/3313
+
     if (
         !isAPIFeatureEnabled(APIFeature.LOWERCASE_SCOPE_TOKENS, apiVersion) &&
         namespace !== HTML_NAMESPACE
@@ -65,8 +74,8 @@ function isStaticNode(node: BaseElement, apiVersion: APIVersion): boolean {
     // the criteria to determine safety can be found in computeAttrValue
     result &&= attributes.every(({ name }) => {
         // Slots are not safe because the VDOM handles them specially in synthetic shadow and light DOM mode
-        // TODO [#4351]: `disableSyntheticShadowSupport` should allow slots to be static-optimized
-        return name !== 'slot';
+        // They are only safe if `disableSyntheticShadowSupport` is true and this is a shadow DOM template
+        return isNativeShadow || name !== 'slot';
     });
 
     // all directives are static-safe
@@ -78,7 +87,13 @@ function isStaticNode(node: BaseElement, apiVersion: APIVersion): boolean {
     return result;
 }
 
-function collectStaticNodes(node: ChildNode, staticNodes: Set<ChildNode>, state: State) {
+function collectStaticNodes(
+    node: ChildNode,
+    staticNodes: Set<ChildNode>,
+    renderMode: LWCDirectiveRenderMode,
+    root: Root,
+    state: State
+) {
     let childrenAreStaticSafe = true;
     let nodeIsStaticSafe;
 
@@ -90,7 +105,7 @@ function collectStaticNodes(node: ChildNode, staticNodes: Set<ChildNode>, state:
         let hasDynamicText = false;
         // it is ElseBlock | ForBlock | If | BaseElement
         node.children.forEach((childNode) => {
-            collectStaticNodes(childNode, staticNodes, state);
+            collectStaticNodes(childNode, staticNodes, renderMode, root, state);
 
             childrenAreStaticSafe &&= staticNodes.has(childNode);
             // Collect nodes that have dynamic text ahead of time.
@@ -100,13 +115,13 @@ function collectStaticNodes(node: ChildNode, staticNodes: Set<ChildNode>, state:
 
         // for IfBlock and ElseifBlock, traverse down the else branch
         if (isConditionalParentBlock(node) && node.else) {
-            collectStaticNodes(node.else, staticNodes, state);
+            collectStaticNodes(node.else, staticNodes, renderMode, root, state);
         }
 
         nodeIsStaticSafe =
             isBaseElement(node) &&
             !isCustomRendererHookRequired(node, state) &&
-            isStaticNode(node, state.config.apiVersion);
+            isStaticNode(node, renderMode, state);
 
         if (nodeIsStaticSafe && hasDynamicText) {
             // Track when the static element contains dynamic text.
@@ -124,8 +139,11 @@ function collectStaticNodes(node: ChildNode, staticNodes: Set<ChildNode>, state:
 export function getStaticNodes(root: Root, state: State): Set<ChildNode> {
     const staticNodes = new Set<ChildNode>();
 
+    const renderMode =
+        root.directives.find(isRenderModeDirective)?.value.value ?? LWCDirectiveRenderMode.shadow;
+
     root.children.forEach((childNode) => {
-        collectStaticNodes(childNode, staticNodes, state);
+        collectStaticNodes(childNode, staticNodes, renderMode, root, state);
     });
 
     return staticNodes;

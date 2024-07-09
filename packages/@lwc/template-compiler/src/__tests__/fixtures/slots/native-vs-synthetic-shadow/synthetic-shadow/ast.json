@@ -1,0 +1,170 @@
+{
+    "root": {
+        "type": "Root",
+        "location": {
+            "startLine": 1,
+            "startColumn": 1,
+            "endLine": 5,
+            "endColumn": 12,
+            "start": 0,
+            "end": 96,
+            "startTag": {
+                "startLine": 1,
+                "startColumn": 1,
+                "endLine": 1,
+                "endColumn": 11,
+                "start": 0,
+                "end": 10
+            },
+            "endTag": {
+                "startLine": 5,
+                "startColumn": 1,
+                "endLine": 5,
+                "endColumn": 12,
+                "start": 85,
+                "end": 96
+            }
+        },
+        "directives": [],
+        "children": [
+            {
+                "type": "Slot",
+                "name": "slot",
+                "namespace": "http://www.w3.org/1999/xhtml",
+                "slotName": "",
+                "location": {
+                    "startLine": 2,
+                    "startColumn": 5,
+                    "endLine": 2,
+                    "endColumn": 18,
+                    "start": 15,
+                    "end": 28,
+                    "startTag": {
+                        "startLine": 2,
+                        "startColumn": 5,
+                        "endLine": 2,
+                        "endColumn": 11,
+                        "start": 15,
+                        "end": 21
+                    },
+                    "endTag": {
+                        "startLine": 2,
+                        "startColumn": 11,
+                        "endLine": 2,
+                        "endColumn": 18,
+                        "start": 21,
+                        "end": 28
+                    }
+                },
+                "attributes": [],
+                "properties": [],
+                "directives": [],
+                "listeners": [],
+                "children": []
+            },
+            {
+                "type": "Slot",
+                "name": "slot",
+                "namespace": "http://www.w3.org/1999/xhtml",
+                "slotName": "foo",
+                "location": {
+                    "startLine": 3,
+                    "startColumn": 5,
+                    "endLine": 3,
+                    "endColumn": 29,
+                    "start": 33,
+                    "end": 57,
+                    "startTag": {
+                        "startLine": 3,
+                        "startColumn": 5,
+                        "endLine": 3,
+                        "endColumn": 22,
+                        "start": 33,
+                        "end": 50
+                    },
+                    "endTag": {
+                        "startLine": 3,
+                        "startColumn": 22,
+                        "endLine": 3,
+                        "endColumn": 29,
+                        "start": 50,
+                        "end": 57
+                    }
+                },
+                "attributes": [
+                    {
+                        "type": "Attribute",
+                        "name": "name",
+                        "value": {
+                            "type": "Literal",
+                            "value": "foo"
+                        },
+                        "location": {
+                            "startLine": 3,
+                            "startColumn": 11,
+                            "endLine": 3,
+                            "endColumn": 21,
+                            "start": 39,
+                            "end": 49
+                        }
+                    }
+                ],
+                "properties": [],
+                "directives": [],
+                "listeners": [],
+                "children": []
+            },
+            {
+                "type": "Element",
+                "name": "div",
+                "namespace": "http://www.w3.org/1999/xhtml",
+                "location": {
+                    "startLine": 4,
+                    "startColumn": 5,
+                    "endLine": 4,
+                    "endColumn": 27,
+                    "start": 62,
+                    "end": 84,
+                    "startTag": {
+                        "startLine": 4,
+                        "startColumn": 5,
+                        "endLine": 4,
+                        "endColumn": 21,
+                        "start": 62,
+                        "end": 78
+                    },
+                    "endTag": {
+                        "startLine": 4,
+                        "startColumn": 21,
+                        "endLine": 4,
+                        "endColumn": 27,
+                        "start": 78,
+                        "end": 84
+                    }
+                },
+                "attributes": [
+                    {
+                        "type": "Attribute",
+                        "name": "slot",
+                        "value": {
+                            "type": "Literal",
+                            "value": "bar"
+                        },
+                        "location": {
+                            "startLine": 4,
+                            "startColumn": 10,
+                            "endLine": 4,
+                            "endColumn": 20,
+                            "start": 67,
+                            "end": 77
+                        }
+                    }
+                ],
+                "properties": [],
+                "directives": [],
+                "listeners": [],
+                "children": []
+            }
+        ]
+    }
+}
