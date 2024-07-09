@@ -1,23 +1,27 @@
 import _implicitStylesheets from "./usage.css";
 import _implicitScopedStylesheets from "./usage.scoped.css?scoped=true";
-import { freezeTemplate, registerTemplate } from "lwc";
+import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
+const $fragment1 = parseFragment`<p${"a0:slot"}${3}>Header Slot Content</p>`;
+const $fragment2 = parseFragment`<p${"a0:slot"}${3}>Default Content</p>`;
 const stc0 = {
   key: 0,
 };
 const stc1 = {
   slotAssignment: "header",
-  key: 1,
 };
 const stc2 = {
   slotAssignment: "",
-  key: 2,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
-  const { t: api_text, h: api_element, dc: api_dynamic_component } = $api;
+  const {
+    sp: api_static_part,
+    st: api_static_fragment,
+    dc: api_dynamic_component,
+  } = $api;
   return [
     api_dynamic_component($cmp.ctor, stc0, [
-      api_element("p", stc1, [api_text("Header Slot Content")]),
-      api_element("p", stc2, [api_text("Default Content")]),
+      api_static_fragment($fragment1, 2, [api_static_part(0, stc1, null)]),
+      api_static_fragment($fragment2, 4, [api_static_part(0, stc2, null)]),
     ]),
   ];
   /*LWC compiler vX.X.X*/

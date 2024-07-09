@@ -17,7 +17,7 @@ import {
 import { RendererAPI } from '../renderer';
 import { applyEventListeners } from './events';
 import { applyRefs } from './refs';
-import { patchAttributes } from './attrs';
+import {patchAttributes, patchSlotAssignment} from './attrs';
 import { patchStyleAttribute } from './computed-style-attr';
 import { patchClassAttribute } from './computed-class-attr';
 import { patchTextVStaticPart } from './text';
@@ -145,6 +145,7 @@ export function mountStaticParts(root: Element, vnode: VStatic, renderer: Render
             patchAttributes(null, part, renderer);
             patchClassAttribute(null, part, renderer);
             patchStyleAttribute(null, part, renderer, owner);
+            patchSlotAssignment(null, part, renderer);
         } else {
             if (process.env.NODE_ENV !== 'production' && !isVStaticPartText(part)) {
                 throw new Error(
@@ -201,6 +202,7 @@ export function patchStaticParts(n1: VStatic, n2: VStatic, renderer: RendererAPI
             patchAttributes(prevPart as VStaticPartElement, part, renderer);
             patchClassAttribute(prevPart as VStaticPartElement, part, renderer);
             patchStyleAttribute(prevPart as VStaticPartElement, part, renderer, currPartsOwner);
+            patchSlotAssignment(null, part, renderer);
         } else {
             patchTextVStaticPart(null, part as VStaticPartText, renderer);
         }

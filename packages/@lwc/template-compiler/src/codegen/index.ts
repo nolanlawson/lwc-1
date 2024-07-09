@@ -519,13 +519,7 @@ function transform(codeGen: CodeGen): t.Expression {
                         data.push(t.property(t.identifier('styleDecls'), styleAST));
                     }
                 } else if (name === 'slot') {
-                    let slotValue;
-                    if (isExpression(value)) {
-                        slotValue = codeGen.bindExpression(value);
-                    } else {
-                        slotValue = isStringLiteral(value) ? t.literal(value.value) : t.literal('');
-                    }
-                    data.push(t.property(t.identifier('slotAssignment'), slotValue));
+                    data.push(codeGen.genSlotAssignment(value));
                 } else {
                     rest[name] = computeAttrValue(attr, element, !addSanitizationHook);
                 }

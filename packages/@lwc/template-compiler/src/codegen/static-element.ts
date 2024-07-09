@@ -61,14 +61,6 @@ function isStaticNode(node: BaseElement, apiVersion: APIVersion): boolean {
     // it is an element
     result &&= isElement(node);
 
-    // all attrs are static-safe
-    // the criteria to determine safety can be found in computeAttrValue
-    result &&= attributes.every(({ name }) => {
-        // Slots are not safe because the VDOM handles them specially in synthetic shadow and light DOM mode
-        // TODO [#4351]: `disableSyntheticShadowSupport` should allow slots to be static-optimized
-        return name !== 'slot';
-    });
-
     // all directives are static-safe
     result &&= !directives.some((directive) => !STATIC_SAFE_DIRECTIVES.has(directive.name));
 

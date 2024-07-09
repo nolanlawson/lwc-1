@@ -58,16 +58,12 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
         name,
         value,
         hasExpression,
-        hasIdOrIdRef,
-        hasSvgUseHref,
-        hasScopedFragmentRef,
+        needsExpressionPlaceholder,
     }: {
         name: string;
         value: string | boolean;
         hasExpression?: boolean;
-        hasIdOrIdRef?: boolean;
-        hasSvgUseHref?: boolean;
-        hasScopedFragmentRef?: boolean;
+        needsExpressionPlaceholder?: boolean;
     }) => {
         let v = typeof value === 'string' ? templateStringEscape(value) : value;
 
@@ -97,12 +93,11 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
             // Note that, to maintain backwards compatibility with the non-static output, we treat the valueless
             // "boolean" format (e.g. `<div id>`) as the empty string, which is semantically equivalent.
             // TODO [#3658]: `disableSyntheticShadowSupport` should also disable this dynamic behavior
-            const needsPlaceholder =
-                hasExpression || hasIdOrIdRef || hasSvgUseHref || hasScopedFragmentRef;
+            const renderPlaceholder = hasExpression || needsExpressionPlaceholder
 
             // Inject a placeholder where the staticPartId will go when an expression occurs.
             // This is only needed for SSR to inject the expression value during serialization.
-            attrs.push(needsPlaceholder ? `\${"${v}"}` : ` ${name}="${htmlEscape(v, true)}"`);
+            attrs.push(renderPlaceholder ? `\${"${v}"}` : ` ${name}="${htmlEscape(v, true)}"`);
         } else {
             attrs.push(` ${name}`);
         }
@@ -132,14 +127,17 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
                 isAllowedFragOnlyUrlsXHTML(element.name, name, element.namespace) &&
                 isFragmentOnlyUrl(value.value);
 
+            // slot attributes must be handled specially, for light DOM and synthetic shadow
+            const hasSlotAttr = name === 'slot'
+
+            const needsExpressionPlaceholder = hasIdOrIdRef || hasSvgUseHref || hasScopedFragmentRef || hasSlotAttr
+
             return {
                 hasExpression,
-                hasIdOrIdRef,
-                hasSvgUseHref,
-                hasScopedFragmentRef,
+                needsExpressionPlaceholder,
                 name,
                 value:
-                    hasExpression || hasIdOrIdRef || hasSvgUseHref || hasScopedFragmentRef
+                    hasExpression || needsExpressionPlaceholder
                         ? codeGen.getStaticExpressionToken(attr)
                         : (value as Literal).value,
             };

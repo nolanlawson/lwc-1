@@ -3,13 +3,13 @@ import _implicitScopedStylesheets from "./parent-mixed-slot-content.scoped.css?s
 import _xChild from "x/child";
 import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
 const $fragment1 = parseFragment`<p${3}>${"t1"}</p>`;
-const $fragment2 = parseFragment`<span${3}>Chocolatier</span>`;
+const $fragment2 = parseFragment`<span${"a0:slot"}${3}>Willy Wonka</span>`;
+const $fragment3 = parseFragment`<span${3}>Chocolatier</span>`;
 const stc0 = {
   key: 0,
 };
 const stc1 = {
   slotAssignment: "slotname2",
-  key: 3,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
   const {
@@ -18,8 +18,6 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     st: api_static_fragment,
     fr: api_fragment,
     ssf: api_scoped_slot_factory,
-    t: api_text,
-    h: api_element,
     c: api_custom_element,
   } = $api;
   return [
@@ -35,8 +33,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           0
         );
       }),
-      api_element("span", stc1, [api_text("Willy Wonka")]),
-      api_static_fragment($fragment2, 5),
+      api_static_fragment($fragment2, 4, [api_static_part(0, stc1, null)]),
+      api_static_fragment($fragment3, 6),
     ]),
   ];
   /*LWC compiler vX.X.X*/

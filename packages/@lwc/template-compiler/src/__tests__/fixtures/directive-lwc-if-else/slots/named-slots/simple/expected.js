@@ -1,18 +1,18 @@
 import _implicitStylesheets from "./simple.css";
 import _implicitScopedStylesheets from "./simple.scoped.css?scoped=true";
 import _xChildWithNamedSlots from "x/childWithNamedSlots";
-import { freezeTemplate, registerTemplate } from "lwc";
+import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
+const $fragment1 = parseFragment`<div${"a0:slot"}${3}>Named slot content from parent</div>`;
 const stc0 = {
   key: 0,
 };
 const stc1 = {
   slotAssignment: "slotname1",
-  key: 2,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
   const {
-    t: api_text,
-    h: api_element,
+    sp: api_static_part,
+    st: api_static_fragment,
     fr: api_fragment,
     c: api_custom_element,
   } = $api;
@@ -26,8 +26,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           ? api_fragment(
               1,
               [
-                api_element("div", stc1, [
-                  api_text("Named slot content from parent"),
+                api_static_fragment($fragment1, 3, [
+                  api_static_part(0, stc1, null),
                 ]),
               ],
               0

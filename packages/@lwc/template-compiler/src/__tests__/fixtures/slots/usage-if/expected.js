@@ -1,7 +1,9 @@
 import _implicitStylesheets from "./usage-if.css";
 import _implicitScopedStylesheets from "./usage-if.scoped.css?scoped=true";
 import _nsCmp from "ns/cmp";
-import { freezeTemplate, registerTemplate } from "lwc";
+import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
+const $fragment1 = parseFragment`<p${"a0:slot"}${3}>S1</p>`;
+const $fragment2 = parseFragment`<p${"a0:slot"}${3}>S2</p>`;
 const stc0 = {
   key: 0,
 };
@@ -10,19 +12,21 @@ const stc1 = {
 };
 const stc2 = {
   slotAssignment: "",
-  key: 2,
-};
-const stc3 = {
-  slotAssignment: "",
-  key: 3,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
-  const { t: api_text, h: api_element, c: api_custom_element } = $api;
+  const {
+    sp: api_static_part,
+    st: api_static_fragment,
+    c: api_custom_element,
+    h: api_element,
+  } = $api;
   return [
     api_element("section", stc0, [
       api_custom_element("ns-cmp", _nsCmp, stc1, [
-        $cmp.isTrue ? api_element("p", stc2, [api_text("S1")]) : null,
-        api_element("p", stc3, [api_text("S2")]),
+        $cmp.isTrue
+          ? api_static_fragment($fragment1, 3, [api_static_part(0, stc2, null)])
+          : null,
+        api_static_fragment($fragment2, 5, [api_static_part(0, stc2, null)]),
       ]),
     ]),
   ];

@@ -15,7 +15,7 @@ import {
 import { RendererAPI } from '../renderer';
 
 import { EmptyObject } from '../utils';
-import { VBaseElement, VStatic, VStaticPartElement } from '../vnodes';
+import {VBaseElement, VStatic, VStaticPart, VStaticPartElement} from '../vnodes';
 
 const ColonCharCode = 58;
 
@@ -68,8 +68,8 @@ export function patchAttributes(
 }
 
 export function patchSlotAssignment(
-    oldVnode: VBaseElement | VStatic | null,
-    vnode: VBaseElement | VStatic,
+    oldVnode: VBaseElement | VStaticPart | null,
+    vnode: VBaseElement | VStaticPart,
     renderer: RendererAPI
 ) {
     const { slotAssignment } = vnode;

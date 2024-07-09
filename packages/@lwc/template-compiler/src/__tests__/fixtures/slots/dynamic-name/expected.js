@@ -1,18 +1,28 @@
 import _implicitStylesheets from "./dynamic-name.css";
 import _implicitScopedStylesheets from "./dynamic-name.scoped.css?scoped=true";
 import _nsCmp from "ns/cmp";
-import { freezeTemplate, registerTemplate } from "lwc";
+import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
+const $fragment1 = parseFragment`<p${"a0:slot"}${3}></p>`;
 const stc0 = {
   key: 0,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
-  const { h: api_element, c: api_custom_element } = $api;
+  const {
+    sp: api_static_part,
+    st: api_static_fragment,
+    c: api_custom_element,
+  } = $api;
   return [
     api_custom_element("ns-cmp", _nsCmp, stc0, [
-      api_element("p", {
-        slotAssignment: $cmp.mySlot,
-        key: 1,
-      }),
+      api_static_fragment($fragment1, 2, [
+        api_static_part(
+          0,
+          {
+            slotAssignment: $cmp.mySlot,
+          },
+          null
+        ),
+      ]),
     ]),
   ];
   /*LWC compiler vX.X.X*/

@@ -65,6 +65,8 @@ export interface VStaticPart {
     readonly partId: number;
     readonly data: VStaticPartData | null;
     readonly text: string | null;
+    // Corresponds to the slot attribute of the element and indicates which `slot` element it should be assigned to
+    slotAssignment: string | undefined;
     elm: Element | Text | undefined;
 }
 
@@ -88,8 +90,6 @@ export interface VStatic extends BaseVNode {
     readonly fragment: Element;
     readonly parts: VStaticPart[] | undefined;
     elm: Element | undefined;
-    // Corresponds to the slot attribute of the element and indicates which `slot` element it should be assigned to
-    slotAssignment: string | undefined;
 }
 
 export interface VFragment extends BaseVNode, BaseVParent {

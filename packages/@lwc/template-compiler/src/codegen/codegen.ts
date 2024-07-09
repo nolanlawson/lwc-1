@@ -743,7 +743,14 @@ export default class CodeGen {
                         isAllowedFragOnlyUrlsXHTML(currentNode.name, name, currentNode.namespace) &&
                         isFragmentOnlyUrl(value.value);
 
-                    if (isExpression(value) || isIdOrIdRef || isSvgHref || isScopedFragmentRef) {
+                    // slot attributes must be handled specially, for light DOM and synthetic shadow
+                    const isSlotAttr = name === 'slot'
+
+                    if (isSlotAttr) {
+                        const partToken = `${STATIC_PART_TOKEN_ID.ATTRIBUTE}${partId}:slot`;
+                        databag.push(this.genSlotAssignment(value));
+                        this.staticExpressionMap.set(attribute, partToken);
+                    } else if (isExpression(value) || isIdOrIdRef || isSvgHref || isScopedFragmentRef) {
                         let partToken = '';
                         if (name === 'style') {
                             partToken = `${STATIC_PART_TOKEN_ID.STYLE}${partId}`;
@@ -760,7 +767,7 @@ export default class CodeGen {
                                 )
                             );
                         } else {
-                            // non-class, non-style (i.e. generic attribute or ID/IDRef or svg use href)
+                            // non-class, non-style (i.e. generic attribute or ID/IDRef or svg use href or slot)
 
                             partToken = `${STATIC_PART_TOKEN_ID.ATTRIBUTE}${partId}:${name}`;
 
@@ -825,5 +832,15 @@ export default class CodeGen {
             );
         }
         return token;
+    }
+
+    genSlotAssignment(value: Expression | Literal) {
+        let slotValue;
+        if (isExpression(value)) {
+            slotValue = this.bindExpression(value);
+        } else {
+            slotValue = isStringLiteral(value) ? t.literal(value.value) : t.literal('');
+        }
+        return t.property(t.identifier('slotAssignment'), slotValue);
     }
 }
