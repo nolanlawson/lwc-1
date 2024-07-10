@@ -22,7 +22,6 @@ import {
     isTrue,
     isUndefined,
     StringReplace,
-    StringTrim,
     toString,
     keys as ObjectKeys,
 } from '@lwc/shared';
@@ -751,29 +750,41 @@ function ncls(value: unknown): string | undefined {
         return undefined;
     }
 
+    if (isString(value)) {
+        if (value === '') {
+            // See note about returning undefined above. The empty string is treated the same as null/undefined
+            return undefined;
+        }
+        return value;
+    }
+
     let res = '';
 
-    if (isString(value)) {
-        res = value;
-    } else if (isArray(value)) {
+    if (isArray(value)) {
         for (let i = 0; i < value.length; i++) {
             const normalized = ncls(value[i]);
             if (normalized) {
-                res += normalized + ' ';
+                if (res) {
+                    res += ' ';
+                }
+                res += normalized;
             }
         }
-    } else if (isObject(value) && !isNull(value)) {
+    } else if (isObject(value)) {
         // Iterate own enumerable keys of the object
-        const keys = ObjectKeys(value);
+        const keys = ObjectKeys(value!);
         for (let i = 0; i < keys.length; i += 1) {
             const key = keys[i];
             if ((value as Record<string, unknown>)[key]) {
-                res += key + ' ';
+                if (res) {
+                    res += ' ';
+                }
+                res += key;
             }
         }
     }
 
-    return StringTrim.call(res);
+    return res;
 }
 
 const api = ObjectFreeze({
