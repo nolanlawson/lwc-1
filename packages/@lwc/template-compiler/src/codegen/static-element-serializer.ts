@@ -4,23 +4,31 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import { htmlEscape, HTML_NAMESPACE, isVoidElement } from '@lwc/shared';
+import { HTML_NAMESPACE, htmlEscape, isVoidElement } from '@lwc/shared';
 import {
     isAllowedFragOnlyUrlsXHTML,
     isFragmentOnlyUrl,
     isIdReferencingAttribute,
     isSvgUseHref,
 } from '../parser/attribute';
-import { Comment, Element, Literal, StaticChildNode, StaticElement, Text } from '../shared/types';
 import {
-    isElement,
-    isComment,
-    isExpression,
-    isText,
+    Comment,
+    Element,
+    Literal,
+    LWCDirectiveRenderMode,
+    StaticChildNode,
+    StaticElement,
+    Text,
+} from '../shared/types';
+import {
     isBooleanLiteral,
+    isComment,
+    isElement,
+    isExpression,
     isStringLiteral,
+    isText,
 } from '../shared/ast';
-import { transformStaticChildren, isContiguousText, hasDynamicText } from './static-element';
+import { hasDynamicText, isContiguousText, transformStaticChildren } from './static-element';
 import type CodeGen from './codegen';
 
 // Implementation based on the parse5 serializer: https://github.com/inikulin/parse5/blob/master/packages/parse5/lib/serializer/index.ts
@@ -97,8 +105,13 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
             // Note that, to maintain backwards compatibility with the non-static output, we treat the valueless
             // "boolean" format (e.g. `<div id>`) as the empty string, which is semantically equivalent.
             // TODO [#3658]: `disableSyntheticShadowSupport` should also disable this dynamic behavior
-            const needsPlaceholder =
-                hasExpression || hasIdOrIdRef || hasSvgUseHref || hasScopedFragmentRef;
+            const hasDynamicScoping =
+                (hasIdOrIdRef || hasScopedFragmentRef) &&
+                !(
+                    codeGen.renderMode === LWCDirectiveRenderMode.light ||
+                    codeGen.state.config.disableSyntheticShadowSupport
+                );
+            const needsPlaceholder = hasExpression || hasSvgUseHref || hasDynamicScoping;
 
             // Inject a placeholder where the staticPartId will go when an expression occurs.
             // This is only needed for SSR to inject the expression value during serialization.
@@ -132,6 +145,13 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
                 isAllowedFragOnlyUrlsXHTML(element.name, name, element.namespace) &&
                 isFragmentOnlyUrl(value.value);
 
+            const hasDynamicScoping =
+                (hasIdOrIdRef || hasScopedFragmentRef) &&
+                !(
+                    codeGen.renderMode === LWCDirectiveRenderMode.light ||
+                    codeGen.state.config.disableSyntheticShadowSupport
+                );
+
             return {
                 hasExpression,
                 hasIdOrIdRef,
@@ -139,7 +159,7 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
                 hasScopedFragmentRef,
                 name,
                 value:
-                    hasExpression || hasIdOrIdRef || hasSvgUseHref || hasScopedFragmentRef
+                    hasExpression || hasSvgUseHref || hasDynamicScoping
                         ? codeGen.getStaticExpressionToken(attr)
                         : (value as Literal).value,
             };
