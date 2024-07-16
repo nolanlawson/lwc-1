@@ -310,18 +310,26 @@ export default class CodeGen {
         return this._renderApiCall(RENDER_APIS.flatten, children);
     }
 
-    genScopedId(id: string | t.Expression): t.CallExpression {
-        if (typeof id === 'string') {
-            return this._renderApiCall(RENDER_APIS.scopedId, [t.literal(id)]);
+    genScopedId(id: string | t.Expression): t.Expression | t.Literal {
+        const value = typeof id === 'string' ? t.literal(id) : id;
+        if (
+            this.renderMode === LWCDirectiveRenderMode.light ||
+            this.state.config.disableSyntheticShadowSupport
+        ) {
+            return value;
         }
-        return this._renderApiCall(RENDER_APIS.scopedId, [id]);
+        return this._renderApiCall(RENDER_APIS.scopedId, [value]);
     }
 
-    genScopedFragId(id: string | t.Expression): t.CallExpression {
-        if (typeof id === 'string') {
-            return this._renderApiCall(RENDER_APIS.scopedFragId, [t.literal(id)]);
+    genScopedFragId(id: string | t.Expression): t.Expression | t.Literal {
+        const value = typeof id === 'string' ? t.literal(id) : id;
+        if (
+            this.renderMode === LWCDirectiveRenderMode.light ||
+            this.state.config.disableSyntheticShadowSupport
+        ) {
+            return value;
         }
-        return this._renderApiCall(RENDER_APIS.scopedFragId, [id]);
+        return this._renderApiCall(RENDER_APIS.scopedFragId, [value]);
     }
 
     genClassExpression(value: Expression) {
@@ -743,7 +751,14 @@ export default class CodeGen {
                         isAllowedFragOnlyUrlsXHTML(currentNode.name, name, currentNode.namespace) &&
                         isFragmentOnlyUrl(value.value);
 
-                    if (isExpression(value) || isIdOrIdRef || isSvgHref || isScopedFragmentRef) {
+                    const hasDynamicScoping =
+                        (isIdOrIdRef || isScopedFragmentRef) &&
+                        !(
+                            this.renderMode === LWCDirectiveRenderMode.light ||
+                            this.state.config.disableSyntheticShadowSupport
+                        );
+
+                    if (isExpression(value) || isSvgHref || hasDynamicScoping) {
                         let partToken = '';
                         if (name === 'style') {
                             partToken = `${STATIC_PART_TOKEN_ID.STYLE}${partId}`;
