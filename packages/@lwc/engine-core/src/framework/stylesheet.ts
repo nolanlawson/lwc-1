@@ -15,7 +15,7 @@ import { getStyleOrSwappedStyle } from './hot-swaps';
 import { VCustomElement, VNode } from './vnodes';
 import { checkVersionMismatch } from './check-version-mismatch';
 import { getComponentInternalDef } from './def';
-import { assertNotProd } from './utils';
+import { assertNotProd, EmptyArray } from './utils';
 
 // These are only used for HMR in dev mode
 // The "pure" annotations are so that Rollup knows for sure it can remove these from prod mode
@@ -173,16 +173,26 @@ function evaluateStylesheetsContent(
     stylesheets: Stylesheets,
     stylesheetToken: string | undefined,
     vm: VM
-): string[] {
+): ReadonlyArray<string> {
+    const { length } = stylesheets;
+
+    if (length === 0) {
+        // Avoid allocating an array unnecessarily
+        return EmptyArray;
+    }
+
     const content: string[] = [];
 
     let root: VM | null | undefined;
 
-    for (let i = 0; i < stylesheets.length; i++) {
+    for (let i = 0; i < length; i++) {
         let stylesheet = stylesheets[i];
 
         if (isArray(stylesheet)) {
-            ArrayPush.apply(content, evaluateStylesheetsContent(stylesheet, stylesheetToken, vm));
+            ArrayPush.apply(
+                content,
+                evaluateStylesheetsContent(stylesheet, stylesheetToken, vm) as string[]
+            );
         } else {
             if (process.env.NODE_ENV !== 'production') {
                 // Check for compiler version mismatch in dev mode only
@@ -248,22 +258,32 @@ function evaluateStylesheetsContent(
     return content;
 }
 
-export function getStylesheetsContent(vm: VM, template: Template): string[] {
+export function getStylesheetsContent(vm: VM, template: Template): ReadonlyArray<string> {
     const { stylesheets, stylesheetToken } = template;
     const { stylesheets: vmStylesheets } = vm;
 
-    let content: string[] = [];
+    const hasTemplateStyles = hasStyles(stylesheets);
+    const hasVmStyles = hasStyles(vmStylesheets);
 
-    if (hasStyles(stylesheets)) {
-        content = evaluateStylesheetsContent(stylesheets, stylesheetToken, vm);
+    if (hasTemplateStyles) {
+        if (hasVmStyles) {
+            // Slow path – merge the template styles and vm styles
+            return [
+                ...evaluateStylesheetsContent(stylesheets, stylesheetToken, vm),
+                ...evaluateStylesheetsContent(vmStylesheets, stylesheetToken, vm),
+            ];
+        }
+        // no vm styles, so return template styles directly
+        return evaluateStylesheetsContent(stylesheets, stylesheetToken, vm);
     }
 
-    // VM (component) stylesheets apply after template stylesheets
-    if (hasStyles(vmStylesheets)) {
-        ArrayPush.apply(content, evaluateStylesheetsContent(vmStylesheets, stylesheetToken, vm));
+    if (hasVmStyles) {
+        // no template styles, so return vm styles directly
+        return evaluateStylesheetsContent(vmStylesheets, stylesheetToken, vm);
     }
 
-    return content;
+    // fastest path - no styles, so return an empty array
+    return EmptyArray;
 }
 
 // It might be worth caching this to avoid doing the lookup repeatedly, but
@@ -323,7 +343,7 @@ function getNearestNativeShadowComponent(vm: VM): VM | null {
     return owner;
 }
 
-export function createStylesheet(vm: VM, stylesheets: string[]): VNode[] | null {
+export function createStylesheet(vm: VM, stylesheets: ReadonlyArray<string>): VNode[] | null {
     const {
         renderMode,
         shadowMode,
