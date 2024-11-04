@@ -1,119 +1,134 @@
 import _implicitStylesheets from "./static.css";
 import _implicitScopedStylesheets from "./static.scoped.css?scoped=true";
 import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
-const $fragment1 = parseFragment`<input${3}>`;
-const $fragment2 = parseFragment`<input type="checkbox"${3}>`;
-const $fragment3 = parseFragment`<input type="checkbox"${3}>`;
-const $fragment4 = parseFragment`<input type="checkbox"${3}>`;
-const $fragment5 = parseFragment`<input type="checkbox"${3}>`;
-const $fragment6 = parseFragment`<input type="checkbox"${3}>`;
-const $fragment7 = parseFragment`<input${3}>`;
-const $fragment8 = parseFragment`<input${3}>`;
-const $fragment9 = parseFragment`<input${3}>`;
-const $fragment10 = parseFragment`<input${3}>`;
-const $fragment11 = parseFragment`<input${3}>`;
-const $fragment12 = parseFragment`<input${3}>`;
-const $fragment13 = parseFragment`<input${3}>`;
-const $fragment14 = parseFragment`<input${3}>`;
-const $fragment15 = parseFragment`<input disabled${3}>`;
-const $fragment16 = parseFragment`<input disabled${3}>`;
-const $fragment17 = parseFragment`<input disabled="disabled"${3}>`;
-const $fragment18 = parseFragment`<input disabled="FALSE"${3}>`;
-const $fragment19 = parseFragment`<input disabled="TRUE"${3}>`;
-const $fragment20 = parseFragment`<input disabled="yolo"${3}>`;
+const $fragment1 = parseFragment`<input disabled${3}>`;
+const $fragment2 = parseFragment`<input disabled${3}>`;
+const $fragment3 = parseFragment`<input disabled="disabled"${3}>`;
+const $fragment4 = parseFragment`<input disabled="FALSE"${3}>`;
+const $fragment5 = parseFragment`<input disabled="TRUE"${3}>`;
+const $fragment6 = parseFragment`<input disabled="yolo"${3}>`;
 const stc0 = {
   props: {
     checked: true,
   },
+  key: 0,
 };
 const stc1 = {
-  props: {
-    checked: "",
+  attrs: {
+    type: "checkbox",
   },
+  props: {
+    checked: true,
+  },
+  key: 1,
 };
 const stc2 = {
-  props: {
-    checked: "checked",
+  attrs: {
+    type: "checkbox",
   },
+  props: {
+    checked: true,
+  },
+  key: 2,
 };
 const stc3 = {
-  props: {
-    checked: "FALSE",
+  attrs: {
+    type: "checkbox",
   },
+  props: {
+    checked: true,
+  },
+  key: 3,
 };
 const stc4 = {
-  props: {
-    checked: "TRUE",
+  attrs: {
+    type: "checkbox",
   },
+  props: {
+    checked: true,
+  },
+  key: 4,
 };
 const stc5 = {
-  props: {
-    checked: "yolo",
+  attrs: {
+    type: "checkbox",
   },
+  props: {
+    checked: true,
+  },
+  key: 5,
 };
 const stc6 = {
   props: {
     value: true,
   },
+  key: 6,
 };
 const stc7 = {
   props: {
     value: "",
   },
+  key: 7,
 };
 const stc8 = {
   props: {
     value: "value",
   },
+  key: 8,
 };
 const stc9 = {
   props: {
     value: "false",
   },
+  key: 9,
 };
 const stc10 = {
   props: {
     value: "true",
   },
+  key: 10,
 };
 const stc11 = {
   props: {
     value: "FALSE",
   },
+  key: 11,
 };
 const stc12 = {
   props: {
     value: "TRUE",
   },
+  key: 12,
 };
 const stc13 = {
   props: {
     value: "yolo",
   },
+  key: 13,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
-  const { sp: api_static_part, st: api_static_fragment } = $api;
+  const { h: api_element, st: api_static_fragment } = $api;
   return [
-    api_static_fragment($fragment1, 1, [api_static_part(0, stc0, null)]),
-    api_static_fragment($fragment2, 3, [api_static_part(0, stc1, null)]),
-    api_static_fragment($fragment3, 5, [api_static_part(0, stc2, null)]),
-    api_static_fragment($fragment4, 7, [api_static_part(0, stc3, null)]),
-    api_static_fragment($fragment5, 9, [api_static_part(0, stc4, null)]),
-    api_static_fragment($fragment6, 11, [api_static_part(0, stc5, null)]),
-    api_static_fragment($fragment7, 13, [api_static_part(0, stc6, null)]),
-    api_static_fragment($fragment8, 15, [api_static_part(0, stc7, null)]),
-    api_static_fragment($fragment9, 17, [api_static_part(0, stc8, null)]),
-    api_static_fragment($fragment10, 19, [api_static_part(0, stc9, null)]),
-    api_static_fragment($fragment11, 21, [api_static_part(0, stc10, null)]),
-    api_static_fragment($fragment12, 23, [api_static_part(0, stc11, null)]),
-    api_static_fragment($fragment13, 25, [api_static_part(0, stc12, null)]),
-    api_static_fragment($fragment14, 27, [api_static_part(0, stc13, null)]),
-    api_static_fragment($fragment15, 29),
-    api_static_fragment($fragment16, 31),
-    api_static_fragment($fragment17, 33),
-    api_static_fragment($fragment18, 35),
-    api_static_fragment($fragment19, 37),
-    api_static_fragment($fragment20, 39),
+    api_element("input", stc0),
+    api_element("input", stc1),
+    api_element("input", stc2),
+    api_element("input", stc3),
+    api_element("input", stc4),
+    api_element("input", stc5),
+    api_element("input", stc6),
+    api_element("input", stc7),
+    api_element("input", stc8),
+    api_element("input", stc9),
+    api_element("input", stc10),
+    api_element("input", stc11),
+    api_element("input", stc12),
+    api_element("input", stc13),
+    api_static_fragment($fragment1, 15),
+    api_static_fragment($fragment2, 17),
+    api_static_fragment($fragment3, 19),
+    api_static_fragment($fragment4, 21),
+    api_static_fragment($fragment5, 23),
+    api_static_fragment($fragment6, 25),
   ];
   /*LWC compiler vX.X.X*/
 }

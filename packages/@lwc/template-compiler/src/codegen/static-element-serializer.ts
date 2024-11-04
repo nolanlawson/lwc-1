@@ -183,6 +183,15 @@ function serializeAttrs(element: Element, codeGen: CodeGen): string {
         })
         .forEach(collector);
 
+    /* v8 ignore start */
+    // TODO [#4775]: allow static optimization for `<input value>`/`<input checked>`
+    if (process.env.NODE_ENV === 'test' && element.properties.length > 0) {
+        throw new Error(
+            'Expected zero properties at this point, found ' + element.properties.length
+        );
+    }
+    /* v8 ignore stop */
+
     // ${2} maps to style token attribute
     // ${3} maps to class attribute token + style token attribute
     // See buildParseFragmentFn for details.

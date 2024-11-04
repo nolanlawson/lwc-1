@@ -1,83 +1,84 @@
 import _implicitStylesheets from "./required.css";
 import _implicitScopedStylesheets from "./required.scoped.css?scoped=true";
 import _xFoo from "x/foo";
-import { freezeTemplate, parseFragment, registerTemplate } from "lwc";
-const $fragment1 = parseFragment`<input required${3}>`;
-const $fragment2 = parseFragment`<input required${3}>`;
-const $fragment3 = parseFragment`<input required="other than true"${3}>`;
-const $fragment4 = parseFragment`<input${"a0:required"}${3}>`;
-const $fragment5 = parseFragment`<input required="3"${3}>`;
+import { freezeTemplate, registerTemplate } from "lwc";
 const stc0 = {
+  attrs: {
+    required: "",
+  },
   props: {
     value: "boolean present",
   },
+  key: 0,
 };
 const stc1 = {
+  attrs: {
+    required: "",
+  },
   props: {
     value: "empty string",
   },
+  key: 1,
 };
 const stc2 = {
+  attrs: {
+    required: "other than true",
+  },
   props: {
     value: "string value",
   },
+  key: 2,
 };
 const stc3 = {
   value: "computed value",
 };
 const stc4 = {
+  attrs: {
+    required: "3",
+  },
   props: {
     value: "integer value",
   },
+  key: 4,
 };
 const stc5 = {
   props: {
     required: true,
   },
-  key: 10,
+  key: 5,
 };
 const stc6 = {
   props: {
     required: "",
   },
-  key: 11,
+  key: 6,
 };
 const stc7 = {
   props: {
     required: "other than true",
   },
-  key: 12,
+  key: 7,
 };
 const stc8 = {
   props: {
     required: "3",
   },
-  key: 14,
+  key: 9,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
-  const {
-    sp: api_static_part,
-    st: api_static_fragment,
-    t: api_text,
-    c: api_custom_element,
-  } = $api;
+  const { h: api_element, t: api_text, c: api_custom_element } = $api;
   return [
-    api_static_fragment($fragment1, 1, [api_static_part(0, stc0, null)]),
-    api_static_fragment($fragment2, 3, [api_static_part(0, stc1, null)]),
-    api_static_fragment($fragment3, 5, [api_static_part(0, stc2, null)]),
-    api_static_fragment($fragment4, 7, [
-      api_static_part(
-        0,
-        {
-          props: stc3,
-          attrs: {
-            required: $cmp.computed ? "" : null,
-          },
-        },
-        null
-      ),
-    ]),
-    api_static_fragment($fragment5, 9, [api_static_part(0, stc4, null)]),
+    api_element("input", stc0),
+    api_element("input", stc1),
+    api_element("input", stc2),
+    api_element("input", {
+      attrs: {
+        required: $cmp.computed ? "" : null,
+      },
+      props: stc3,
+      key: 3,
+    }),
+    api_element("input", stc4),
     api_custom_element("x-foo", _xFoo, stc5, [api_text("boolean present")]),
     api_custom_element("x-foo", _xFoo, stc6, [api_text("empty string")]),
     api_custom_element("x-foo", _xFoo, stc7, [api_text("string value")]),
@@ -88,7 +89,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
         props: {
           required: $cmp.computed,
         },
-        key: 13,
+        key: 8,
       },
       [api_text("computed value, should be resolved in component")]
     ),

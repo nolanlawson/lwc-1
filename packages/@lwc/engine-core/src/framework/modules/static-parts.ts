@@ -21,7 +21,6 @@ import { patchAttributes } from './attrs';
 import { patchStyleAttribute } from './computed-style-attr';
 import { patchClassAttribute } from './computed-class-attr';
 import { patchTextVStaticPart } from './text';
-import { patchProps } from './props';
 
 /**
  * Given an array of static parts, mounts the DOM element to the part based on the staticPartId
@@ -144,7 +143,6 @@ export function mountStaticParts(root: Element, vnode: VStatic, renderer: Render
             // Refs must be updated after every render due to refVNodes getting reset before every render
             applyRefs(part, owner);
             patchAttributes(null, part, renderer);
-            patchProps(null, part, renderer);
             patchClassAttribute(null, part, renderer);
             patchStyleAttribute(null, part, renderer, owner);
         } else {
@@ -201,7 +199,6 @@ export function patchStaticParts(n1: VStatic, n2: VStatic, renderer: RendererAPI
             // Refs must be updated after every render due to refVNodes getting reset before every render
             applyRefs(part, currPartsOwner);
             patchAttributes(prevPart as VStaticPartElement, part, renderer);
-            patchProps(prevPart as VStaticPartElement, part, renderer);
             patchClassAttribute(prevPart as VStaticPartElement, part, renderer);
             patchStyleAttribute(prevPart as VStaticPartElement, part, renderer, currPartsOwner);
         } else {
@@ -234,8 +231,6 @@ export function hydrateStaticParts(vnode: VStatic, renderer: RendererAPI): void 
             applyEventListeners(part, renderer);
             // Refs must be updated after every render due to refVNodes getting reset before every render
             applyRefs(part, owner);
-
-            // TODO: apply props
         }
     }
 }
