@@ -32,6 +32,19 @@ import type {
 } from '@lwc/template-compiler';
 import type { TransformerContext } from '../../types';
 
+type SlottableAncestorIrType = IrIf | IrIfBlock | IrElseBlock | IrElseifBlock;
+type SlottableLeafIrType = IrElement | IrText | IrComponent | IrExternalComponent;
+const SLOTTABLE_ANCESTOR_TYPES = ['If', 'IfBlock', 'ElseifBlock', 'ElseBlock']
+const SLOTTABLE_LEAF_TYPES = ['Element', 'Text', 'Component', 'ExternalComponent']
+
+type SlottableAncestor = IrChildNode & {
+    type: typeof SLOTTABLE_ANCESTOR_TYPES[number]
+}
+
+type SlottableLeaf = IrChildNode & {
+    type: typeof SLOTTABLE_LEAF_TYPES[number]
+}
+
 const bGenerateSlottedContent = esTemplateWithYield`
         const shadowSlottedContent = ${/* hasShadowSlottedContent */ is.literal}
             ? async function* generateSlottedContent(instance) {
@@ -99,10 +112,6 @@ const bAddLightContent = esTemplate`
 // and group those into AST trees on a per-`slot` name basis, only for leafs/ancestors that are
 // relevant to slots (as mentioned above).
 function getLightSlottedContent(rootNodes: IrChildNode[], cxt: TransformerContext) {
-    type SlottableAncestorIrType = IrIf | IrIfBlock | IrElseBlock | IrElseifBlock;
-    type SlottableLeafIrType = IrElement | IrText | IrComponent | IrExternalComponent;
-    type SlottableIrType = SlottableAncestorIrType | SlottableLeafIrType;
-
     const results: EsExpressionStatement[] = [];
 
     // For the given slot name, get the EsExpressions we should use to render it
@@ -134,13 +143,16 @@ function getLightSlottedContent(rootNodes: IrChildNode[], cxt: TransformerContex
     const traverse = (nodes: IrChildNode[], ancestorIndices: number[]) => {
         for (let i = 0; i < nodes.length; i++) {
             const node = nodes[i];
+            if (SLOTTABLE_ANCESTOR_TYPES.includes(node.type)) {
+                traverse(node.children, [...ancestorIndices, i]);
+            }
             switch (node.type) {
                 // SlottableAncestorIrType
                 case 'If':
                 case 'IfBlock':
                 case 'ElseifBlock':
                 case 'ElseBlock': {
-                    traverse(node.children, [...ancestorIndices, i]);
+
                     break;
                 }
                 // SlottableLeafIrType
