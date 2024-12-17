@@ -389,6 +389,9 @@ function patchCustomElement(
 
         unmount(n1, parent, renderer, true);
         mountCustomElement(n2, parent, anchor, renderer);
+    } else if (isUndefined(n1.elm)) {
+        // If the n1 was already unmounted (e.g. by another `for:each` loop), then mount from scratch
+        mountCustomElement(n2, parent, null, renderer);
     } else {
         // Otherwise patch the existing component with new props/attrs/etc.
         const elm = (n2.elm = n1.elm!);
@@ -463,10 +466,10 @@ function unmount(
 
     // When unmounting a VNode subtree not all the elements have to removed from the DOM. The
     // subtree root, is the only element worth unmounting from the subtree.
-    if (doRemove && type !== VNodeType.Fragment) {
+    if (doRemove && type !== VNodeType.Fragment && !isUndefined(elm)) {
         // The vnode might or might not have a data.renderer associated to it
         // but the removal used here is from the owner instead.
-        removeNode(elm!, parent, renderer);
+        removeNode(elm, parent, renderer);
     }
 
     switch (type) {
