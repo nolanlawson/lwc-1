@@ -10,23 +10,25 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     fr: api_fragment,
     i: api_iterator,
   } = $api;
-  return api_iterator(
-    $cmp.items,
-    function (item) {
-      return item.visible
-        ? api_fragment(
-            0,
-            [api_static_fragment($fragment1, api_key(2, item.key))],
-            0
-          )
-        : api_fragment(
-            0,
-            [api_static_fragment($fragment2, api_key(4, item.key))],
-            0
-          );
-    },
-    5
-  );
+  return [
+    api_iterator(
+      $cmp.items,
+      function (item) {
+        return item.visible
+          ? api_fragment(
+              0,
+              [api_static_fragment($fragment1, api_key(2, item.key))],
+              0
+            )
+          : api_fragment(
+              0,
+              [api_static_fragment($fragment2, api_key(4, item.key))],
+              0
+            );
+      },
+      5
+    ),
+  ];
   /*LWC compiler vX.X.X*/
 }
 export default registerTemplate(tmpl);

@@ -12,9 +12,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     sp: api_static_part,
     st: api_static_fragment,
     i: api_iterator,
-    f: api_flatten,
   } = $api;
-  return api_flatten([
+  return [
     api_iterator(
       $cmp.items,
       function (item) {
@@ -95,7 +94,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       },
       11
     ),
-  ]);
+  ];
   /*LWC compiler vX.X.X*/
 }
 export default registerTemplate(tmpl);

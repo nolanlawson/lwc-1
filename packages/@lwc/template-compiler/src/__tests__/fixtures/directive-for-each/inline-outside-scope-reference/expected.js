@@ -15,9 +15,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     h: api_element,
   } = $api;
   return [
-    api_element(
-      "section",
-      stc0,
+    api_element("section", stc0, [
       api_iterator(
         $cmp.items,
         function (item) {
@@ -27,8 +25,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           ]);
         },
         3
-      )
-    ),
+      ),
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }

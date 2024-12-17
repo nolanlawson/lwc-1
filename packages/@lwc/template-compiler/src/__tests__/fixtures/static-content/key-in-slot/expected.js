@@ -23,25 +23,29 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_slot(
       "",
       stc0,
-      api_iterator(
-        $cmp.defaultItems,
-        function (item) {
-          return api_static_fragment($fragment1, api_key(2, item));
-        },
-        3
-      ),
+      [
+        api_iterator(
+          $cmp.defaultItems,
+          function (item) {
+            return api_static_fragment($fragment1, api_key(2, item));
+          },
+          3
+        ),
+      ],
       $slotset
     ),
     api_slot(
       "foo",
       stc1,
-      api_iterator(
-        $cmp.fooItems,
-        function (item) {
-          return api_static_fragment($fragment2, api_key(6, item));
-        },
-        7
-      ),
+      [
+        api_iterator(
+          $cmp.fooItems,
+          function (item) {
+            return api_static_fragment($fragment2, api_key(6, item));
+          },
+          7
+        ),
+      ],
       $slotset
     ),
   ];

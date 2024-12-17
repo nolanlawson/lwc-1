@@ -21,28 +21,24 @@ function tmpl($api, $cmp, $slotset, $ctx) {
   } = $api;
   return [
     api_element("table", stc0, [
-      api_element(
-        "thead",
-        stc1,
+      api_element("thead", stc1, [
         api_iterator(
           $cmp.rows,
           function (row) {
             return api_static_fragment($fragment1, api_key(3, row.id));
           },
           4
-        )
-      ),
-      api_element(
-        "tbody",
-        stc2,
+        ),
+      ]),
+      api_element("tbody", stc2, [
         api_iterator(
           $cmp.rows,
           function (row) {
             return api_static_fragment($fragment2, api_key(7, row.id));
           },
           8
-        )
-      ),
+        ),
+      ]),
     ]),
   ];
   /*LWC compiler vX.X.X*/

@@ -11,25 +11,27 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     i: api_iterator,
   } = $api;
   const { _m0 } = $ctx;
-  return api_iterator(
-    $cmp.bento,
-    function (okazu) {
-      return api_static_fragment($fragment1, api_key(1, okazu), [
-        api_static_part(
-          1,
-          {
-            on:
-              _m0 ||
-              ($ctx._m0 = {
-                click: api_bind(() => $cmp.taberu(okazu)),
-              }),
-          },
-          null
-        ),
-      ]);
-    },
-    2
-  );
+  return [
+    api_iterator(
+      $cmp.bento,
+      function (okazu) {
+        return api_static_fragment($fragment1, api_key(1, okazu), [
+          api_static_part(
+            1,
+            {
+              on:
+                _m0 ||
+                ($ctx._m0 = {
+                  click: api_bind(() => $cmp.taberu(okazu)),
+                }),
+            },
+            null
+          ),
+        ]);
+      },
+      2
+    ),
+  ];
   /*LWC compiler vX.X.X*/
 }
 export default registerTemplate(tmpl);

@@ -31,9 +31,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
         null
       ),
     ]),
-    api_element(
-      "ul",
-      stc0,
+    api_element("ul", stc0, [
       api_iterator(
         $cmp.list,
         function (task) {
@@ -52,8 +50,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           ]);
         },
         5
-      )
-    ),
+      ),
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }

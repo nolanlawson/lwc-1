@@ -15,9 +15,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     h: api_element,
   } = $api;
   return [
-    api_element(
-      "svg",
-      stc0,
+    api_element("svg", stc0, [
       api_iterator(
         $cmp.lines,
         function (line) {
@@ -37,8 +35,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           ]);
         },
         3
-      )
-    ),
+      ),
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }

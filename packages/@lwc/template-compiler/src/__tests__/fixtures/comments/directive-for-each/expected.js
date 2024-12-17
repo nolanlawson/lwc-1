@@ -16,9 +16,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     h: api_element,
   } = $api;
   return [
-    api_element(
-      "ul",
-      stc0,
+    api_element("ul", stc0, [
       api_iterator(
         $cmp.colors,
         function (color) {
@@ -30,8 +28,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           ];
         },
         3
-      )
-    ),
+      ),
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }

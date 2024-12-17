@@ -14,33 +14,28 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     sp: api_static_part,
     st: api_static_fragment,
     i: api_iterator,
-    f: api_flatten,
     h: api_element,
   } = $api;
   return [
-    api_element(
-      "section",
-      stc0,
-      api_flatten([
-        api_iterator(
-          $cmp.items,
-          function (item) {
-            return [
-              api_static_fragment($fragment1, api_key(2, item.id), [
-                api_static_part(1, null, "1" + api_dynamic_text(item)),
-              ]),
-              api_static_fragment($fragment2, api_key(4, item.secondId), [
-                api_static_part(1, null, "2" + api_dynamic_text(item)),
-              ]),
-            ];
-          },
-          5
-        ),
-        api_static_fragment($fragment3, 7, [
-          api_static_part(1, null, "3" + api_dynamic_text($cmp.item)),
-        ]),
-      ])
-    ),
+    api_element("section", stc0, [
+      api_iterator(
+        $cmp.items,
+        function (item) {
+          return [
+            api_static_fragment($fragment1, api_key(2, item.id), [
+              api_static_part(1, null, "1" + api_dynamic_text(item)),
+            ]),
+            api_static_fragment($fragment2, api_key(4, item.secondId), [
+              api_static_part(1, null, "2" + api_dynamic_text(item)),
+            ]),
+          ];
+        },
+        5
+      ),
+      api_static_fragment($fragment3, 7, [
+        api_static_part(1, null, "3" + api_dynamic_text($cmp.item)),
+      ]),
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }

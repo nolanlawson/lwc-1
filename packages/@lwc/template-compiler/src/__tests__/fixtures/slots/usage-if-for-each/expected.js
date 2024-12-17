@@ -9,7 +9,6 @@ const stc0 = {
   },
   key: 0,
 };
-const stc1 = [];
 function tmpl($api, $cmp, $slotset, $ctx) {
   const {
     k: api_key,
@@ -18,10 +17,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     c: api_custom_element,
   } = $api;
   return [
-    api_custom_element(
-      "a-b",
-      _aB,
-      stc0,
+    api_custom_element("a-b", _aB, stc0, [
       $cmp.isTrue
         ? api_iterator(
             $cmp.items,
@@ -30,8 +26,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
             },
             3
           )
-        : stc1
-    ),
+        : null,
+    ]),
   ];
   /*LWC compiler vX.X.X*/
 }

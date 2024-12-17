@@ -17,9 +17,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     st: api_static_fragment,
     k: api_key,
     i: api_iterator,
-    f: api_flatten,
   } = $api;
-  return api_flatten([
+  return [
     api_custom_element("x-subject", _xSubject, {
       props: {
         htmlFor: api_scoped_id("foo"),
@@ -115,7 +114,7 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       },
       15
     ),
-  ]);
+  ];
   /*LWC compiler vX.X.X*/
 }
 export default registerTemplate(tmpl);

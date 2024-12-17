@@ -8,7 +8,7 @@ import { APIFeature, IMPORTANT_FLAG, isAPIFeatureEnabled } from '@lwc/shared';
 import * as t from '../shared/estree';
 import { toPropertyName } from '../shared/utils';
 import { LWCDirectiveRenderMode } from '../shared/types';
-import { isBaseElement, isForBlock, isIf, isParentNode, isSlot } from '../shared/ast';
+import { isBaseElement, isIf, isParentNode, isSlot } from '../shared/ast';
 import { IMPLICIT_STYLESHEET_IMPORTS, TEMPLATE_FUNCTION_NAME } from '../shared/constants';
 import type { ChildNode, Node } from '../shared/types';
 import type CodeGen from './codegen';
@@ -40,15 +40,13 @@ export function objectToAST(
  * Returns true if the children should be flattened.
  *
  * This function searches through the children to determine if flattening needs to occur in the runtime.
- * Children should be flattened if they contain an iterator, a dynamic directive or a slot inside a light dom element.
+ * Children should be flattened if they contain a dynamic directive or a slot inside a light dom element.
  * @param codeGen
  * @param children
  */
 export function shouldFlatten(codeGen: CodeGen, children: ChildNode[]): boolean {
     return children.some((child) => {
         return (
-            // ForBlock will generate a list of iterable vnodes
-            isForBlock(child) ||
             // light DOM slots - backwards-compatible behavior uses flattening, new behavior uses fragments
             (!isAPIFeatureEnabled(
                 APIFeature.USE_FRAGMENTS_FOR_LIGHT_DOM_SLOTS,

@@ -10,37 +10,39 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     st: api_static_fragment,
     i: api_iterator,
   } = $api;
-  return api_iterator(
-    $cmp.features,
-    function (feature) {
-      return api_iterator(
-        feature.innerFeatures,
-        function (featureValue, featureIndex, featureFirst, featureLast) {
-          const feature = {
-            value: featureValue,
-            index: featureIndex,
-            first: featureFirst,
-            last: featureLast,
-          };
-          return api_static_fragment(
-            $fragment1,
-            api_key(1, feature.value.label),
-            [
-              api_static_part(
-                1,
-                null,
-                api_dynamic_text(feature.value.label) +
-                  " " +
-                  api_dynamic_text(feature.label)
-              ),
-            ]
-          );
-        },
-        2
-      );
-    },
-    3
-  );
+  return [
+    api_iterator(
+      $cmp.features,
+      function (feature) {
+        return api_iterator(
+          feature.innerFeatures,
+          function (featureValue, featureIndex, featureFirst, featureLast) {
+            const feature = {
+              value: featureValue,
+              index: featureIndex,
+              first: featureFirst,
+              last: featureLast,
+            };
+            return api_static_fragment(
+              $fragment1,
+              api_key(1, feature.value.label),
+              [
+                api_static_part(
+                  1,
+                  null,
+                  api_dynamic_text(feature.value.label) +
+                    " " +
+                    api_dynamic_text(feature.label)
+                ),
+              ]
+            );
+          },
+          2
+        );
+      },
+      3
+    ),
+  ];
   /*LWC compiler vX.X.X*/
 }
 export default registerTemplate(tmpl);
