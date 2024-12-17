@@ -19,14 +19,18 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "ul",
       stc0,
-      api_iterator($cmp.colors, function (color) {
-        return [
-          api_comment(" color "),
-          api_static_fragment($fragment1, api_key(2, color), [
-            api_static_part(1, null, api_dynamic_text(color)),
-          ]),
-        ];
-      })
+      api_iterator(
+        $cmp.colors,
+        function (color) {
+          return [
+            api_comment(" color "),
+            api_static_fragment($fragment1, api_key(2, color), [
+              api_static_part(1, null, api_dynamic_text(color)),
+            ]),
+          ];
+        },
+        3
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/

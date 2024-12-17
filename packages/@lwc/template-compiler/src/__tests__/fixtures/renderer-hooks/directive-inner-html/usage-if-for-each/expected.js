@@ -37,16 +37,20 @@ function tmpl($api, $cmp, $slotset, $ctx) {
               renderer: renderer,
             })
           : null,
-        api_iterator($cmp.items, function (item) {
-          return api_element("div", {
-            props: {
-              innerHTML: item.forRawHtml,
-            },
-            context: stc1,
-            key: api_key(2, item.id),
-            renderer: renderer,
-          });
-        }),
+        api_iterator(
+          $cmp.items,
+          function (item) {
+            return api_element("div", {
+              props: {
+                innerHTML: item.forRawHtml,
+              },
+              context: stc1,
+              key: api_key(2, item.id),
+              renderer: renderer,
+            });
+          },
+          3
+        ),
       ])
     ),
   ];

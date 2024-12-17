@@ -18,17 +18,21 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "section",
       stc0,
-      api_iterator($cmp.items, function (xValue, xIndex, xFirst, xLast) {
-        const x = {
-          value: xValue,
-          index: xIndex,
-          first: xFirst,
-          last: xLast,
-        };
-        return api_static_fragment($fragment1, api_key(2, $cmp.foo.index), [
-          api_static_part(1, null, api_dynamic_text(x.value)),
-        ]);
-      })
+      api_iterator(
+        $cmp.items,
+        function (xValue, xIndex, xFirst, xLast) {
+          const x = {
+            value: xValue,
+            index: xIndex,
+            first: xFirst,
+            last: xLast,
+          };
+          return api_static_fragment($fragment1, api_key(2, $cmp.foo.index), [
+            api_static_part(1, null, api_dynamic_text(x.value)),
+          ]);
+        },
+        3
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/

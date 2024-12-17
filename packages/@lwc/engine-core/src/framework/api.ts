@@ -403,8 +403,9 @@ function c(
 // [i]terable node
 function i(
     iterable: Iterable<any>,
-    factory: (value: any, index: number, first: boolean, last: boolean) => VNodes | VNode
-): VNodes {
+    factory: (value: any, index: number, first: boolean, last: boolean) => VNodes | VNode,
+    key: Key
+): VFragment[] {
     const list: MutableVNodes = [];
     // TODO [#1276]: compiler should give us some sort of indicator when a vnodes collection is dynamic
     sc(list);
@@ -418,7 +419,7 @@ function i(
                 vmBeingRendered!
             );
         }
-        return list;
+        return [fr(key, list, /* stable */ 0)];
     }
 
     if (process.env.NODE_ENV !== 'production') {
@@ -490,7 +491,8 @@ function i(
             logError(iterationError, vmBeingRendered!);
         }
     }
-    return list;
+
+    return [fr(key, list, /* stable */ 0)];
 }
 
 /**

@@ -18,16 +18,20 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "ul",
       stc0,
-      api_iterator($cmp.items, function (item) {
-        return api_custom_element(
-          "ns-item",
-          _nsItem,
-          {
-            key: api_key(1, item.key),
-          },
-          [api_text(api_dynamic_text(item.value))]
-        );
-      })
+      api_iterator(
+        $cmp.items,
+        function (item) {
+          return api_custom_element(
+            "ns-item",
+            _nsItem,
+            {
+              key: api_key(1, item.key),
+            },
+            [api_text(api_dynamic_text(item.value))]
+          );
+        },
+        2
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/

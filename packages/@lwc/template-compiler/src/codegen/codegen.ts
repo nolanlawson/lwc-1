@@ -309,7 +309,8 @@ export default class CodeGen {
     }
 
     genIterator(iterable: t.Expression, callback: t.FunctionExpression) {
-        return this._renderApiCall(RENDER_APIS.iterator, [iterable, callback]);
+        const key = t.literal(this.generateKey());
+        return this._renderApiCall(RENDER_APIS.iterator, [iterable, callback, key]);
     }
 
     genBind(handler: t.Expression) {

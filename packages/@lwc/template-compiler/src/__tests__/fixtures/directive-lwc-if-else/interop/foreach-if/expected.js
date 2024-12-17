@@ -7,16 +7,24 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     $cmp.visible
       ? api_fragment(
           0,
-          api_iterator($cmp.items, function (item) {
-            return api_text("Conditional Iteration");
-          }),
+          api_iterator(
+            $cmp.items,
+            function (item) {
+              return api_text("Conditional Iteration");
+            },
+            1
+          ),
           0
         )
       : api_fragment(
           0,
-          api_iterator($cmp.altItems, function (item) {
-            return api_text("Else Iteration");
-          }),
+          api_iterator(
+            $cmp.altItems,
+            function (item) {
+              return api_text("Else Iteration");
+            },
+            2
+          ),
           0
         ),
   ];

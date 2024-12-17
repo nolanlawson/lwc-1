@@ -17,14 +17,14 @@ const stc1 = {
   classMap: {
     s2: true,
   },
-  key: 3,
+  key: 4,
 };
 const stc2 = [];
 const stc3 = {
   classMap: {
     s3: true,
   },
-  key: 8,
+  key: 10,
 };
 function tmpl($api, $cmp, $slotset, $ctx) {
   const {
@@ -41,10 +41,14 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       stc0,
       api_flatten([
         api_text("Other Child"),
-        api_iterator($cmp.items, function (item) {
-          return api_text("X");
-        }),
-        api_static_fragment($fragment1, 2),
+        api_iterator(
+          $cmp.items,
+          function (item) {
+            return api_text("X");
+          },
+          1
+        ),
+        api_static_fragment($fragment1, 3),
       ])
     ),
     api_element(
@@ -53,12 +57,16 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       api_flatten([
         api_text("Other Child"),
         $cmp.isTrue
-          ? api_iterator($cmp.items, function (item) {
-              return [
-                api_static_fragment($fragment2, api_key(5, item.id)),
-                api_static_fragment($fragment3, api_key(7, item.id)),
-              ];
-            })
+          ? api_iterator(
+              $cmp.items,
+              function (item) {
+                return [
+                  api_static_fragment($fragment2, api_key(6, item.id)),
+                  api_static_fragment($fragment3, api_key(8, item.id)),
+                ];
+              },
+              9
+            )
           : stc2,
       ])
     ),
@@ -66,13 +74,17 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       "section",
       stc3,
       api_flatten([
-        api_static_fragment($fragment4, 10),
-        api_iterator($cmp.items, function (item) {
-          return api_static_fragment($fragment5, api_key(12, item.id));
-        }),
+        api_static_fragment($fragment4, 12),
+        api_iterator(
+          $cmp.items,
+          function (item) {
+            return api_static_fragment($fragment5, api_key(14, item.id));
+          },
+          15
+        ),
       ])
     ),
-    api_static_fragment($fragment6, 14),
+    api_static_fragment($fragment6, 17),
   ];
   /*LWC compiler vX.X.X*/
 }

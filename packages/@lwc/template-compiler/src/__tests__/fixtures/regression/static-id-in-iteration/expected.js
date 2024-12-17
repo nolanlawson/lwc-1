@@ -15,53 +15,39 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     f: api_flatten,
   } = $api;
   return api_flatten([
-    api_iterator($cmp.items, function (item) {
-      return api_static_fragment($fragment1, api_key(1, item.key), [
-        api_static_part(
-          1,
-          {
-            attrs: {
-              id: api_scoped_id("a"),
-            },
-          },
-          null
-        ),
-      ]);
-    }),
-    api_iterator($cmp.items, function (item) {
-      return api_static_fragment($fragment2, api_key(3, item.key), [
-        api_static_part(
-          0,
-          {
-            attrs: {
-              id: api_scoped_id("b"),
-            },
-          },
-          null
-        ),
-      ]);
-    }),
     api_iterator(
       $cmp.items,
-      function (itemValue, itemIndex, itemFirst, itemLast) {
-        const item = {
-          value: itemValue,
-          index: itemIndex,
-          first: itemFirst,
-          last: itemLast,
-        };
-        return api_static_fragment($fragment3, api_key(5, item.key), [
+      function (item) {
+        return api_static_fragment($fragment1, api_key(1, item.key), [
           api_static_part(
             1,
             {
               attrs: {
-                id: api_scoped_id("c"),
+                id: api_scoped_id("a"),
               },
             },
             null
           ),
         ]);
-      }
+      },
+      2
+    ),
+    api_iterator(
+      $cmp.items,
+      function (item) {
+        return api_static_fragment($fragment2, api_key(4, item.key), [
+          api_static_part(
+            0,
+            {
+              attrs: {
+                id: api_scoped_id("b"),
+              },
+            },
+            null
+          ),
+        ]);
+      },
+      5
     ),
     api_iterator(
       $cmp.items,
@@ -72,7 +58,30 @@ function tmpl($api, $cmp, $slotset, $ctx) {
           first: itemFirst,
           last: itemLast,
         };
-        return api_static_fragment($fragment4, api_key(7, item.key), [
+        return api_static_fragment($fragment3, api_key(7, item.key), [
+          api_static_part(
+            1,
+            {
+              attrs: {
+                id: api_scoped_id("c"),
+              },
+            },
+            null
+          ),
+        ]);
+      },
+      8
+    ),
+    api_iterator(
+      $cmp.items,
+      function (itemValue, itemIndex, itemFirst, itemLast) {
+        const item = {
+          value: itemValue,
+          index: itemIndex,
+          first: itemFirst,
+          last: itemLast,
+        };
+        return api_static_fragment($fragment4, api_key(10, item.key), [
           api_static_part(
             0,
             {
@@ -83,7 +92,8 @@ function tmpl($api, $cmp, $slotset, $ctx) {
             null
           ),
         ]);
-      }
+      },
+      11
     ),
   ]);
   /*LWC compiler vX.X.X*/

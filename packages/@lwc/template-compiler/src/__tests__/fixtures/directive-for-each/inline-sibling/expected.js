@@ -22,19 +22,23 @@ function tmpl($api, $cmp, $slotset, $ctx) {
       "ul",
       stc0,
       api_flatten([
-        api_iterator($cmp.items, function (item) {
-          return api_static_fragment($fragment1, api_key(2, item.id), [
-            api_static_part(
-              0,
-              {
-                className: api_normalize_class_name(item.x),
-              },
-              null
-            ),
-            api_static_part(1, null, api_dynamic_text(item)),
-          ]);
-        }),
-        api_static_fragment($fragment2, 4),
+        api_iterator(
+          $cmp.items,
+          function (item) {
+            return api_static_fragment($fragment1, api_key(2, item.id), [
+              api_static_part(
+                0,
+                {
+                  className: api_normalize_class_name(item.x),
+                },
+                null
+              ),
+              api_static_part(1, null, api_dynamic_text(item)),
+            ]);
+          },
+          3
+        ),
+        api_static_fragment($fragment2, 5),
       ])
     ),
   ];

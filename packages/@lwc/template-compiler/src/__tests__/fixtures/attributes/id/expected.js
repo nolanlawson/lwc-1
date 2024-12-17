@@ -85,32 +85,36 @@ function tmpl($api, $cmp, $slotset, $ctx) {
         null
       ),
     ]),
-    api_iterator($cmp.things, function (thing) {
-      return [
-        api_static_fragment($fragment4, api_key(12, thing.key), [
-          api_static_part(
-            0,
-            {
-              attrs: {
-                id: api_scoped_id(thing.id),
+    api_iterator(
+      $cmp.things,
+      function (thing) {
+        return [
+          api_static_fragment($fragment4, api_key(12, thing.key), [
+            api_static_part(
+              0,
+              {
+                attrs: {
+                  id: api_scoped_id(thing.id),
+                },
               },
-            },
-            null
-          ),
-        ]),
-        api_static_fragment($fragment5, api_key(14, thing.key), [
-          api_static_part(
-            0,
-            {
-              attrs: {
-                "aria-describedby": api_scoped_id(thing.id),
+              null
+            ),
+          ]),
+          api_static_fragment($fragment5, api_key(14, thing.key), [
+            api_static_part(
+              0,
+              {
+                attrs: {
+                  "aria-describedby": api_scoped_id(thing.id),
+                },
               },
-            },
-            null
-          ),
-        ]),
-      ];
-    }),
+              null
+            ),
+          ]),
+        ];
+      },
+      15
+    ),
   ]);
   /*LWC compiler vX.X.X*/
 }

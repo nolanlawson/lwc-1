@@ -18,13 +18,17 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "section",
       stc0,
-      api_iterator($cmp.items, function (item) {
-        return $cmp.showItems
-          ? api_static_fragment($fragment1, api_key(2, item.id), [
-              api_static_part(1, null, "1" + api_dynamic_text(item)),
-            ])
-          : null;
-      })
+      api_iterator(
+        $cmp.items,
+        function (item) {
+          return $cmp.showItems
+            ? api_static_fragment($fragment1, api_key(2, item.id), [
+                api_static_part(1, null, "1" + api_dynamic_text(item)),
+              ])
+            : null;
+        },
+        3
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/

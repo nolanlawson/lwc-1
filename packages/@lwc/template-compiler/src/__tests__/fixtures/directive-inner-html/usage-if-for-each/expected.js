@@ -42,20 +42,24 @@ function tmpl($api, $cmp, $slotset, $ctx) {
               key: 1,
             })
           : null,
-        api_iterator($cmp.items, function (item) {
-          return api_element("div", {
-            props: {
-              innerHTML:
-                $ctx._rawHtml$1 !== ($ctx._rawHtml$1 = item.forRawHtml)
-                  ? ($ctx._sanitizedHtml$1 = api_sanitize_html_content(
-                      item.forRawHtml
-                    ))
-                  : $ctx._sanitizedHtml$1,
-            },
-            context: stc1,
-            key: api_key(2, item.id),
-          });
-        }),
+        api_iterator(
+          $cmp.items,
+          function (item) {
+            return api_element("div", {
+              props: {
+                innerHTML:
+                  $ctx._rawHtml$1 !== ($ctx._rawHtml$1 = item.forRawHtml)
+                    ? ($ctx._sanitizedHtml$1 = api_sanitize_html_content(
+                        item.forRawHtml
+                      ))
+                    : $ctx._sanitizedHtml$1,
+              },
+              context: stc1,
+              key: api_key(2, item.id),
+            });
+          },
+          3
+        ),
       ])
     ),
   ];

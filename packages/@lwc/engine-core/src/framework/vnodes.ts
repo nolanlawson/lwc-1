@@ -96,7 +96,7 @@ export interface VFragment extends BaseVNode, BaseVParent {
     // In a fragment elm represents the last node of the fragment,
     // which is the end delimiter text node ([start, ...children, end]). Used in the updateStaticChildren routine.
     // elm: Node | undefined; (inherited from BaseVNode)
-    sel: '__fragment__';
+    sel: '__fragment__' | '__iterable__';
     type: VNodeType.Fragment;
 
     // which diffing strategy to use.

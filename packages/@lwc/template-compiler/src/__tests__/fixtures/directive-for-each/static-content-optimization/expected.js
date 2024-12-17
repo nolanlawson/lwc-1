@@ -19,43 +19,47 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "div",
       stc0,
-      api_iterator($cmp.items, function (item) {
-        return api_static_fragment($fragment1, api_key(2, item.key), [
-          api_static_part(
-            1,
-            {
-              attrs: {
-                "data-dynamic": $cmp.foo,
+      api_iterator(
+        $cmp.items,
+        function (item) {
+          return api_static_fragment($fragment1, api_key(2, item.key), [
+            api_static_part(
+              1,
+              {
+                attrs: {
+                  "data-dynamic": $cmp.foo,
+                },
               },
-            },
-            null
-          ),
-          api_static_part(
-            3,
-            {
-              style: $cmp.baaz,
-            },
-            null
-          ),
-          api_static_part(
-            7,
-            null,
-            "concatenated text " + api_dynamic_text(item.text)
-          ),
-          api_static_part(
-            8,
-            {
-              style: $cmp.baaz,
-              className: api_normalize_class_name($cmp.bar),
-              attrs: {
-                "data-dynamic": $cmp.foo,
+              null
+            ),
+            api_static_part(
+              3,
+              {
+                style: $cmp.baaz,
               },
-            },
-            null
-          ),
-          api_static_part(9, null, api_dynamic_text(item.text)),
-        ]);
-      })
+              null
+            ),
+            api_static_part(
+              7,
+              null,
+              "concatenated text " + api_dynamic_text(item.text)
+            ),
+            api_static_part(
+              8,
+              {
+                style: $cmp.baaz,
+                className: api_normalize_class_name($cmp.bar),
+                attrs: {
+                  "data-dynamic": $cmp.foo,
+                },
+              },
+              null
+            ),
+            api_static_part(9, null, api_dynamic_text(item.text)),
+          ]);
+        },
+        3
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/

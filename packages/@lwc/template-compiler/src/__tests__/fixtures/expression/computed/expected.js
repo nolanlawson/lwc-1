@@ -16,13 +16,17 @@ function tmpl($api, $cmp, $slotset, $ctx) {
         " " +
         api_dynamic_text($cmp.val[$cmp.state.foo][$cmp.state.bar])
     ),
-    api_iterator($cmp.arr, function (item, index) {
-      return api_text(
-        api_dynamic_text($cmp.arr[index]) +
-          " " +
-          api_dynamic_text($cmp.arr[$cmp.state.val])
-      );
-    }),
+    api_iterator(
+      $cmp.arr,
+      function (item, index) {
+        return api_text(
+          api_dynamic_text($cmp.arr[index]) +
+            " " +
+            api_dynamic_text($cmp.arr[$cmp.state.val])
+        );
+      },
+      0
+    ),
   ]);
   /*LWC compiler vX.X.X*/
 }

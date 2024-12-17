@@ -18,13 +18,17 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "div",
       stc0,
-      api_iterator($cmp.rows, function (row) {
-        return [
-          api_static_fragment($fragment1, api_key(2, row.id)),
-          api_static_fragment($fragment2, api_key(4, row.id)),
-          api_static_fragment($fragment3, api_key(6, row.id)),
-        ];
-      })
+      api_iterator(
+        $cmp.rows,
+        function (row) {
+          return [
+            api_static_fragment($fragment1, api_key(2, row.id)),
+            api_static_fragment($fragment2, api_key(4, row.id)),
+            api_static_fragment($fragment3, api_key(6, row.id)),
+          ];
+        },
+        7
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/

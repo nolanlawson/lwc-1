@@ -19,33 +19,37 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "section",
       stc0,
-      api_iterator($cmp.items, function (xValue, xIndex, xFirst, xLast) {
-        const x = {
-          value: xValue,
-          index: xIndex,
-          first: xFirst,
-          last: xLast,
-        };
-        return [
-          api_static_fragment($fragment1, api_key(2, x.value.id), [
-            api_static_part(
-              0,
-              {
-                attrs: {
-                  "data-islast": x.last,
-                  "data-isfirst": x.first,
+      api_iterator(
+        $cmp.items,
+        function (xValue, xIndex, xFirst, xLast) {
+          const x = {
+            value: xValue,
+            index: xIndex,
+            first: xFirst,
+            last: xLast,
+          };
+          return [
+            api_static_fragment($fragment1, api_key(2, x.value.id), [
+              api_static_part(
+                0,
+                {
+                  attrs: {
+                    "data-islast": x.last,
+                    "data-isfirst": x.first,
+                  },
                 },
-              },
-              null
-            ),
-            api_static_part(2, null, "Row: " + api_dynamic_text(x.index)),
-            api_static_part(3, null, ". Value: " + api_dynamic_text(x.value)),
-          ]),
-          $cmp.isTrue
-            ? api_static_fragment($fragment2, api_key(4, x.value.key))
-            : null,
-        ];
-      })
+                null
+              ),
+              api_static_part(2, null, "Row: " + api_dynamic_text(x.index)),
+              api_static_part(3, null, ". Value: " + api_dynamic_text(x.value)),
+            ]),
+            $cmp.isTrue
+              ? api_static_fragment($fragment2, api_key(4, x.value.key))
+              : null,
+          ];
+        },
+        5
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/

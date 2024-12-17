@@ -34,21 +34,25 @@ function tmpl($api, $cmp, $slotset, $ctx) {
     api_element(
       "ul",
       stc0,
-      api_iterator($cmp.list, function (task) {
-        return api_static_fragment($fragment2, api_key(4, task.id), [
-          api_static_part(1, null, api_dynamic_text(task.title)),
-          api_static_part(
-            2,
-            {
-              on: {
-                click: api_bind(task.delete),
-                touchstart: _m2 || ($ctx._m2 = api_bind($cmp.foo)),
+      api_iterator(
+        $cmp.list,
+        function (task) {
+          return api_static_fragment($fragment2, api_key(4, task.id), [
+            api_static_part(1, null, api_dynamic_text(task.title)),
+            api_static_part(
+              2,
+              {
+                on: {
+                  click: api_bind(task.delete),
+                  touchstart: _m2 || ($ctx._m2 = api_bind($cmp.foo)),
+                },
               },
-            },
-            null
-          ),
-        ]);
-      })
+              null
+            ),
+          ]);
+        },
+        5
+      )
     ),
   ];
   /*LWC compiler vX.X.X*/
