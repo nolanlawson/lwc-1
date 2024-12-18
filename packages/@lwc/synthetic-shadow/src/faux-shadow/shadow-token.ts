@@ -4,16 +4,16 @@
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-import {
-    defineProperty,
-    // isUndefined,
-    KEY__SHADOW_TOKEN,
-    // KEY__SHADOW_TOKEN_PRIVATE,
-    // KEY__SHADOW_STATIC,
-    // KEY__SHADOW_STATIC_PRIVATE,
-    // KEY__SHADOW_RESOLVER,
-    // isNull,
-} from '@lwc/shared';
+// import {
+//     // defineProperty,
+//     // isUndefined,
+//     KEY__SHADOW_TOKEN,
+//     // KEY__SHADOW_TOKEN_PRIVATE,
+//     // KEY__SHADOW_STATIC,
+//     // KEY__SHADOW_STATIC_PRIVATE,
+//     // KEY__SHADOW_RESOLVER,
+//     // isNull,
+// } from '@lwc/shared';
 // import { setAttribute, removeAttribute } from '../env/element';
 // import { firstChildGetter, nextSiblingGetter } from '../env/node';
 
@@ -30,7 +30,7 @@ export function setShadowToken(node: Node, shadowToken: string | undefined) {
  * placed into the element to sandbox the css rules defined for the template.
  * - this custom attribute must be unique.
  */
-defineProperty(Element.prototype, KEY__SHADOW_TOKEN, {
+Object.defineProperty(Element.prototype,  "$shadowToken$", {
     // set: function whyIsThisSetterCapturingSomething(/*this: Element, shadowToken: string | undefined*/) {
     //     // const oldShadowToken = (this as any)[KEY__SHADOW_TOKEN_PRIVATE];
     //     // if (!isUndefined(oldShadowToken) && oldShadowToken !== shadowToken) {
