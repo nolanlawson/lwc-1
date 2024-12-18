@@ -11,8 +11,6 @@ const {
     defineProperties,
     /** Detached {@linkcode Object.defineProperty}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty MDN Reference}. */
     defineProperty,
-    /** Detached {@linkcode Object.getOwnPropertyDescriptor}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor MDN Reference}. */
-    getOwnPropertyDescriptor,
     /** Detached {@linkcode Object.setPrototypeOf}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf MDN Reference}. */
     setPrototypeOf,
 } = Object;
@@ -46,7 +44,7 @@ const {
     removeChild,
     replaceChild,
 } = nodePrototype;
-const ownerDocumentGetter = getOwnPropertyDescriptor(nodePrototype, 'ownerDocument').get;
+const ownerDocumentGetter = Object.getOwnPropertyDescriptor(nodePrototype, 'ownerDocument').get;
 
 // Helpful for tests running with jsdom
 function getOwnerDocument(node) {
@@ -65,33 +63,13 @@ function getOwnerDocument(node) {
 const HostElementKey = '$$HostElementKey$$';
 const ShadowedNodeKey = '$$ShadowedNodeKey$$';
 
-function fastDefineProperty(node, propName, config) {
-    const shadowedNode = node;
-    if (process.env.NODE_ENV !== 'production') {
-        // in dev, we are more restrictive
-        defineProperty(shadowedNode, propName, config);
-    } else {
-        const { value } = config;
-        // in prod, we prioritize performance
-        shadowedNode[propName] = value;
-    }
-}
-
 function setNodeOwnerKey(node, value) {
-    fastDefineProperty(node, HostElementKey, { value, configurable: true });
+    Object.defineProperty(node, HostElementKey, { value, configurable: true });
 }
 
 function setNodeKey(node, value) {
-    fastDefineProperty(node, ShadowedNodeKey, { value });
+    Object.defineProperty(node, ShadowedNodeKey, { value });
 }
-
-function StaticNodeList() {
-    throw new TypeError('Illegal constructor');
-}
-
-StaticNodeList.prototype = create(NodeList.prototype, {});
-// prototype inheritance dance
-setPrototypeOf(StaticNodeList, NodeList);
 
 function StaticHTMLCollection() {
     throw new TypeError('Illegal constructor');
@@ -170,8 +148,7 @@ function attachShadow(elm, options) {
     return sr;
 }
 
-const SyntheticShadowRootDescriptors = {
-};
+const SyntheticShadowRootDescriptors = {};
 const NodePatchDescriptors = {
     insertBefore: {
         writable: true,
@@ -219,13 +196,13 @@ function SyntheticShadowRoot() {
 SyntheticShadowRoot.prototype = create(DocumentFragment.prototype, SyntheticShadowRootDescriptors);
 
 function attachShadowPatched(options) {
-        return attachShadow(this, options);
+    return attachShadow(this, options);
 }
 
 //
 // Non-deep-traversing patches: this descriptor map includes all descriptors that
 // do not five access to nodes beyond the immediate children.
-defineProperties(Element.prototype, {
+Object.defineProperties(Element.prototype, {
     attachShadow: {
         value: attachShadowPatched,
         enumerable: true,
