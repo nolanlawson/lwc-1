@@ -123,17 +123,11 @@ function getHost(root) {
 let uid = 0;
 
 function attachShadow(elm, options) {
-    if (InternalSlot.has(elm)) {
-        throw new Error(`Failed to execute 'attachShadow' on 'Element': Shadow root cannot be created on a host which already hosts a shadow tree.`);
-    }
-    const { mode, delegatesFocus } = options;
     // creating a real fragment for shadowRoot instance
     const doc = getOwnerDocument(elm);
     const sr = createDocumentFragment.call(doc);
     // creating shadow internal record
     const record = {
-        mode,
-        delegatesFocus: !!delegatesFocus,
         host: elm,
         shadowRoot: sr,
     };
@@ -210,14 +204,3 @@ Object.defineProperties(Element.prototype, {
         configurable: true,
     },
 });
-/**
- * Patching Element.prototype.$shadowToken$ to mark elements a portal:
- * - we use a property to allow engines to set a custom attribute that should be
- * placed into the element to sandbox the css rules defined for the template.
- * - this custom attribute must be unique.
- */
-Object.defineProperty(Element.prototype, '$shadowToken$', {
-    value: undefined,
-    configurable: true,
-});
-/** version: 8.12.1 */
