@@ -14,45 +14,24 @@
      * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
      */
     const {
-        /** Detached {@linkcode Object.assign}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign MDN Reference}. */
-        assign,
         /** Detached {@linkcode Object.create}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create MDN Reference}. */
         create,
         /** Detached {@linkcode Object.defineProperties}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties MDN Reference}. */
         defineProperties,
         /** Detached {@linkcode Object.defineProperty}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty MDN Reference}. */
         defineProperty,
-        /** Detached {@linkcode Object.entries}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries MDN Reference}. */
-        entries,
-        /** Detached {@linkcode Object.freeze}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze MDN Reference}. */
-        freeze,
-        /** Detached {@linkcode Object.fromEntries}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries MDN Reference}. */
-        fromEntries,
         /** Detached {@linkcode Object.getOwnPropertyDescriptor}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor MDN Reference}. */
         getOwnPropertyDescriptor,
-        /** Detached {@linkcode Object.getOwnPropertyDescriptors}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptors MDN Reference}. */
-        getOwnPropertyDescriptors,
-        /** Detached {@linkcode Object.getOwnPropertyNames}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames MDN Reference}. */
-        getOwnPropertyNames,
-        /** Detached {@linkcode Object.getOwnPropertySymbols}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertySymbols MDN Reference}. */
-        getOwnPropertySymbols,
         /** Detached {@linkcode Object.getPrototypeOf}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf MDN Reference}. */
         getPrototypeOf,
         /** Detached {@linkcode Object.hasOwnProperty}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty MDN Reference}. */
         hasOwnProperty,
-        /** Detached {@linkcode Object.isFrozen}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isFrozen MDN Reference}. */
-        isFrozen,
-        /** Detached {@linkcode Object.keys}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys MDN Reference}. */
-        keys,
-        /** Detached {@linkcode Object.seal}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal MDN Reference}. */
-        seal,
         /** Detached {@linkcode Object.setPrototypeOf}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf MDN Reference}. */
         setPrototypeOf, } = Object;
     const {
         /** Detached {@linkcode Array.isArray}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray MDN Reference}. */
         isArray,
-        /** Detached {@linkcode Array.from}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from MDN Reference}. */
-        from: ArrayFrom, } = Array;
+    } = Array;
 // For some reason, JSDoc don't get picked up for multiple renamed destructured constants (even
 // though it works fine for one, e.g. isArray), so comments for these are added to the export
 // statement, rather than this declaration.
@@ -991,149 +970,6 @@
     });
 // prototype inheritance dance
     setPrototypeOf(StaticHTMLCollection, HTMLCollection);
-    function createStaticHTMLCollection(items) {
-        const collection = create(StaticHTMLCollection.prototype);
-        Items.set(collection, items);
-        // setting static indexes
-        forEach.call(items, (item, index) => {
-            defineProperty(collection, index, {
-                value: item,
-                enumerable: true,
-                configurable: true,
-            });
-        });
-        return collection;
-    }
-
-    /*
-     * Copyright (c) 2018, salesforce.com, inc.
-     * All rights reserved.
-     * SPDX-License-Identifier: MIT
-     * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
-     */
-    /**
-     * This method checks whether or not the content of the node is computed
-     * based on the light-dom slotting mechanism. This applies to synthetic slot elements
-     * and elements with shadow dom attached to them. It doesn't apply to native slot elements
-     * because we don't want to patch the children getters for those elements.
-     * @param node
-     */
-    function hasMountedChildren(node) {
-        return isSyntheticSlotElement(node) || isSyntheticShadowHost(node);
-    }
-    function getShadowParent(node, value) {
-        const owner = getNodeOwner(node);
-        if (value === owner) {
-            // walking up via parent chain might end up in the shadow root element
-            return getShadowRoot(owner);
-        }
-        else if (value instanceof Element) {
-            if (getNodeNearestOwnerKey(node) === getNodeNearestOwnerKey(value)) {
-                // the element and its parent node belong to the same shadow root
-                return value;
-            }
-            else if (!isNull(owner) && isSlotElement(value)) {
-                // slotted elements must be top level childNodes of the slot element
-                // where they slotted into, but its shadowed parent is always the
-                // owner of the slot.
-                const slotOwner = getNodeOwner(value);
-                if (!isNull(slotOwner) && isNodeOwnedBy(owner, slotOwner)) {
-                    // it is a slotted element, and therefore its parent is always going to be the host of the slot
-                    return slotOwner;
-                }
-            }
-        }
-        return null;
-    }
-    function hasChildNodesPatched() {
-        return getInternalChildNodes(this).length > 0;
-    }
-    function firstChildGetterPatched() {
-        const childNodes = getInternalChildNodes(this);
-        return childNodes[0] || null;
-    }
-    function lastChildGetterPatched() {
-        const childNodes = getInternalChildNodes(this);
-        return childNodes[childNodes.length - 1] || null;
-    }
-    function textContentGetterPatched() {
-        return getTextContent(this);
-    }
-    function textContentSetterPatched(value) {
-        textContextSetter.call(this, value);
-    }
-    function parentNodeGetterPatched() {
-        const value = parentNodeGetter.call(this);
-        if (isNull(value)) {
-            return value;
-        }
-        // TODO [#1635]: this needs optimization, maybe implementing it based on this.assignedSlot
-        return getShadowParent(this, value);
-    }
-    function parentElementGetterPatched() {
-        const value = parentNodeGetter.call(this);
-        if (isNull(value)) {
-            return null;
-        }
-        const parentNode = getShadowParent(this, value);
-        // it could be that the parentNode is the shadowRoot, in which case
-        // we need to return null.
-        // TODO [#1635]: this needs optimization, maybe implementing it based on this.assignedSlot
-        return parentNode instanceof Element ? parentNode : null;
-    }
-    function compareDocumentPositionPatched(otherNode) {
-        if (this === otherNode) {
-            return 0;
-        }
-        else if (this.getRootNode() === otherNode) {
-            // "this" is in a shadow tree where the shadow root is the "otherNode".
-            return 10; // Node.DOCUMENT_POSITION_CONTAINS | Node.DOCUMENT_POSITION_PRECEDING
-        }
-        else if (getNodeOwnerKey(this) !== getNodeOwnerKey(otherNode)) {
-            // "this" and "otherNode" belongs to 2 different shadow tree.
-            return 35; // Node.DOCUMENT_POSITION_DISCONNECTED | Node.DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC | Node.DOCUMENT_POSITION_PRECEDING
-        }
-        // Since "this" and "otherNode" are part of the same shadow tree we can safely rely to the native
-        // Node.compareDocumentPosition implementation.
-        return compareDocumentPosition.call(this, otherNode);
-    }
-    function containsPatched(otherNode) {
-        if (otherNode == null || getNodeOwnerKey(this) !== getNodeOwnerKey(otherNode)) {
-            // it is from another shadow
-            return false;
-        }
-        return (compareDocumentPosition.call(this, otherNode) & DOCUMENT_POSITION_CONTAINED_BY) !== 0;
-    }
-    function cloneNodePatched(deep) {
-        const clone = cloneNode.call(this, false);
-        // Per spec, browsers only care about truthy values
-        // Not strict true or false
-        if (!deep) {
-            return clone;
-        }
-        const childNodes = getInternalChildNodes(this);
-        for (let i = 0, len = childNodes.length; i < len; i += 1) {
-            clone.appendChild(childNodes[i].cloneNode(true));
-        }
-        return clone;
-    }
-    /**
-     * This method only applies to elements with a shadow or slots
-     */
-    function childNodesGetterPatched() {
-        if (isSyntheticShadowHost(this)) {
-            const owner = getNodeOwner(this);
-            const filteredChildNodes = getFilteredChildNodes(this);
-            // No need to filter by owner for non-shadowed nodes
-            const childNodes = isNull(owner)
-                ? filteredChildNodes
-                : getAllMatches(owner, filteredChildNodes);
-            return createStaticNodeList(childNodes);
-        }
-        // nothing to do here since this does not have a synthetic shadow attached to it
-        // TODO [#1636]: what about slot elements?
-        return childNodesGetter.call(this);
-    }
     const nativeGetRootNode = _Node.prototype.getRootNode;
     /**
      * Get the root by climbing up the dom tree, beyond the shadow root
@@ -1168,229 +1004,13 @@
         }
         return getShadowRoot(ownerNode);
     }
-    /**
-     * If looking for a root node beyond shadow root by calling `node.getRootNode({composed: true})`, use the original `Node.prototype.getRootNode` method
-     * to return the root of the dom tree. In IE11 and Edge, Node.prototype.getRootNode is
-     * [not supported](https://developer.mozilla.org/en-US/docs/Web/API/Node/getRootNode#Browser_compatibility). The root node is discovered by manually
-     * climbing up the dom tree.
-     *
-     * If looking for a shadow root of a node by calling `node.getRootNode({composed: false})` or `node.getRootNode()`,
-     *
-     * 1. Try to identify the host element that owns the give node.
-     * i. Identify the shadow tree that the node belongs to
-     * ii. If the node belongs to a shadow tree created by engine, return the shadowRoot of the host element that owns the shadow tree
-     * 2. The host identification logic returns null in two cases:
-     * i. The node does not belong to a shadow tree created by engine
-     * ii. The engine is running in native shadow dom mode
-     * If so, use the original Node.prototype.getRootNode to fetch the root node(or manually climb up the dom tree where getRootNode() is unsupported)
-     *
-     * _Spec_: https://dom.spec.whatwg.org/#dom-node-getrootnode
-     * @param options
-     */
-    function getRootNodePatched(options) {
-        const composed = isUndefined(options) ? false : !!options.composed;
-        return isTrue(composed) ? getDocumentOrRootNode.call(this, options) : getNearestRoot(this);
-    }
 // Non-deep-traversing patches: this descriptor map includes all descriptors that
 // do not give access to nodes beyond the immediate children.
     defineProperties(_Node.prototype, {
-        firstChild: {
-            get() {
-                if (hasMountedChildren(this)) {
-                    return firstChildGetterPatched.call(this);
-                }
-                return firstChildGetter.call(this);
-            },
-            enumerable: true,
-            configurable: true,
-        },
-        lastChild: {
-            get() {
-                if (hasMountedChildren(this)) {
-                    return lastChildGetterPatched.call(this);
-                }
-                return lastChildGetter.call(this);
-            },
-            enumerable: true,
-            configurable: true,
-        },
-        textContent: {
-            get() {
-                // Note: we deviate from native shadow here, but are not fixing
-                // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-                if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
-                    return textContentGetterPatched.call(this);
-                }
-                return textContentGetter.call(this);
-            },
-            set: textContentSetterPatched,
-            enumerable: true,
-            configurable: true,
-        },
-        parentNode: {
-            get() {
-                if (isNodeShadowed(this)) {
-                    return parentNodeGetterPatched.call(this);
-                }
-                const parentNode = parentNodeGetter.call(this);
-                // Handle the case where a top level light DOM element is slotted into a synthetic
-                // shadow slot.
-                if (!isNull(parentNode) && isSyntheticSlotElement(parentNode)) {
-                    return getNodeOwner(parentNode);
-                }
-                return parentNode;
-            },
-            enumerable: true,
-            configurable: true,
-        },
-        parentElement: {
-            get() {
-                if (isNodeShadowed(this)) {
-                    return parentElementGetterPatched.call(this);
-                }
-                const parentElement = parentElementGetter.call(this);
-                // Handle the case where a top level light DOM element is slotted into a synthetic
-                // shadow slot.
-                if (!isNull(parentElement) && isSyntheticSlotElement(parentElement)) {
-                    return getNodeOwner(parentElement);
-                }
-                return parentElement;
-            },
-            enumerable: true,
-            configurable: true,
-        },
-        childNodes: {
-            get() {
-                if (hasMountedChildren(this)) {
-                    return childNodesGetterPatched.call(this);
-                }
-                return childNodesGetter.call(this);
-            },
-            enumerable: true,
-            configurable: true,
-        },
-        hasChildNodes: {
-            value() {
-                if (hasMountedChildren(this)) {
-                    return hasChildNodesPatched.call(this);
-                }
-                return hasChildNodes.call(this);
-            },
-            enumerable: true,
-            writable: true,
-            configurable: true,
-        },
-        compareDocumentPosition: {
-            value(otherNode) {
-                // Note: we deviate from native shadow here, but are not fixing
-                // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-                if (isGlobalPatchingSkipped(this)) {
-                    return compareDocumentPosition.call(this, otherNode);
-                }
-                return compareDocumentPositionPatched.call(this, otherNode);
-            },
-            enumerable: true,
-            writable: true,
-            configurable: true,
-        },
-        contains: {
-            value(otherNode) {
-                // 1. Node.prototype.contains() returns true if otherNode is an inclusive descendant
-                //    spec: https://dom.spec.whatwg.org/#dom-node-contains
-                // 2. This normalizes the behavior of this api across all browsers.
-                //    In IE11, a disconnected dom element without children invoking contains() on self, returns false
-                if (this === otherNode) {
-                    return true;
-                }
-                // Note: we deviate from native shadow here, but are not fixing
-                // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-                if (otherNode == null) {
-                    return false;
-                }
-                if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
-                    return containsPatched.call(this, otherNode);
-                }
-                return contains.call(this, otherNode);
-            },
-            enumerable: true,
-            writable: true,
-            configurable: true,
-        },
-        cloneNode: {
-            value(deep) {
-                // Note: we deviate from native shadow here, but are not fixing
-                // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-                if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
-                    return cloneNodePatched.call(this, deep);
-                }
-                return cloneNode.call(this, deep);
-            },
-            enumerable: true,
-            writable: true,
-            configurable: true,
-        },
-        getRootNode: {
-            value: getRootNodePatched,
-            enumerable: true,
-            configurable: true,
-            writable: true,
-        },
-        isConnected: {
-            enumerable: true,
-            configurable: true,
-            get() {
-                return isConnected.call(this);
-            },
-        },
     });
     const getInternalChildNodes = function (node) {
         return node.childNodes;
     };
-// IE11 extra patches for wrong prototypes
-    if (hasOwnProperty.call(HTMLElement.prototype, 'contains')) {
-        defineProperty(HTMLElement.prototype, 'contains', getOwnPropertyDescriptor(_Node.prototype, 'contains'));
-    }
-    if (hasOwnProperty.call(HTMLElement.prototype, 'parentElement')) {
-        defineProperty(HTMLElement.prototype, 'parentElement', getOwnPropertyDescriptor(_Node.prototype, 'parentElement'));
-    }
-
-    /*
-     * Copyright (c) 2018, salesforce.com, inc.
-     * All rights reserved.
-     * SPDX-License-Identifier: MIT
-     * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
-     */
-    const eventTargetGetter = getOwnPropertyDescriptor(Event.prototype, 'target').get;
-    const eventCurrentTargetGetter = getOwnPropertyDescriptor(Event.prototype, 'currentTarget').get;
-    getOwnPropertyDescriptor(FocusEvent.prototype, 'relatedTarget').get;
-// IE does not implement composedPath() but that's ok because we only use this instead of our
-// composedPath() polyfill when dealing with native shadow DOM components in mixed mode. Defaulting
-// to a NOOP just to be safe, even though this is almost guaranteed to be defined such a scenario.
-    hasOwnProperty.call(Event.prototype, 'composedPath')
-        ? Event.prototype.composedPath
-        : () => [];
-
-    /*
-     * Copyright (c) 2018, salesforce.com, inc.
-     * All rights reserved.
-     * SPDX-License-Identifier: MIT
-     * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
-     */
-    const ComposedPathMap = new WeakMap();
-    function shouldInvokeListener(event, target, currentTarget) {
-        // Subsequent logic assumes that `currentTarget` must be contained in the composed path for the listener to be
-        // invoked, but this is not always the case. `composedPath()` will sometimes return an empty array, even when the
-        // listener should be invoked (e.g., a disconnected instance of EventTarget, an instance of XMLHttpRequest, etc).
-        if (target === currentTarget) {
-            return true;
-        }
-        let composedPath = ComposedPathMap.get(event);
-        if (isUndefined(composedPath)) {
-            composedPath = event.composedPath();
-            ComposedPathMap.set(event, composedPath);
-        }
-        return composedPath.includes(currentTarget);
-    }
 
     /*
      * Copyright (c) 2018, salesforce.com, inc.
@@ -1399,17 +1019,6 @@
      * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
      */
     const eventToContextMap = new WeakMap();
-    function getEventHandler(listener) {
-        if (isFunction(listener)) {
-            return listener;
-        }
-        else {
-            return listener.handleEvent;
-        }
-    }
-    function isEventListenerOrEventListenerObject(listener) {
-        return isFunction(listener) || isFunction(listener?.handleEvent);
-    }
     const customElementToWrappedListeners = new WeakMap();
     function getEventMap(elm) {
         let listenerInfo = customElementToWrappedListeners.get(elm);
@@ -1418,43 +1027,6 @@
             customElementToWrappedListeners.set(elm, listenerInfo);
         }
         return listenerInfo;
-    }
-    /**
-     * Events dispatched on shadow roots actually end up being dispatched on their hosts. This means that the event.target
-     * property of events dispatched on shadow roots always resolve to their host. This function understands this
-     * abstraction and properly returns a reference to the shadow root when appropriate.
-     * @param event
-     */
-    function getActualTarget(event) {
-        return eventToShadowRootMap.get(event) ?? eventTargetGetter.call(event);
-    }
-    const shadowRootEventListenerMap = new WeakMap();
-    function getManagedShadowRootListener(listener) {
-        if (!isEventListenerOrEventListenerObject(listener)) {
-            throw new TypeError(); // avoiding problems with non-valid listeners
-        }
-        let managedListener = shadowRootEventListenerMap.get(listener);
-        if (isUndefined(managedListener)) {
-            managedListener = {
-                identity: listener,
-                placement: 1 /* EventListenerContext.SHADOW_ROOT_LISTENER */,
-                handleEvent(event) {
-                    // currentTarget is always defined inside an event listener
-                    let currentTarget = eventCurrentTargetGetter.call(event);
-                    // If currentTarget is not an instance of a native shadow root then we're dealing with a
-                    // host element whose synthetic shadow root must be accessed via getShadowRoot().
-                    if (!isInstanceOfNativeShadowRoot(currentTarget)) {
-                        currentTarget = getShadowRoot(currentTarget);
-                    }
-                    const actualTarget = getActualTarget(event);
-                    if (shouldInvokeListener(event, actualTarget, currentTarget)) {
-                        getEventHandler(listener).call(currentTarget, event);
-                    }
-                },
-            };
-            shadowRootEventListenerMap.set(listener, managedListener);
-        }
-        return managedListener;
     }
     function indexOfManagedListener(listeners, listener) {
         return ArrayFindIndex.call(listeners, (l) => l.identity === listener.identity);
@@ -1523,38 +1095,6 @@
             addEventListener.call(elm, type, domListener);
         }
         ArrayPush.call(listeners, managedListener);
-    }
-    function detachDOMListener(elm, type, managedListener) {
-        const listenerMap = getEventMap(elm);
-        let index;
-        let listeners;
-        if (!isUndefined((listeners = listenerMap[type])) &&
-            (index = indexOfManagedListener(listeners, managedListener)) !== -1) {
-            ArraySplice.call(listeners, index, 1);
-            // only remove from DOM if there is no other listener on the same placement
-            if (listeners.length === 0) {
-                removeEventListener.call(elm, type, domListener);
-            }
-        }
-    }
-    function addShadowRootEventListener(sr, type, listener, _options) {
-        if (process.env.NODE_ENV !== 'production') {
-            if (!isEventListenerOrEventListenerObject(listener)) {
-                throw new TypeError(`Invalid second argument for ShadowRoot.addEventListener() in ${toString(sr)} for event "${type}". Expected EventListener or EventListenerObject but received ${toString(listener)}.`);
-            }
-        }
-        if (isEventListenerOrEventListenerObject(listener)) {
-            const elm = getHost(sr);
-            const managedListener = getManagedShadowRootListener(listener);
-            attachDOMListener(elm, type, managedListener);
-        }
-    }
-    function removeShadowRootEventListener(sr, type, listener, _options) {
-        if (isEventListenerOrEventListenerObject(listener)) {
-            const elm = getHost(sr);
-            const managedListener = getManagedShadowRootListener(listener);
-            detachDOMListener(elm, type, managedListener);
-        }
     }
 
     /*
