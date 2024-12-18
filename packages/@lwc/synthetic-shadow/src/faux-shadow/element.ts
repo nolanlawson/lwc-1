@@ -58,19 +58,19 @@ import {
     getAllSlottedMatches,
     getFirstSlottedMatch,
 } from './traverse';
-
-function innerHTMLGetterPatched(this: Element): string {
-    const childNodes = getInternalChildNodes(this);
-    let innerHTML = '';
-    for (let i = 0, len = childNodes.length; i < len; i += 1) {
-        innerHTML += getOuterHTML(childNodes[i]);
-    }
-    return innerHTML;
-}
-
-function outerHTMLGetterPatched(this: Element) {
-    return getOuterHTML(this);
-}
+//
+// function innerHTMLGetterPatched(this: Element): string {
+//     const childNodes = getInternalChildNodes(this);
+//     let innerHTML = '';
+//     for (let i = 0, len = childNodes.length; i < len; i += 1) {
+//         innerHTML += getOuterHTML(childNodes[i]);
+//     }
+//     return innerHTML;
+// }
+//
+// function outerHTMLGetterPatched(this: Element) {
+//     return getOuterHTML(this);
+// }
 
 function attachShadowPatched(this: Element, options: ShadowRootInit): ShadowRoot {
     // To retain native behavior of the API, provide synthetic shadowRoot only when specified
@@ -79,250 +79,250 @@ function attachShadowPatched(this: Element, options: ShadowRootInit): ShadowRoot
     }
     return originalAttachShadow.call(this, options);
 }
-
-function shadowRootGetterPatched(this: Element): ShadowRoot | null {
-    if (isSyntheticShadowHost(this)) {
-        const shadow = getShadowRoot(this);
-        if (shadow.mode === 'open') {
-            return shadow;
-        }
-    }
-    return originalShadowRootGetter.call(this);
-}
-
-function childrenGetterPatched(this: Element): HTMLCollectionOf<Element> {
-    const owner = getNodeOwner(this);
-    const filteredChildNodes = getFilteredChildNodes(this);
-    // No need to filter by owner for non-shadowed nodes
-    const childNodes = isNull(owner)
-        ? filteredChildNodes
-        : getAllMatches(owner, filteredChildNodes);
-    return createStaticHTMLCollection(
-        ArrayFilter.call(childNodes, (node) => node instanceof Element) as Element[]
-    );
-}
-
-function childElementCountGetterPatched(this: ParentNode) {
-    return this.children.length;
-}
-
-function firstElementChildGetterPatched(this: ParentNode) {
-    return this.children[0] || null;
-}
-
-function lastElementChildGetterPatched(this: ParentNode) {
-    const { children } = this;
-    return children.item(children.length - 1) || null;
-}
+//
+// function shadowRootGetterPatched(this: Element): ShadowRoot | null {
+//     if (isSyntheticShadowHost(this)) {
+//         const shadow = getShadowRoot(this);
+//         if (shadow.mode === 'open') {
+//             return shadow;
+//         }
+//     }
+//     return originalShadowRootGetter.call(this);
+// }
+//
+// function childrenGetterPatched(this: Element): HTMLCollectionOf<Element> {
+//     const owner = getNodeOwner(this);
+//     const filteredChildNodes = getFilteredChildNodes(this);
+//     // No need to filter by owner for non-shadowed nodes
+//     const childNodes = isNull(owner)
+//         ? filteredChildNodes
+//         : getAllMatches(owner, filteredChildNodes);
+//     return createStaticHTMLCollection(
+//         ArrayFilter.call(childNodes, (node) => node instanceof Element) as Element[]
+//     );
+// }
+//
+// function childElementCountGetterPatched(this: ParentNode) {
+//     return this.children.length;
+// }
+//
+// function firstElementChildGetterPatched(this: ParentNode) {
+//     return this.children[0] || null;
+// }
+//
+// function lastElementChildGetterPatched(this: ParentNode) {
+//     const { children } = this;
+//     return children.item(children.length - 1) || null;
+// }
 
 // Non-deep-traversing patches: this descriptor map includes all descriptors that
 // do not five access to nodes beyond the immediate children.
 defineProperties(Element.prototype, {
-    innerHTML: {
-        get(this: Element): string {
-            // Note: we deviate from native shadow here, but are not fixing
-            // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-            if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
-                return innerHTMLGetterPatched.call(this);
-            }
-
-            return innerHTMLGetter.call(this);
-        },
-        set(v: string) {
-            innerHTMLSetter.call(this, v);
-        },
-        enumerable: true,
-        configurable: true,
-    },
-    outerHTML: {
-        get(this: Element): string {
-            // Note: we deviate from native shadow here, but are not fixing
-            // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-            if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
-                return outerHTMLGetterPatched.call(this);
-            }
-            return outerHTMLGetter.call(this);
-        },
-        set(v: string) {
-            outerHTMLSetter.call(this, v);
-        },
-        enumerable: true,
-        configurable: true,
-    },
+    // innerHTML: {
+    //     get(this: Element): string {
+    //         // Note: we deviate from native shadow here, but are not fixing
+    //         // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+    //         if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
+    //             return innerHTMLGetterPatched.call(this);
+    //         }
+    //
+    //         return innerHTMLGetter.call(this);
+    //     },
+    //     set(v: string) {
+    //         innerHTMLSetter.call(this, v);
+    //     },
+    //     enumerable: true,
+    //     configurable: true,
+    // },
+    // outerHTML: {
+    //     get(this: Element): string {
+    //         // Note: we deviate from native shadow here, but are not fixing
+    //         // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+    //         if (isNodeShadowed(this) || isSyntheticShadowHost(this)) {
+    //             return outerHTMLGetterPatched.call(this);
+    //         }
+    //         return outerHTMLGetter.call(this);
+    //     },
+    //     set(v: string) {
+    //         outerHTMLSetter.call(this, v);
+    //     },
+    //     enumerable: true,
+    //     configurable: true,
+    // },
     attachShadow: {
         value: attachShadowPatched,
         enumerable: true,
         writable: true,
         configurable: true,
     },
-    shadowRoot: {
-        get: shadowRootGetterPatched,
-        enumerable: true,
-        configurable: true,
-    },
-    // patched in HTMLElement if exists (IE11 is the one off here)
-    children: {
-        get(this: Element): HTMLCollectionOf<Element> {
-            if (hasMountedChildren(this)) {
-                return childrenGetterPatched.call(this);
-            }
-            return childrenGetter.call(this);
-        },
-        enumerable: true,
-        configurable: true,
-    },
-    childElementCount: {
-        get(this: Element): number {
-            if (hasMountedChildren(this)) {
-                return childElementCountGetterPatched.call(this);
-            }
-            return childElementCountGetter.call(this);
-        },
-        enumerable: true,
-        configurable: true,
-    },
-    firstElementChild: {
-        get(this: Element): Element | null {
-            if (hasMountedChildren(this)) {
-                return firstElementChildGetterPatched.call(this);
-            }
-            return firstElementChildGetter.call(this);
-        },
-        enumerable: true,
-        configurable: true,
-    },
-    lastElementChild: {
-        get(this: Element): Element | null {
-            if (hasMountedChildren(this)) {
-                return lastElementChildGetterPatched.call(this);
-            }
-            return lastElementChildGetter.call(this);
-        },
-        enumerable: true,
-        configurable: true,
-    },
-    assignedSlot: {
-        get: assignedSlotGetterPatched,
-        enumerable: true,
-        configurable: true,
-    },
+    // shadowRoot: {
+    //     get: shadowRootGetterPatched,
+    //     enumerable: true,
+    //     configurable: true,
+    // },
+    // // patched in HTMLElement if exists (IE11 is the one off here)
+    // children: {
+    //     get(this: Element): HTMLCollectionOf<Element> {
+    //         if (hasMountedChildren(this)) {
+    //             return childrenGetterPatched.call(this);
+    //         }
+    //         return childrenGetter.call(this);
+    //     },
+    //     enumerable: true,
+    //     configurable: true,
+    // },
+    // childElementCount: {
+    //     get(this: Element): number {
+    //         if (hasMountedChildren(this)) {
+    //             return childElementCountGetterPatched.call(this);
+    //         }
+    //         return childElementCountGetter.call(this);
+    //     },
+    //     enumerable: true,
+    //     configurable: true,
+    // },
+    // firstElementChild: {
+    //     get(this: Element): Element | null {
+    //         if (hasMountedChildren(this)) {
+    //             return firstElementChildGetterPatched.call(this);
+    //         }
+    //         return firstElementChildGetter.call(this);
+    //     },
+    //     enumerable: true,
+    //     configurable: true,
+    // },
+    // lastElementChild: {
+    //     get(this: Element): Element | null {
+    //         if (hasMountedChildren(this)) {
+    //             return lastElementChildGetterPatched.call(this);
+    //         }
+    //         return lastElementChildGetter.call(this);
+    //     },
+    //     enumerable: true,
+    //     configurable: true,
+    // },
+    // assignedSlot: {
+    //     get: assignedSlotGetterPatched,
+    //     enumerable: true,
+    //     configurable: true,
+    // },
 });
 
 // IE11 extra patches for wrong prototypes
-if (hasOwnProperty.call(HTMLElement.prototype, 'innerHTML')) {
-    defineProperty(
-        HTMLElement.prototype,
-        'innerHTML',
-        getOwnPropertyDescriptor(Element.prototype, 'innerHTML')!
-    );
-}
-if (hasOwnProperty.call(HTMLElement.prototype, 'outerHTML')) {
-    defineProperty(
-        HTMLElement.prototype,
-        'outerHTML',
-        getOwnPropertyDescriptor(Element.prototype, 'outerHTML')!
-    );
-}
-if (hasOwnProperty.call(HTMLElement.prototype, 'children')) {
-    defineProperty(
-        HTMLElement.prototype,
-        'children',
-        getOwnPropertyDescriptor(Element.prototype, 'children')!
-    );
-}
+// if (hasOwnProperty.call(HTMLElement.prototype, 'innerHTML')) {
+//     defineProperty(
+//         HTMLElement.prototype,
+//         'innerHTML',
+//         getOwnPropertyDescriptor(Element.prototype, 'innerHTML')!
+//     );
+// }
+// if (hasOwnProperty.call(HTMLElement.prototype, 'outerHTML')) {
+//     defineProperty(
+//         HTMLElement.prototype,
+//         'outerHTML',
+//         getOwnPropertyDescriptor(Element.prototype, 'outerHTML')!
+//     );
+// }
+// if (hasOwnProperty.call(HTMLElement.prototype, 'children')) {
+//     defineProperty(
+//         HTMLElement.prototype,
+//         'children',
+//         getOwnPropertyDescriptor(Element.prototype, 'children')!
+//     );
+// }
 
 // Deep-traversing patches from this point on:
 
-function querySelectorPatched(this: Element /*, selector: string*/): Element | null {
-    const nodeList = arrayFromCollection(
-        elementQuerySelectorAll.apply(
-            this,
-            ArraySlice.call(arguments as unknown as unknown[]) as [string]
-        )
-    );
-    if (isSyntheticShadowHost(this)) {
-        // element with shadowRoot attached
-        const owner = getNodeOwner(this);
-        if (!isUndefined(getNodeKey(this))) {
-            // it is a custom element, and we should then filter by slotted elements
-            return getFirstSlottedMatch(this, nodeList);
-        } else if (isNull(owner)) {
-            return null;
-        } else {
-            // regular element, we should then filter by ownership
-            return getFirstMatch(owner, nodeList);
-        }
-    } else if (isNodeShadowed(this)) {
-        // element inside a shadowRoot
-        const ownerKey = getNodeOwnerKey(this);
-        if (!isUndefined(ownerKey)) {
-            // `this` is handled by lwc, using getNodeNearestOwnerKey to include manually inserted elements in the same shadow.
-            const elm = ArrayFind.call(nodeList, (elm) => getNodeNearestOwnerKey(elm) === ownerKey);
-            return isUndefined(elm) ? null : elm;
-        } else {
-            // Note: we deviate from native shadow here, but are not fixing
-            // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-            // `this` is a manually inserted element inside a shadowRoot, return the first element.
-            return nodeList.length === 0 ? null : nodeList[0];
-        }
-    } else {
-        if (!(this instanceof HTMLBodyElement)) {
-            const elm = nodeList[0];
-            return isUndefined(elm) ? null : elm;
-        }
+// function querySelectorPatched(this: Element /*, selector: string*/): Element | null {
+//     const nodeList = arrayFromCollection(
+//         elementQuerySelectorAll.apply(
+//             this,
+//             ArraySlice.call(arguments as unknown as unknown[]) as [string]
+//         )
+//     );
+//     if (isSyntheticShadowHost(this)) {
+//         // element with shadowRoot attached
+//         const owner = getNodeOwner(this);
+//         if (!isUndefined(getNodeKey(this))) {
+//             // it is a custom element, and we should then filter by slotted elements
+//             return getFirstSlottedMatch(this, nodeList);
+//         } else if (isNull(owner)) {
+//             return null;
+//         } else {
+//             // regular element, we should then filter by ownership
+//             return getFirstMatch(owner, nodeList);
+//         }
+//     } else if (isNodeShadowed(this)) {
+//         // element inside a shadowRoot
+//         const ownerKey = getNodeOwnerKey(this);
+//         if (!isUndefined(ownerKey)) {
+//             // `this` is handled by lwc, using getNodeNearestOwnerKey to include manually inserted elements in the same shadow.
+//             const elm = ArrayFind.call(nodeList, (elm) => getNodeNearestOwnerKey(elm) === ownerKey);
+//             return isUndefined(elm) ? null : elm;
+//         } else {
+//             // Note: we deviate from native shadow here, but are not fixing
+//             // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+//             // `this` is a manually inserted element inside a shadowRoot, return the first element.
+//             return nodeList.length === 0 ? null : nodeList[0];
+//         }
+//     } else {
+//         if (!(this instanceof HTMLBodyElement)) {
+//             const elm = nodeList[0];
+//             return isUndefined(elm) ? null : elm;
+//         }
+//
+//         // element belonging to the document
+//         const elm = ArrayFind.call(
+//             nodeList,
+//             (elm) => isUndefined(getNodeOwnerKey(elm)) || isGlobalPatchingSkipped(this)
+//         );
+//         return isUndefined(elm) ? null : elm;
+//     }
+// }
 
-        // element belonging to the document
-        const elm = ArrayFind.call(
-            nodeList,
-            (elm) => isUndefined(getNodeOwnerKey(elm)) || isGlobalPatchingSkipped(this)
-        );
-        return isUndefined(elm) ? null : elm;
-    }
-}
-
-function getFilteredArrayOfNodes<T extends Node>(context: Element, unfilteredNodes: T[]): T[] {
-    let filtered: T[];
-    if (isSyntheticShadowHost(context)) {
-        // element with shadowRoot attached
-        const owner = getNodeOwner(context);
-        if (!isUndefined(getNodeKey(context))) {
-            // it is a custom element, and we should then filter by slotted elements
-            filtered = getAllSlottedMatches(context, unfilteredNodes);
-        } else if (isNull(owner)) {
-            filtered = [];
-        } else {
-            // regular element, we should then filter by ownership
-            filtered = getAllMatches(owner, unfilteredNodes);
-        }
-    } else if (isNodeShadowed(context)) {
-        // element inside a shadowRoot
-        const ownerKey = getNodeOwnerKey(context);
-        if (!isUndefined(ownerKey)) {
-            // context is handled by lwc, using getNodeNearestOwnerKey to include manually inserted elements in the same shadow.
-            filtered = ArrayFilter.call(
-                unfilteredNodes,
-                (elm) => getNodeNearestOwnerKey(elm) === ownerKey
-            );
-        } else {
-            // Note: we deviate from native shadow here, but are not fixing
-            // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-            // context is manually inserted without lwc:dom-manual, return everything
-            filtered = ArraySlice.call(unfilteredNodes);
-        }
-    } else {
-        if (context instanceof HTMLBodyElement) {
-            // `context` is document.body or element belonging to the document with the patch enabled
-            filtered = ArrayFilter.call(
-                unfilteredNodes,
-                (elm) => isUndefined(getNodeOwnerKey(elm)) || isGlobalPatchingSkipped(context)
-            );
-        } else {
-            // `context` is outside the lwc boundary and patch is not enabled.
-            filtered = ArraySlice.call(unfilteredNodes);
-        }
-    }
-    return filtered;
-}
+// function getFilteredArrayOfNodes<T extends Node>(context: Element, unfilteredNodes: T[]): T[] {
+//     let filtered: T[];
+//     if (isSyntheticShadowHost(context)) {
+//         // element with shadowRoot attached
+//         const owner = getNodeOwner(context);
+//         if (!isUndefined(getNodeKey(context))) {
+//             // it is a custom element, and we should then filter by slotted elements
+//             filtered = getAllSlottedMatches(context, unfilteredNodes);
+//         } else if (isNull(owner)) {
+//             filtered = [];
+//         } else {
+//             // regular element, we should then filter by ownership
+//             filtered = getAllMatches(owner, unfilteredNodes);
+//         }
+//     } else if (isNodeShadowed(context)) {
+//         // element inside a shadowRoot
+//         const ownerKey = getNodeOwnerKey(context);
+//         if (!isUndefined(ownerKey)) {
+//             // context is handled by lwc, using getNodeNearestOwnerKey to include manually inserted elements in the same shadow.
+//             filtered = ArrayFilter.call(
+//                 unfilteredNodes,
+//                 (elm) => getNodeNearestOwnerKey(elm) === ownerKey
+//             );
+//         } else {
+//             // Note: we deviate from native shadow here, but are not fixing
+//             // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+//             // context is manually inserted without lwc:dom-manual, return everything
+//             filtered = ArraySlice.call(unfilteredNodes);
+//         }
+//     } else {
+//         if (context instanceof HTMLBodyElement) {
+//             // `context` is document.body or element belonging to the document with the patch enabled
+//             filtered = ArrayFilter.call(
+//                 unfilteredNodes,
+//                 (elm) => isUndefined(getNodeOwnerKey(elm)) || isGlobalPatchingSkipped(context)
+//             );
+//         } else {
+//             // `context` is outside the lwc boundary and patch is not enabled.
+//             filtered = ArraySlice.call(unfilteredNodes);
+//         }
+//     }
+//     return filtered;
+// }
 
 // The following patched methods hide shadowed elements from global
 // traversing mechanisms. They are simplified for performance reasons to
@@ -333,104 +333,104 @@ function getFilteredArrayOfNodes<T extends Node>(context: Element, unfilteredNod
 // static HTMLCollection or static NodeList. We decided that this compromise
 // is not a big problem considering the amount of code that is relying on
 // the liveliness of these results are rare.
-defineProperties(Element.prototype, {
-    querySelector: {
-        value: querySelectorPatched,
-        writable: true,
-        enumerable: true,
-        configurable: true,
-    },
-    querySelectorAll: {
-        value(this: HTMLBodyElement): NodeListOf<Element> {
-            const nodeList = arrayFromCollection(
-                elementQuerySelectorAll.apply(
-                    this,
-                    ArraySlice.call(arguments as unknown as unknown[]) as [string]
-                )
-            );
-
-            // Note: we deviate from native shadow here, but are not fixing
-            // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-            const filteredResults = getFilteredArrayOfNodes(this, nodeList);
-            return createStaticNodeList(filteredResults);
-        },
-        writable: true,
-        enumerable: true,
-        configurable: true,
-    },
-});
+// defineProperties(Element.prototype, {
+//     querySelector: {
+//         value: querySelectorPatched,
+//         writable: true,
+//         enumerable: true,
+//         configurable: true,
+//     },
+//     querySelectorAll: {
+//         value(this: HTMLBodyElement): NodeListOf<Element> {
+//             const nodeList = arrayFromCollection(
+//                 elementQuerySelectorAll.apply(
+//                     this,
+//                     ArraySlice.call(arguments as unknown as unknown[]) as [string]
+//                 )
+//             );
+//
+//             // Note: we deviate from native shadow here, but are not fixing
+//             // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+//             const filteredResults = getFilteredArrayOfNodes(this, nodeList);
+//             return createStaticNodeList(filteredResults);
+//         },
+//         writable: true,
+//         enumerable: true,
+//         configurable: true,
+//     },
+// });
 
 // The following APIs are used directly by Jest internally so we avoid patching them during testing.
-if (process.env.NODE_ENV !== 'test') {
-    defineProperties(Element.prototype, {
-        getElementsByClassName: {
-            value(this: HTMLBodyElement): HTMLCollectionOf<Element> {
-                const elements = arrayFromCollection(
-                    elementGetElementsByClassName.apply(
-                        this,
-                        ArraySlice.call(arguments as unknown as unknown[]) as [string]
-                    )
-                );
+// if (process.env.NODE_ENV !== 'test') {
+//     defineProperties(Element.prototype, {
+//         getElementsByClassName: {
+//             value(this: HTMLBodyElement): HTMLCollectionOf<Element> {
+//                 const elements = arrayFromCollection(
+//                     elementGetElementsByClassName.apply(
+//                         this,
+//                         ArraySlice.call(arguments as unknown as unknown[]) as [string]
+//                     )
+//                 );
+//
+//                 // Note: we deviate from native shadow here, but are not fixing
+//                 // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+//                 return createStaticHTMLCollection(
+//                     getNonPatchedFilteredArrayOfNodes(this, elements)
+//                 );
+//             },
+//             writable: true,
+//             enumerable: true,
+//             configurable: true,
+//         },
+//         getElementsByTagName: {
+//             value(this: HTMLBodyElement): HTMLCollectionOf<Element> {
+//                 const elements = arrayFromCollection(
+//                     elementGetElementsByTagName.apply(
+//                         this,
+//                         ArraySlice.call(arguments as unknown as unknown[]) as [tagName: string]
+//                     )
+//                 );
+//
+//                 // Note: we deviate from native shadow here, but are not fixing
+//                 // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+//                 return createStaticHTMLCollection(
+//                     getNonPatchedFilteredArrayOfNodes(this, elements)
+//                 );
+//             },
+//             writable: true,
+//             enumerable: true,
+//             configurable: true,
+//         },
+//         getElementsByTagNameNS: {
+//             value(this: HTMLBodyElement): HTMLCollectionOf<Element> {
+//                 const elements = arrayFromCollection(
+//                     elementGetElementsByTagNameNS.apply(
+//                         this,
+//                         ArraySlice.call(arguments as unknown as unknown[]) as [
+//                             namespace: string,
+//                             localName: string,
+//                         ]
+//                     )
+//                 );
+//
+//                 // Note: we deviate from native shadow here, but are not fixing
+//                 // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
+//                 return createStaticHTMLCollection(
+//                     getNonPatchedFilteredArrayOfNodes(this, elements)
+//                 );
+//             },
+//             writable: true,
+//             enumerable: true,
+//             configurable: true,
+//         },
+//     });
+// }
 
-                // Note: we deviate from native shadow here, but are not fixing
-                // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-                return createStaticHTMLCollection(
-                    getNonPatchedFilteredArrayOfNodes(this, elements)
-                );
-            },
-            writable: true,
-            enumerable: true,
-            configurable: true,
-        },
-        getElementsByTagName: {
-            value(this: HTMLBodyElement): HTMLCollectionOf<Element> {
-                const elements = arrayFromCollection(
-                    elementGetElementsByTagName.apply(
-                        this,
-                        ArraySlice.call(arguments as unknown as unknown[]) as [tagName: string]
-                    )
-                );
-
-                // Note: we deviate from native shadow here, but are not fixing
-                // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-                return createStaticHTMLCollection(
-                    getNonPatchedFilteredArrayOfNodes(this, elements)
-                );
-            },
-            writable: true,
-            enumerable: true,
-            configurable: true,
-        },
-        getElementsByTagNameNS: {
-            value(this: HTMLBodyElement): HTMLCollectionOf<Element> {
-                const elements = arrayFromCollection(
-                    elementGetElementsByTagNameNS.apply(
-                        this,
-                        ArraySlice.call(arguments as unknown as unknown[]) as [
-                            namespace: string,
-                            localName: string,
-                        ]
-                    )
-                );
-
-                // Note: we deviate from native shadow here, but are not fixing
-                // due to backwards compat: https://github.com/salesforce/lwc/pull/3103
-                return createStaticHTMLCollection(
-                    getNonPatchedFilteredArrayOfNodes(this, elements)
-                );
-            },
-            writable: true,
-            enumerable: true,
-            configurable: true,
-        },
-    });
-}
-
-// IE11 extra patches for wrong prototypes
-if (hasOwnProperty.call(HTMLElement.prototype, 'getElementsByClassName')) {
-    defineProperty(
-        HTMLElement.prototype,
-        'getElementsByClassName',
-        getOwnPropertyDescriptor(Element.prototype, 'getElementsByClassName') as PropertyDescriptor
-    );
-}
+// // IE11 extra patches for wrong prototypes
+// if (hasOwnProperty.call(HTMLElement.prototype, 'getElementsByClassName')) {
+//     defineProperty(
+//         HTMLElement.prototype,
+//         'getElementsByClassName',
+//         getOwnPropertyDescriptor(Element.prototype, 'getElementsByClassName') as PropertyDescriptor
+//     );
+// }
