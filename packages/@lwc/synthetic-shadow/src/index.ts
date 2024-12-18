@@ -9,8 +9,6 @@ const {
     create,
     /** Detached {@linkcode Object.defineProperties}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties MDN Reference}. */
     defineProperties,
-    /** Detached {@linkcode Object.defineProperty}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty MDN Reference}. */
-    defineProperty,
     /** Detached {@linkcode Object.setPrototypeOf}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf MDN Reference}. */
     setPrototypeOf,
 } = Object;
@@ -30,8 +28,6 @@ function isUndefined(obj) {
  * SPDX-License-Identifier: MIT
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
  */
-const KEY__SHADOW_RESOLVER = '$shadowResolver$';
-const KEY__SHADOW_RESOLVER_PRIVATE = '$$ShadowResolverKey$$';
 // defaultView can be null when a document has no browsing context. For example, the owner document
 // of a node in a template doesn't have a default view: https://jsfiddle.net/hv9z0q5a/
 // TODO [#2472]: Remove this workaround when appropriate.
@@ -53,19 +49,7 @@ function getOwnerDocument(node) {
     return doc === null ? node : doc;
 }
 
-/*
- * Copyright (c) 2018, salesforce.com, inc.
- * All rights reserved.
- * SPDX-License-Identifier: MIT
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
- */
-// Used as a back reference to identify the host element
-const HostElementKey = '$$HostElementKey$$';
 const ShadowedNodeKey = '$$ShadowedNodeKey$$';
-
-function setNodeOwnerKey(node, value) {
-    Object.defineProperty(node, HostElementKey, { value, configurable: true });
-}
 
 function setNodeKey(node, value) {
     Object.defineProperty(node, ShadowedNodeKey, { value });
@@ -97,25 +81,6 @@ function getInternalSlot(root) {
     return record;
 }
 
-defineProperty(_Node.prototype, KEY__SHADOW_RESOLVER, {
-    set(fn) {
-        if (isUndefined(fn))
-            return;
-        this[KEY__SHADOW_RESOLVER_PRIVATE] = fn;
-        // TODO [#1164]: temporary propagation of the key
-        setNodeOwnerKey(this, fn.nodeKey);
-    },
-    get() {
-        return this[KEY__SHADOW_RESOLVER_PRIVATE];
-    },
-    configurable: true,
-    enumerable: true,
-});
-
-function setShadowRootResolver(node, fn) {
-    node[KEY__SHADOW_RESOLVER] = fn;
-}
-
 function getHost(root) {
     return getInternalSlot(root).host;
 }
@@ -123,9 +88,7 @@ function getHost(root) {
 let uid = 0;
 
 function attachShadow(elm, options) {
-    // creating a real fragment for shadowRoot instance
-    const doc = getOwnerDocument(elm);
-    const sr = createDocumentFragment.call(doc);
+    const sr = createDocumentFragment.call(document);
     // creating shadow internal record
     const record = {
         host: elm,
@@ -136,7 +99,6 @@ function attachShadow(elm, options) {
     const shadowResolver = () => sr;
     const x = (shadowResolver.nodeKey = uid++);
     setNodeKey(elm, x);
-    setShadowRootResolver(sr, shadowResolver);
     // correcting the proto chain
     setPrototypeOf(sr, SyntheticShadowRoot.prototype);
     return sr;
