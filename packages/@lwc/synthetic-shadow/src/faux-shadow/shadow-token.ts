@@ -30,7 +30,7 @@ export function setShadowToken(node: Node, shadowToken: string | undefined) {
  * placed into the element to sandbox the css rules defined for the template.
  * - this custom attribute must be unique.
  */
-defineProperty(HTMLElement.prototype, KEY__SHADOW_TOKEN, {
+defineProperty(Element.prototype, KEY__SHADOW_TOKEN, {
     // set: function whyIsThisSetterCapturingSomething(/*this: Element, shadowToken: string | undefined*/) {
     //     // const oldShadowToken = (this as any)[KEY__SHADOW_TOKEN_PRIVATE];
     //     // if (!isUndefined(oldShadowToken) && oldShadowToken !== shadowToken) {
