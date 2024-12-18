@@ -40,14 +40,6 @@ const {
     removeChild,
     replaceChild,
 } = nodePrototype;
-const ownerDocumentGetter = Object.getOwnPropertyDescriptor(nodePrototype, 'ownerDocument').get;
-
-// Helpful for tests running with jsdom
-function getOwnerDocument(node) {
-    const doc = ownerDocumentGetter.call(node);
-    // if doc is null, it means `this` is actually a document instance
-    return doc === null ? node : doc;
-}
 
 const ShadowedNodeKey = '$$ShadowedNodeKey$$';
 
