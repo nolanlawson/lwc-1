@@ -13,8 +13,6 @@ const {
     defineProperty,
     /** Detached {@linkcode Object.getOwnPropertyDescriptor}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor MDN Reference}. */
     getOwnPropertyDescriptor,
-    /** Detached {@linkcode Object.getPrototypeOf}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf MDN Reference}. */
-    getPrototypeOf,
     /** Detached {@linkcode Object.setPrototypeOf}; see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf MDN Reference}. */
     setPrototypeOf,
 } = Object;
@@ -28,24 +26,6 @@ function isUndefined(obj) {
     return obj === undefined;
 }
 
-/**
- * Determines whether the argument is `null`.
- * @param obj Value to test
- * @returns `true` if the value is `null`.
- */
-function isNull(obj) {
-    return obj === null;
-}
-
-/**
- * Determines whether the argument is an object or null.
- * @param obj Value to test
- * @returns `true` if the value is an object or null.
- */
-function isObject(obj) {
-    return typeof obj === 'object';
-}
-
 /*
  * Copyright (c) 2023, Salesforce.com, inc.
  * All rights reserved.
@@ -54,24 +34,8 @@ function isObject(obj) {
  */
 const KEY__SHADOW_RESOLVER = '$shadowResolver$';
 const KEY__SHADOW_RESOLVER_PRIVATE = '$$ShadowResolverKey$$';
-const KEY__SYNTHETIC_MODE = '$$lwc-synthetic-mode';
 // defaultView can be null when a document has no browsing context. For example, the owner document
 // of a node in a template doesn't have a default view: https://jsfiddle.net/hv9z0q5a/
-/*
- * Copyright (c) 2023, Salesforce.com, inc.
- * All rights reserved.
- * SPDX-License-Identifier: MIT
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
- */
-// Capture the global `ShadowRoot` since synthetic shadow will override it later
-const NativeShadowRoot = ShadowRoot;
-const isInstanceOfNativeShadowRoot = (node) => node instanceof NativeShadowRoot;
-/*
- * Copyright (c) 2018, salesforce.com, inc.
- * All rights reserved.
- * SPDX-License-Identifier: MIT
- * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/MIT
- */
 // TODO [#2472]: Remove this workaround when appropriate.
 // eslint-disable-next-line @lwc/lwc-internal/no-global-node
 const _Node = Node;
@@ -253,24 +217,9 @@ function SyntheticShadowRoot() {
 }
 
 SyntheticShadowRoot.prototype = create(DocumentFragment.prototype, SyntheticShadowRootDescriptors);
-// `this.shadowRoot instanceof ShadowRoot` should evaluate to true even for synthetic shadow
-defineProperty(SyntheticShadowRoot, Symbol.hasInstance, {
-    value: function(object) {
-        // Technically we should walk up the entire prototype chain, but with SyntheticShadowRoot
-        // it's reasonable to assume that no one is doing any deep subclasses here.
-        return (isObject(object) &&
-            !isNull(object) &&
-            (isInstanceOfNativeShadowRoot(object) ||
-                getPrototypeOf(object) === SyntheticShadowRoot.prototype));
-    },
-});
 
 function attachShadowPatched(options) {
-    // To retain native behavior of the API, provide synthetic shadowRoot only when specified
-    if (options[KEY__SYNTHETIC_MODE]) {
         return attachShadow(this, options);
-    }
-    return attachShadow$1.call(this, options);
 }
 
 //
