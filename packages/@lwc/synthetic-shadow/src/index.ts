@@ -41,18 +41,6 @@ const {
     replaceChild,
 } = nodePrototype;
 
-const ShadowedNodeKey = '$$ShadowedNodeKey$$';
-
-function setNodeKey(node, value) {
-    Object.defineProperty(node, ShadowedNodeKey, { value });
-}
-
-function StaticHTMLCollection() {
-    throw new TypeError('Illegal constructor');
-}
-
-// prototype inheritance dance
-setPrototypeOf(StaticHTMLCollection, HTMLCollection);
 // Non-deep-traversing patches: this descriptor map includes all descriptors that
 // do not give access to nodes beyond the immediate children.
 defineProperties(_Node.prototype, {});
@@ -77,8 +65,6 @@ function getHost(root) {
     return getInternalSlot(root).host;
 }
 
-let uid = 0;
-
 function attachShadow(elm, options) {
     const sr = createDocumentFragment.call(document);
     // creating shadow internal record
@@ -88,9 +74,6 @@ function attachShadow(elm, options) {
     };
     InternalSlot.set(sr, record);
     InternalSlot.set(elm, record);
-    const shadowResolver = () => sr;
-    const x = (shadowResolver.nodeKey = uid++);
-    setNodeKey(elm, x);
     // correcting the proto chain
     setPrototypeOf(sr, SyntheticShadowRoot.prototype);
     return sr;
@@ -138,7 +121,6 @@ const NodePatchDescriptors = {
 Object.assign(SyntheticShadowRootDescriptors, NodePatchDescriptors);
 
 function SyntheticShadowRoot() {
-    throw new TypeError('Illegal constructor');
 }
 
 SyntheticShadowRoot.prototype = create(DocumentFragment.prototype, SyntheticShadowRootDescriptors);
