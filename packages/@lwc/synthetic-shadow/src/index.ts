@@ -30,7 +30,7 @@ function attachShadow(elm, options) {
         shadowRoot: sr,
     };
     InternalSlot.set(sr, record);
-    Object.setPrototypeOf(sr, SyntheticShadowRoot.prototype);
+    Object.setPrototypeOf(sr, Object.create(DocumentFragment.prototype, NodePatchDescriptors));
     return sr;
 }
 
@@ -53,29 +53,25 @@ const NodePatchDescriptors = {
             return oldChild;
         },
     },
-    // appendChild: {
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    //     value(newChild) {
-    //         appendChild.call(getHost(this), newChild);
-    //         return newChild;
-    //     },
-    // },
-    // replaceChild: {
-    //     writable: true,
-    //     enumerable: true,
-    //     configurable: true,
-    //     value(newChild, oldChild) {
-    //         replaceChild.call(getHost(this), newChild, oldChild);
-    //         return oldChild;
-    //     },
-    // },
+    appendChild: {
+        writable: true,
+        enumerable: true,
+        configurable: true,
+        value(newChild) {
+            appendChild.call(getHost(this), newChild);
+            return newChild;
+        },
+    },
+    replaceChild: {
+        writable: true,
+        enumerable: true,
+        configurable: true,
+        value(newChild, oldChild) {
+            replaceChild.call(getHost(this), newChild, oldChild);
+            return oldChild;
+        },
+    },
 };
-
-function SyntheticShadowRoot() {}
-
-SyntheticShadowRoot.prototype = Object.create(DocumentFragment.prototype, NodePatchDescriptors);
 
 function attachShadowPatched(options) {
     return attachShadow(this, options);
